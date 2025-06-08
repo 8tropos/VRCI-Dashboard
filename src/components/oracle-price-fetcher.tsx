@@ -21,7 +21,7 @@ export function OraclePriceFetcher() {
     const [error, setError] = useState<string | null>(null);
 
     // Use dummy token address for testing (as configured in oracle contract)
-    const dummyTokenAddress = '0x0101010101010101010101010101010101010101010101010101010101010101';
+    const dummyTokenAddress = '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY';
 
     const handleGetPrice = async () => {
         if (!oracleContract) {
