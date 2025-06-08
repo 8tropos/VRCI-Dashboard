@@ -1,3 +1,5 @@
+// src/components/providers/main-provider.tsx
+
 'use client';
 
 import { ReactNode } from 'react';
