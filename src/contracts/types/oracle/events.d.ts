@@ -11,7 +11,7 @@ export interface ContractEvents<ChainApi extends GenericSubstrateApi>
   extends GenericContractEvents<ChainApi> {
   /**
    *
-   * @signature_topic: 0xeed6bc34d4008b4c2ac6b8c0313a7cfd87293ee64de35fdcae1b5f900cbe1bf3
+   * @signature_topic: 0xa9bff56b75574f9aaf114901a93ae2bacc7b37756c31ff868c74d562a98aa399
    **/
   PriceUpdated: GenericContractEvent<
     "PriceUpdated",
@@ -26,6 +26,21 @@ export interface ContractEvents<ChainApi extends GenericSubstrateApi>
        * @indexed: false
        **/
       price: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      marketCap: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      volume: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      timestamp: bigint;
     }
   >;
 
@@ -51,6 +66,111 @@ export interface ContractEvents<ChainApi extends GenericSubstrateApi>
        * @indexed: false
        **/
       volume: bigint;
+    }
+  >;
+
+  /**
+   *
+   * @signature_topic: 0x635bc6baca18fea8fc18edff96ba889879bd0281f637d77c2a688ec3bb1b114c
+   **/
+  ValidationFailed: GenericContractEvent<
+    "ValidationFailed",
+    {
+      /**
+       *
+       * @indexed: true
+       **/
+      token: AccountId32;
+      /**
+       *
+       * @indexed: false
+       **/
+      reason: string;
+      /**
+       *
+       * @indexed: false
+       **/
+      attemptedPrice: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      currentPrice: bigint;
+    }
+  >;
+
+  /**
+   *
+   * @signature_topic: 0x9544758bc44316b1e7c665888b9196a93c5167756108ef88956dcde4b320e08c
+   **/
+  UpdaterAdded: GenericContractEvent<
+    "UpdaterAdded",
+    {
+      /**
+       *
+       * @indexed: true
+       **/
+      updater: AccountId32;
+    }
+  >;
+
+  /**
+   *
+   * @signature_topic: 0x1ae11bde25f4f18201430078b6d7109d3688f0642feb958eb70d3762caf3a5bd
+   **/
+  UpdaterRemoved: GenericContractEvent<
+    "UpdaterRemoved",
+    {
+      /**
+       *
+       * @indexed: true
+       **/
+      updater: AccountId32;
+    }
+  >;
+
+  /**
+   *
+   * @signature_topic: 0x5625076ec3c50ae44ca6329efbb8f6ec813f29027b4672688ef3b7f6a489ae53
+   **/
+  EmergencyPause: GenericContractEvent<
+    "EmergencyPause",
+    {
+      /**
+       *
+       * @indexed: false
+       **/
+      paused: boolean;
+      /**
+       *
+       * @indexed: false
+       **/
+      timestamp: bigint;
+    }
+  >;
+
+  /**
+   *
+   * @signature_topic: 0x09b45d5268bd2d9b724b41d94bc654d149c84f4b58301d0460e214eab3789e8a
+   **/
+  ConfigUpdated: GenericContractEvent<
+    "ConfigUpdated",
+    {
+      /**
+       *
+       * @indexed: false
+       **/
+      maxDeviationBp: number;
+      /**
+       *
+       * @indexed: false
+       **/
+      stalenessThreshold: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      minUpdateInterval: bigint;
     }
   >;
 }

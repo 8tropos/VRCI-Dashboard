@@ -1,4 +1,4 @@
-// src/components/oracle-price-updater.tsx
+// src/components/oracle/oracle-price-updater.tsx
 
 'use client';
 
@@ -6,9 +6,9 @@ import { useState } from 'react';
 import { useContract, useContractTx } from 'typink';
 import { ContractId } from '@/contracts/deployments';
 import type { OracleContractApi } from '@/contracts/types/oracle';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Upload, DollarSign, TrendingUp, AlertCircle, CheckCircle, Loader } from 'lucide-react';
 import { txToaster } from '@/utils/txToaster';
 

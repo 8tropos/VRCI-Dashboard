@@ -7,6 +7,7 @@ import type {
   ConstructorTxOptions,
   GenericInstantiateSubmittableExtrinsic,
 } from "dedot/contracts";
+import type { OracleValidationConfig } from "./types.js";
 
 export interface ConstructorTx<ChainApi extends GenericSubstrateApi>
   extends GenericConstructorTx<ChainApi> {
@@ -25,15 +26,17 @@ export interface ConstructorTx<ChainApi extends GenericSubstrateApi>
   >;
 
   /**
-   * Constructor with sample data
+   * Constructor with sample data and custom config
    *
+   * @param {OracleValidationConfig} config
    * @param {ConstructorTxOptions} options
    *
-   * @selector 0x4c0246a8
+   * @selector 0x7335a10e
    **/
-  newWithData: GenericConstructorTxCall<
+  newWithConfig: GenericConstructorTxCall<
     ChainApi,
     (
+      config: OracleValidationConfig,
       options: ConstructorTxOptions,
     ) => GenericInstantiateSubmittableExtrinsic<ChainApi>
   >;

@@ -9,12 +9,65 @@ import type {
   GenericContractCallResult,
   ContractCallResult,
 } from "dedot/contracts";
-import type { InkPrimitivesLangError, SharedError } from "./types.js";
+import type {
+  SharedError,
+  InkPrimitivesLangError,
+  OracleTokenPriceData,
+  OracleValidationConfig,
+} from "./types.js";
 
 export interface ContractQuery<ChainApi extends GenericSubstrateApi>
   extends GenericContractQuery<ChainApi> {
   /**
-   * Get token price
+   * Update complete token data with validation
+   *
+   * @param {AccountId32Like} token
+   * @param {bigint} price
+   * @param {bigint} marketCap
+   * @param {bigint} volume
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x57dfaa13
+   **/
+  updateTokenData: GenericContractQueryCall<
+    ChainApi,
+    (
+      token: AccountId32Like,
+      price: bigint,
+      marketCap: bigint,
+      volume: bigint,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >
+  >;
+
+  /**
+   * Get complete token data
+   *
+   * @param {AccountId32Like} token
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0xecb3f7d0
+   **/
+  getTokenData: GenericContractQueryCall<
+    ChainApi,
+    (
+      token: AccountId32Like,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        OracleTokenPriceData | undefined,
+        ContractCallResult<ChainApi>
+      >
+    >
+  >;
+
+  /**
+   * Get only price (backward compatibility)
    *
    * @param {AccountId32Like} token
    * @param {ContractCallOptions} options
@@ -35,7 +88,7 @@ export interface ContractQuery<ChainApi extends GenericSubstrateApi>
   >;
 
   /**
-   * Get market cap
+   * Get market cap (backward compatibility)
    *
    * @param {AccountId32Like} token
    * @param {ContractCallOptions} options
@@ -56,7 +109,7 @@ export interface ContractQuery<ChainApi extends GenericSubstrateApi>
   >;
 
   /**
-   * Get market volume
+   * Get market volume (backward compatibility)
    *
    * @param {AccountId32Like} token
    * @param {ContractCallOptions} options
@@ -77,7 +130,341 @@ export interface ContractQuery<ChainApi extends GenericSubstrateApi>
   >;
 
   /**
-   * Update price data (owner only)
+   * Check if price data is stale
+   *
+   * @param {AccountId32Like} token
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x66d462fa
+   **/
+  isPriceStale: GenericContractQueryCall<
+    ChainApi,
+    (
+      token: AccountId32Like,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<boolean, ContractCallResult<ChainApi>>
+    >
+  >;
+
+  /**
+   * Get last update timestamp
+   *
+   * @param {AccountId32Like} token
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x5b9b7681
+   **/
+  getLastUpdateTime: GenericContractQueryCall<
+    ChainApi,
+    (
+      token: AccountId32Like,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        bigint | undefined,
+        ContractCallResult<ChainApi>
+      >
+    >
+  >;
+
+  /**
+   * Add authorized updater (owner only)
+   *
+   * @param {AccountId32Like} updater
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0xab58e72a
+   **/
+  addUpdater: GenericContractQueryCall<
+    ChainApi,
+    (
+      updater: AccountId32Like,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >
+  >;
+
+  /**
+   * Remove authorized updater (owner only)
+   *
+   * @param {AccountId32Like} updater
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0xc72b459b
+   **/
+  removeUpdater: GenericContractQueryCall<
+    ChainApi,
+    (
+      updater: AccountId32Like,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >
+  >;
+
+  /**
+   * Check if account is authorized to update prices
+   *
+   * @param {AccountId32Like} account
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0xe091ec40
+   **/
+  isAuthorizedUpdater: GenericContractQueryCall<
+    ChainApi,
+    (
+      account: AccountId32Like,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<boolean, ContractCallResult<ChainApi>>
+    >
+  >;
+
+  /**
+   * Update complete validation configuration (owner only)
+   *
+   * @param {OracleValidationConfig} config
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x9e5822ea
+   **/
+  setValidationConfig: GenericContractQueryCall<
+    ChainApi,
+    (
+      config: OracleValidationConfig,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >
+  >;
+
+  /**
+   * Set maximum price deviation in basis points (owner only)
+   * Example: 2000 = 20% max change, 500 = 5% max change
+   *
+   * @param {number} maxDeviationBp
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0xa57024cb
+   **/
+  setMaxDeviation: GenericContractQueryCall<
+    ChainApi,
+    (
+      maxDeviationBp: number,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >
+  >;
+
+  /**
+   * Set staleness threshold in seconds (owner only)
+   * Example: 3600 = 1 hour, 1800 = 30 minutes, 7200 = 2 hours
+   *
+   * @param {bigint} stalenessThreshold
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x17e980af
+   **/
+  setStalenessThreshold: GenericContractQueryCall<
+    ChainApi,
+    (
+      stalenessThreshold: bigint,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >
+  >;
+
+  /**
+   * Set minimum update interval in seconds (owner only)
+   * Example: 60 = 1 minute, 300 = 5 minutes, 30 = 30 seconds
+   *
+   * @param {bigint} minUpdateInterval
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0xca79d46f
+   **/
+  setMinUpdateInterval: GenericContractQueryCall<
+    ChainApi,
+    (
+      minUpdateInterval: bigint,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >
+  >;
+
+  /**
+   * Get current validation configuration
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x5839ef13
+   **/
+  getValidationConfig: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        OracleValidationConfig,
+        ContractCallResult<ChainApi>
+      >
+    >
+  >;
+
+  /**
+   * Get current maximum deviation in basis points
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x2b3b8c59
+   **/
+  getMaxDeviation: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<number, ContractCallResult<ChainApi>>
+    >
+  >;
+
+  /**
+   * Get current staleness threshold in seconds
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x6ca31311
+   **/
+  getStalenessThreshold: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<bigint, ContractCallResult<ChainApi>>
+    >
+  >;
+
+  /**
+   * Get current minimum update interval in seconds
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x02652764
+   **/
+  getMinUpdateInterval: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<bigint, ContractCallResult<ChainApi>>
+    >
+  >;
+
+  /**
+   * Pause all price updates (owner only)
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x0cb21b08
+   **/
+  pauseUpdates: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >
+  >;
+
+  /**
+   * Resume price updates (owner only)
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x994e8ee3
+   **/
+  resumeUpdates: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >
+  >;
+
+  /**
+   * Emergency price override (owner only)
+   *
+   * @param {AccountId32Like} token
+   * @param {bigint} price
+   * @param {bigint} marketCap
+   * @param {bigint} volume
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x0017799e
+   **/
+  emergencyPriceOverride: GenericContractQueryCall<
+    ChainApi,
+    (
+      token: AccountId32Like,
+      price: bigint,
+      marketCap: bigint,
+      volume: bigint,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >
+  >;
+
+  /**
+   * Check if updates are paused
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0xfa7d505b
+   **/
+  isPaused: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<boolean, ContractCallResult<ChainApi>>
+    >
+  >;
+
+  /**
+   * Legacy update price method
    *
    * @param {AccountId32Like} token
    * @param {bigint} price
@@ -100,7 +487,7 @@ export interface ContractQuery<ChainApi extends GenericSubstrateApi>
   >;
 
   /**
-   * Update market data (owner only)
+   * Legacy update market data method
    *
    * @param {AccountId32Like} token
    * @param {bigint} marketCap

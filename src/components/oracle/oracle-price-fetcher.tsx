@@ -1,4 +1,4 @@
-// src/components/oracle-price-fetcher.tsx
+// src/components/oracle/oracle-price-fetcher.tsx
 
 'use client';
 
@@ -7,9 +7,9 @@ import { useContract } from 'typink';
 import { ContractId } from '@/contracts/deployments';
 // Import your generated types from dedot CLI
 import type { OracleContractApi } from '@/contracts/types/oracle';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { TrendingUp, DollarSign, RefreshCw, Search, AlertCircle } from 'lucide-react';
 import { formatBalance } from 'typink';
 

@@ -1,3 +1,5 @@
+// src/utils/txToaster.tsx
+
 import { useMemo } from 'react';
 import { toast, TypeOptions } from 'react-toastify';
 import { ISubmittableResult, TxStatus } from 'dedot/types';
@@ -6,14 +8,40 @@ import { useTypink } from 'typink';
 export type TxToaster = {
     onTxProgress: (result: ISubmittableResult) => void;
     onTxError: (e: Error) => void;
+    onTxPending: () => void;
+    onTxTimeout: () => void;
 };
 
-export function txToaster(initialMessage: string = 'Signing Transaction...'): TxToaster {
+export function txToaster(
+    initialMessage: string = 'Signing Transaction...',
+    timeoutMs: number = 30000 // 30 seconds default timeout
+): TxToaster {
     const toastId = toast.info(initialMessage, {
-        autoClose: false, // prettier-end-here
+        autoClose: false,
         isLoading: true,
         closeOnClick: false,
     });
+
+    // Set up timeout
+    const timeoutId = setTimeout(() => {
+        toast.update(toastId, {
+            render: 'Transaction timeout - please check your wallet and network connection',
+            type: 'warning',
+            isLoading: false,
+            autoClose: 8000,
+            closeOnClick: true,
+        });
+    }, timeoutMs);
+
+    const onTxPending = () => {
+        toast.update(toastId, {
+            render: 'Transaction pending in mempool...',
+            type: 'info',
+            isLoading: true,
+            autoClose: false,
+            closeOnClick: false,
+        });
+    };
 
     const onTxProgress = (result: ISubmittableResult) => {
         let toastType: TypeOptions = 'default';
@@ -23,15 +51,25 @@ export function txToaster(initialMessage: string = 'Signing Transaction...'): Tx
         const { status, dispatchError } = result;
         const succeeded = !dispatchError;
 
+        // Clear timeout on any progress
+        clearTimeout(timeoutId);
+
         if (status.type === 'Finalized') {
             autoClose = 5_000;
             toastType = succeeded ? 'success' : 'error';
-            // TODO show dispatchError detailed error in failed case
-            toastMessage = succeeded ? 'Transaction Successful' : 'Transaction Failed';
+            toastMessage = succeeded ? 'Transaction Successful!' : 'Transaction Failed';
+        } else if (status.type === 'BestChainBlockIncluded') {
+            toastType = succeeded ? 'success' : 'error';
+            toastMessage = succeeded ? 'Transaction Confirmed' : 'Transaction Failed';
+            autoClose = 5_000;
         } else if (status.type === 'Invalid' || status.type === 'Drop') {
             autoClose = 5_000;
             toastType = 'error';
             toastMessage = 'Transaction Failed';
+        } else if (status.type === 'Validated') {
+            toastMessage = 'Transaction ready to submit...';
+        } else if (status.type === 'Broadcasting') {
+            toastMessage = 'Transaction broadcast to network...';
         }
 
         toast.update(toastId, {
@@ -39,22 +77,37 @@ export function txToaster(initialMessage: string = 'Signing Transaction...'): Tx
             type: toastType,
             isLoading: !autoClose,
             autoClose,
-            closeOnClick: false,
+            closeOnClick: !!autoClose,
         });
     };
 
     const onTxError = (e: Error) => {
+        clearTimeout(timeoutId);
         toast.update(toastId, {
-            render: <p>{e.message}</p>,
+            render: <p>Transaction Error: {e.message}</p>,
             type: 'error',
             isLoading: false,
-            autoClose: 5_000,
+            autoClose: 8000,
+            closeOnClick: true,
+        });
+    };
+
+    const onTxTimeout = () => {
+        clearTimeout(timeoutId);
+        toast.update(toastId, {
+            render: 'Transaction timed out - please try again',
+            type: 'warning',
+            isLoading: false,
+            autoClose: 8000,
+            closeOnClick: true,
         });
     };
 
     return {
         onTxProgress,
         onTxError,
+        onTxPending,
+        onTxTimeout,
     };
 }
 

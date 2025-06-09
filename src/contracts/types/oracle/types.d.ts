@@ -4,6 +4,13 @@ import type { AccountId32Like, AccountId32 } from "dedot/codecs";
 
 export type InkStorageLazyMapping = {};
 
+export type OracleTokenPriceData = {
+  price: bigint;
+  marketCap: bigint;
+  volume24h: bigint;
+  timestamp: bigint;
+};
+
 export type InkStorageTraitsImplsResolverKey = {};
 
 export type InkStorageTraitsImplsAutoKey = {};
@@ -11,10 +18,21 @@ export type InkStorageTraitsImplsAutoKey = {};
 export type InkStorageTraitsImplsManualKey = {};
 
 export type Oracle = {
-  prices: { get(arg: AccountId32Like): Promise<bigint | undefined> };
-  marketCaps: { get(arg: AccountId32Like): Promise<bigint | undefined> };
-  marketVolumes: { get(arg: AccountId32Like): Promise<bigint | undefined> };
+  tokenData: {
+    get(arg: AccountId32Like): Promise<OracleTokenPriceData | undefined>;
+  };
+  authorizedUpdaters: {
+    get(arg: AccountId32Like): Promise<boolean | undefined>;
+  };
+  validationConfig: OracleValidationConfig;
   owner: AccountId32;
+  paused: boolean;
+};
+
+export type OracleValidationConfig = {
+  maxDeviationBp: number;
+  stalenessThreshold: bigint;
+  minUpdateInterval: bigint;
 };
 
 export type InkPrimitivesLangError = "CouldNotReadInput";

@@ -3,33 +3,39 @@
 ## Prerequisites
 
 ### Required Software
+
 - **Node.js**: v20 or higher
 - **npm/yarn**: Latest version
 - **Git**: For cloning repositories
 
 ### Required Browser Extensions
+
 - **Polkadot.js Extension** OR
-- **Talisman Wallet** OR  
+- **Talisman Wallet** OR
 - **SubWallet**
 
 ### Accounts & Tokens
+
 - Polkadot account with some PAS tokens from Pop Testnet faucet
 - Access to https://onboard.popnetwork.xyz for getting testnet tokens
 
 ## Step 1: Project Initialization
 
 ### Create Next.js Project
+
 ```bash
 npx create-next-app@latest w3pi-frontend --typescript --tailwind --app
 cd w3pi-frontend
 ```
 
 ### Install Dependencies
+
 ```bash
 npm install typink dedot @types/node @types/react @types/react-dom lucide-react clsx
 ```
 
 ### Package.json Configuration
+
 ```json
 {
   "name": "w3pi-frontend",
@@ -58,7 +64,9 @@ npm install typink dedot @types/node @types/react @types/react-dom lucide-react 
 ## Step 2: Contract Setup
 
 ### Deploy Contracts
+
 1. **Build contracts** using cargo-contract:
+
 ```bash
 cd contracts/oracle
 cargo contract build --release
@@ -69,6 +77,7 @@ cargo contract build --release
 3. **Note contract addresses** for configuration
 
 ### Generate TypeScript Types
+
 ```bash
 # Install dedot CLI globally
 npm install -g @dedot/cli
@@ -78,6 +87,7 @@ npx dedot typink -m src/contracts/artifacts/oracle/oracle.json -o src/contracts/
 ```
 
 ### Contract Artifacts Structure
+
 ```
 src/contracts/
 ├── artifacts/
@@ -93,6 +103,7 @@ src/contracts/
 ## Step 3: Environment Configuration
 
 ### Create Environment File
+
 ```bash
 # .env.local
 NEXT_PUBLIC_ORACLE_ADDRESS=your_deployed_oracle_address_here
@@ -100,20 +111,21 @@ NEXT_PUBLIC_REGISTRY_ADDRESS=your_deployed_registry_address_here
 ```
 
 ### Deployments Configuration
+
 ```typescript
 // src/contracts/deployments.ts
 export enum ContractId {
-  ORACLE = 'oracle',
-  REGISTRY = 'registry',
+  ORACLE = "oracle",
+  REGISTRY = "registry",
 }
 
-import oracleMetadata from './artifacts/oracle/oracle.json';
+import oracleMetadata from "./artifacts/oracle/oracle.json";
 
 export const deployments = [
   {
     id: ContractId.ORACLE,
-    network: 'pop_testnet',
-    address: process.env.NEXT_PUBLIC_ORACLE_ADDRESS || '',
+    network: "pop_testnet",
+    address: process.env.NEXT_PUBLIC_ORACLE_ADDRESS || "",
     metadata: oracleMetadata as any,
   },
 ];
@@ -122,6 +134,7 @@ export const deployments = [
 ## Step 4: Provider Setup
 
 ### Main Provider Configuration
+
 ```typescript
 // src/providers/main-provider.tsx
 'use client';
@@ -167,6 +180,7 @@ export function MainProvider({ children }: Props) {
 ```
 
 ### App Provider Setup
+
 ```typescript
 // src/providers/app-provider.tsx
 'use client';
@@ -209,34 +223,36 @@ export function AppProvider({ children }: Props) {
 ## Step 5: Tailwind CSS Configuration
 
 ### Tailwind Config
+
 ```javascript
 // tailwind.config.js
 module.exports = {
   content: [
-    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#e6007a',
-          50: '#fef2f7',
-          100: '#fde6f0',
+          DEFAULT: "#e6007a",
+          50: "#fef2f7",
+          100: "#fde6f0",
           // ... more shades
         },
       },
       animation: {
-        'pulse-glow': 'pulseGlow 2s ease-in-out infinite',
+        "pulse-glow": "pulseGlow 2s ease-in-out infinite",
       },
     },
   },
   plugins: [],
-}
+};
 ```
 
 ### Global Styles
+
 ```css
 /* src/app/globals.css */
 @tailwind base;
@@ -247,11 +263,11 @@ module.exports = {
   .btn-primary {
     @apply bg-primary text-white font-semibold py-2 px-4 rounded-lg hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
   }
-  
+
   .loading-spinner {
     @apply animate-spin rounded-full border-2 border-gray-300 border-t-primary-600;
   }
-  
+
   .card {
     @apply bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6;
   }
@@ -261,6 +277,7 @@ module.exports = {
 ## Step 6: Layout Integration
 
 ### Root Layout
+
 ```typescript
 // src/app/layout.tsx
 import type { Metadata } from 'next';
@@ -303,11 +320,13 @@ Create the wallet connector component following the patterns from our `wallet-co
 ## Step 8: Testing Setup
 
 ### Development Server
+
 ```bash
 npm run dev
 ```
 
 ### Testing Checklist
+
 - [ ] TypinkProvider initializes without errors
 - [ ] Network shows as "POP Testnet"
 - [ ] Wallet connection modal appears
@@ -318,6 +337,7 @@ npm run dev
 - [ ] Disconnect works properly
 
 ### Debugging Commands
+
 ```bash
 # Check TypeScript compilation
 npm run build
@@ -332,12 +352,14 @@ npm run build
 ## Step 9: Deployment Preparation
 
 ### Build for Production
+
 ```bash
 npm run build
 npm start
 ```
 
 ### Environment Variables for Production
+
 ```bash
 # .env.production
 NEXT_PUBLIC_ORACLE_ADDRESS=production_oracle_address
@@ -347,24 +369,29 @@ NEXT_PUBLIC_REGISTRY_ADDRESS=production_registry_address
 ## Common Issues & Quick Fixes
 
 ### Issue: NetworkId not available
+
 **Solution**: Ensure network IDs match between `customPopTestnet.id` and `deployments[].network`
 
-### Issue: Metadata type errors  
+### Issue: Metadata type errors
+
 **Solution**: Use `metadata: oracleMetadata as any`
 
 ### Issue: RPC connection fails
+
 **Solution**: Use `wss://rpc2.paseo.popnetwork.xyz/` instead of rpc1
 
 ### Issue: Wallet connects but no feedback
+
 **Solution**: Implement auto-account selection in useEffect
 
 ### Issue: TypeScript errors on Typink hooks
+
 **Solution**: Check official examples for correct property names
 
 ## Next Steps
 
 1. **Add Contract Interactions** - Implement oracle data queries
-2. **Portfolio Management** - Build registry contract integration  
+2. **Portfolio Management** - Build registry contract integration
 3. **UI Enhancements** - Add more responsive design elements
 4. **Testing** - Implement unit and integration tests
 5. **Performance** - Optimize rendering and state management

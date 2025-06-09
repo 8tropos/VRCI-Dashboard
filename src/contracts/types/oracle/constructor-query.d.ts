@@ -9,7 +9,10 @@ import type {
   ConstructorCallOptions,
   ContractInstantiateResult,
 } from "dedot/contracts";
-import type { InkPrimitivesLangError } from "./types.js";
+import type {
+  InkPrimitivesLangError,
+  OracleValidationConfig,
+} from "./types.js";
 
 export interface ConstructorQuery<ChainApi extends GenericSubstrateApi>
   extends GenericConstructorQuery<ChainApi> {
@@ -30,15 +33,17 @@ export interface ConstructorQuery<ChainApi extends GenericSubstrateApi>
   >;
 
   /**
-   * Constructor with sample data
+   * Constructor with sample data and custom config
    *
+   * @param {OracleValidationConfig} config
    * @param {ConstructorCallOptions} options
    *
-   * @selector 0x4c0246a8
+   * @selector 0x7335a10e
    **/
-  newWithData: GenericConstructorQueryCall<
+  newWithConfig: GenericConstructorQueryCall<
     ChainApi,
     (
+      config: OracleValidationConfig,
       options?: ConstructorCallOptions,
     ) => Promise<
       GenericConstructorCallResult<[], ContractInstantiateResult<ChainApi>>

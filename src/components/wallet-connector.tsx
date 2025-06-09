@@ -105,14 +105,7 @@ export function WalletConnector() {
         // You could add a toast notification here
     };
 
-    // Debug logging
-    console.log('Wallet Connector State:', {
-        signer: !!signer,
-        connectedAccount: !!connectedAccount,
-        accountsLength: accounts?.length || 0,
-        isConnecting,
-        connectedWallet: connectedWallet?.name
-    });
+    
 
     // Show connect button when not connected
     if (!signer || !connectedAccount) {

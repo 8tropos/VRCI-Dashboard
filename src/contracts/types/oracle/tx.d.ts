@@ -8,11 +8,179 @@ import type {
   ContractTxOptions,
   ContractSubmittableExtrinsic,
 } from "dedot/contracts";
+import type { OracleValidationConfig } from "./types.js";
 
 export interface ContractTx<ChainApi extends GenericSubstrateApi>
   extends GenericContractTx<ChainApi> {
   /**
-   * Update price data (owner only)
+   * Update complete token data with validation
+   *
+   * @param {AccountId32Like} token
+   * @param {bigint} price
+   * @param {bigint} marketCap
+   * @param {bigint} volume
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0x57dfaa13
+   **/
+  updateTokenData: GenericContractTxCall<
+    ChainApi,
+    (
+      token: AccountId32Like,
+      price: bigint,
+      marketCap: bigint,
+      volume: bigint,
+      options: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>
+  >;
+
+  /**
+   * Add authorized updater (owner only)
+   *
+   * @param {AccountId32Like} updater
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0xab58e72a
+   **/
+  addUpdater: GenericContractTxCall<
+    ChainApi,
+    (
+      updater: AccountId32Like,
+      options: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>
+  >;
+
+  /**
+   * Remove authorized updater (owner only)
+   *
+   * @param {AccountId32Like} updater
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0xc72b459b
+   **/
+  removeUpdater: GenericContractTxCall<
+    ChainApi,
+    (
+      updater: AccountId32Like,
+      options: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>
+  >;
+
+  /**
+   * Update complete validation configuration (owner only)
+   *
+   * @param {OracleValidationConfig} config
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0x9e5822ea
+   **/
+  setValidationConfig: GenericContractTxCall<
+    ChainApi,
+    (
+      config: OracleValidationConfig,
+      options: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>
+  >;
+
+  /**
+   * Set maximum price deviation in basis points (owner only)
+   * Example: 2000 = 20% max change, 500 = 5% max change
+   *
+   * @param {number} maxDeviationBp
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0xa57024cb
+   **/
+  setMaxDeviation: GenericContractTxCall<
+    ChainApi,
+    (
+      maxDeviationBp: number,
+      options: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>
+  >;
+
+  /**
+   * Set staleness threshold in seconds (owner only)
+   * Example: 3600 = 1 hour, 1800 = 30 minutes, 7200 = 2 hours
+   *
+   * @param {bigint} stalenessThreshold
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0x17e980af
+   **/
+  setStalenessThreshold: GenericContractTxCall<
+    ChainApi,
+    (
+      stalenessThreshold: bigint,
+      options: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>
+  >;
+
+  /**
+   * Set minimum update interval in seconds (owner only)
+   * Example: 60 = 1 minute, 300 = 5 minutes, 30 = 30 seconds
+   *
+   * @param {bigint} minUpdateInterval
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0xca79d46f
+   **/
+  setMinUpdateInterval: GenericContractTxCall<
+    ChainApi,
+    (
+      minUpdateInterval: bigint,
+      options: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>
+  >;
+
+  /**
+   * Pause all price updates (owner only)
+   *
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0x0cb21b08
+   **/
+  pauseUpdates: GenericContractTxCall<
+    ChainApi,
+    (options: ContractTxOptions) => ContractSubmittableExtrinsic<ChainApi>
+  >;
+
+  /**
+   * Resume price updates (owner only)
+   *
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0x994e8ee3
+   **/
+  resumeUpdates: GenericContractTxCall<
+    ChainApi,
+    (options: ContractTxOptions) => ContractSubmittableExtrinsic<ChainApi>
+  >;
+
+  /**
+   * Emergency price override (owner only)
+   *
+   * @param {AccountId32Like} token
+   * @param {bigint} price
+   * @param {bigint} marketCap
+   * @param {bigint} volume
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0x0017799e
+   **/
+  emergencyPriceOverride: GenericContractTxCall<
+    ChainApi,
+    (
+      token: AccountId32Like,
+      price: bigint,
+      marketCap: bigint,
+      volume: bigint,
+      options: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>
+  >;
+
+  /**
+   * Legacy update price method
    *
    * @param {AccountId32Like} token
    * @param {bigint} price
@@ -30,7 +198,7 @@ export interface ContractTx<ChainApi extends GenericSubstrateApi>
   >;
 
   /**
-   * Update market data (owner only)
+   * Legacy update market data method
    *
    * @param {AccountId32Like} token
    * @param {bigint} marketCap
