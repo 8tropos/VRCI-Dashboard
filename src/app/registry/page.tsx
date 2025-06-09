@@ -10,8 +10,9 @@ import { RegistryInfoViewer } from '@/components/registry/registry-info-viewer';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useTypink } from 'typink';
 import { Search, Edit, Info, Shield, Clock, Package } from 'lucide-react';
+import { RegistryRoleManager } from '@/components/registry/registry-role-manager';
 
-const validTabs = ['query', 'manage', 'info'] as const;
+const validTabs = ['query', 'manage', 'info', 'role'] as const;
 type ValidTab = typeof validTabs[number];
 
 function RegistryPageContent() {
@@ -63,7 +64,7 @@ function RegistryPageContent() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
             <div className="max-w-6xl mx-auto p-8">
                 {/* Header */}
                 <div className="mb-8">
@@ -104,7 +105,7 @@ function RegistryPageContent() {
                         <Tabs value={activeTab} onValueChange={handleTabChange}>
                             {/* Tab Navigation */}
                             <div className="flex flex-col sm:flex-row sm:items-center justify-center mb-6">
-                                <TabsList className="mt-4 sm:mt-0 grid grid-cols-3 w-full sm:w-auto">
+                                <TabsList className="mt-4 sm:mt-0 grid grid-cols-4 w-full sm:w-auto">
                                     <TabsTrigger value="query" className="flex items-center space-x-1">
                                         <Search className="h-4 w-4" />
                                         <span>Query Tokens</span>
@@ -116,6 +117,10 @@ function RegistryPageContent() {
                                     <TabsTrigger value="info" className="flex items-center space-x-1">
                                         <Info className="h-4 w-4" />
                                         <span>Registry Info</span>
+                                    </TabsTrigger>
+                                    <TabsTrigger value="role" className="flex items-center space-x-1">
+                                        <Shield className="h-4 w-4" />
+                                        <span>Role Manager</span>
                                     </TabsTrigger>
                                 </TabsList>
                             </div>
@@ -131,6 +136,9 @@ function RegistryPageContent() {
 
                             <TabsContent value="info">
                                 <RegistryInfoViewer />
+                            </TabsContent>
+                            <TabsContent value="role">
+                                <RegistryRoleManager />
                             </TabsContent>
                         </Tabs>
                     </div>
@@ -158,6 +166,11 @@ function RegistryPageContent() {
                                     <Info className="h-6 w-6 text-gray-400 mx-auto mb-2" />
                                     <div className="text-sm font-medium text-gray-700">Registry Info</div>
                                     <div className="text-xs text-gray-500 mt-1">Contract details and statistics</div>
+                                </div>
+                                <div className="p-4 bg-gray-50 rounded-lg">
+                                    <Shield className="h-6 w-6 text-gray-400 mx-auto mb-2" />
+                                    <div className="text-sm font-medium text-gray-700">Role Manager</div>
+                                    <div className="text-xs text-gray-500 mt-1">Manage roles and permissions</div>
                                 </div>
                             </div>
                         </div>

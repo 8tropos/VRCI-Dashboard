@@ -8,9 +8,46 @@ import type {
   ContractTxOptions,
   ContractSubmittableExtrinsic,
 } from "dedot/contracts";
+import type { SharedRole } from "./types.js";
 
 export interface ContractTx<ChainApi extends GenericSubstrateApi>
   extends GenericContractTx<ChainApi> {
+  /**
+   * Grant a role to an account (owner only)
+   *
+   * @param {SharedRole} role
+   * @param {AccountId32Like} account
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0x2aabfab5
+   **/
+  grantRole: GenericContractTxCall<
+    ChainApi,
+    (
+      role: SharedRole,
+      account: AccountId32Like,
+      options: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>
+  >;
+
+  /**
+   * Revoke a role from an account (owner only)
+   *
+   * @param {SharedRole} role
+   * @param {AccountId32Like} account
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0x35e1ef4a
+   **/
+  revokeRole: GenericContractTxCall<
+    ChainApi,
+    (
+      role: SharedRole,
+      account: AccountId32Like,
+      options: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>
+  >;
+
   /**
    * Add a new token to the registry
    *
@@ -47,6 +84,22 @@ export interface ContractTx<ChainApi extends GenericSubstrateApi>
       balance: bigint,
       weightInvestment: number,
       tier: number,
+      options: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>
+  >;
+
+  /**
+   * Remove a token from the registry
+   *
+   * @param {number} tokenId
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0xc964c4ec
+   **/
+  removeToken: GenericContractTxCall<
+    ChainApi,
+    (
+      tokenId: number,
       options: ContractTxOptions,
     ) => ContractSubmittableExtrinsic<ChainApi>
   >;

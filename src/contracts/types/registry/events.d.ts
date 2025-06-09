@@ -6,12 +6,13 @@ import type {
   GenericContractEvents,
   GenericContractEvent,
 } from "dedot/contracts";
+import type { SharedRole, SharedError } from "./types.js";
 
 export interface ContractEvents<ChainApi extends GenericSubstrateApi>
   extends GenericContractEvents<ChainApi> {
   /**
    *
-   * @signature_topic: 0x78f872a9f1c19bd5cc0663556269594976c192cb5585bc2bb82dbbc24535bcda
+   * @signature_topic: 0x9944b3f8fc4ed5f29562b3360554c433884be77858aad348ec1c1a34113d2d3f
    **/
   TokenAdded: GenericContractEvent<
     "TokenAdded",
@@ -23,7 +24,7 @@ export interface ContractEvents<ChainApi extends GenericSubstrateApi>
       tokenId: number;
       /**
        *
-       * @indexed: false
+       * @indexed: true
        **/
       tokenContract: AccountId32;
       /**
@@ -31,12 +32,17 @@ export interface ContractEvents<ChainApi extends GenericSubstrateApi>
        * @indexed: false
        **/
       oracleContract: AccountId32;
+      /**
+       *
+       * @indexed: false
+       **/
+      addedBy: AccountId32;
     }
   >;
 
   /**
    *
-   * @signature_topic: 0xccd85863adc46ac076050b673e9e7f386c96146d71f20068fc83c3b0082e453d
+   * @signature_topic: 0xa09bc17ded368581e008f40f8951270f07eeb36c3d5b9af68bdfbd64688863fd
    **/
   TokenUpdated: GenericContractEvent<
     "TokenUpdated",
@@ -61,6 +67,111 @@ export interface ContractEvents<ChainApi extends GenericSubstrateApi>
        * @indexed: false
        **/
       tier: number;
+      /**
+       *
+       * @indexed: false
+       **/
+      updatedBy: AccountId32;
+    }
+  >;
+
+  /**
+   *
+   * @signature_topic: 0x3c36aaf9d02ef8cf29c9e88caa03477015774640e4dfd5e87cdc264da8ccec84
+   **/
+  TokenRemoved: GenericContractEvent<
+    "TokenRemoved",
+    {
+      /**
+       *
+       * @indexed: true
+       **/
+      tokenId: number;
+      /**
+       *
+       * @indexed: true
+       **/
+      tokenContract: AccountId32;
+      /**
+       *
+       * @indexed: false
+       **/
+      removedBy: AccountId32;
+    }
+  >;
+
+  /**
+   *
+   * @signature_topic: 0x5fcf93016d2d44f4d121f7459a0402cddff018c31c9c7a0bcce4692b9fec3203
+   **/
+  RoleGranted: GenericContractEvent<
+    "RoleGranted",
+    {
+      /**
+       *
+       * @indexed: true
+       **/
+      role: SharedRole;
+      /**
+       *
+       * @indexed: true
+       **/
+      account: AccountId32;
+      /**
+       *
+       * @indexed: false
+       **/
+      grantedBy: AccountId32;
+    }
+  >;
+
+  /**
+   *
+   * @signature_topic: 0x9233b468e8bfd302ede55369ae31d7a6fbf01820dc5cb262735a228b001d8fd0
+   **/
+  RoleRevoked: GenericContractEvent<
+    "RoleRevoked",
+    {
+      /**
+       *
+       * @indexed: true
+       **/
+      role: SharedRole;
+      /**
+       *
+       * @indexed: true
+       **/
+      account: AccountId32;
+      /**
+       *
+       * @indexed: false
+       **/
+      revokedBy: AccountId32;
+    }
+  >;
+
+  /**
+   *
+   * @signature_topic: 0x2ae4149cbdea8f120e435a0c96e2ce9dd61b92d48c49f4b8f0e4cff561b6ac92
+   **/
+  OperationFailed: GenericContractEvent<
+    "OperationFailed",
+    {
+      /**
+       *
+       * @indexed: false
+       **/
+      operation: string;
+      /**
+       *
+       * @indexed: false
+       **/
+      error: SharedError;
+      /**
+       *
+       * @indexed: false
+       **/
+      caller: AccountId32;
     }
   >;
 }

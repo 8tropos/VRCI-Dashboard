@@ -1,6 +1,6 @@
 {
   "source": {
-    "hash": "0x5b16415899d01a8183bd9b385aea49a8164af61bf8a666eb78ad579dede09ed7",
+    "hash": "0x8b504c735164c5ccd7a9241077832abff3ccd0a1ead83df382ee9fb08edfed36",
     "language": "ink! 5.1.1",
     "compiler": "rustc 1.86.0",
     "build_info": {
@@ -213,6 +213,192 @@
       "id": 11,
       "type": {
         "path": [
+          "ink_storage",
+          "lazy",
+          "mapping",
+          "Mapping"
+        ],
+        "params": [
+          {
+            "name": "K",
+            "type": 0
+          },
+          {
+            "name": "V",
+            "type": 4
+          },
+          {
+            "name": "KeyType",
+            "type": 12
+          }
+        ],
+        "def": {
+          "composite": {}
+        }
+      }
+    },
+    {
+      "id": 12,
+      "type": {
+        "path": [
+          "ink_storage_traits",
+          "impls",
+          "ResolverKey"
+        ],
+        "params": [
+          {
+            "name": "L",
+            "type": 8
+          },
+          {
+            "name": "R",
+            "type": 13
+          }
+        ],
+        "def": {
+          "composite": {}
+        }
+      }
+    },
+    {
+      "id": 13,
+      "type": {
+        "path": [
+          "ink_storage_traits",
+          "impls",
+          "ManualKey"
+        ],
+        "params": [
+          {
+            "name": "ParentKey",
+            "type": 10
+          }
+        ],
+        "def": {
+          "composite": {}
+        }
+      }
+    },
+    {
+      "id": 14,
+      "type": {
+        "def": {
+          "primitive": "bool"
+        }
+      }
+    },
+    {
+      "id": 15,
+      "type": {
+        "path": [
+          "ink_storage",
+          "lazy",
+          "mapping",
+          "Mapping"
+        ],
+        "params": [
+          {
+            "name": "K",
+            "type": 16
+          },
+          {
+            "name": "V",
+            "type": 14
+          },
+          {
+            "name": "KeyType",
+            "type": 18
+          }
+        ],
+        "def": {
+          "composite": {}
+        }
+      }
+    },
+    {
+      "id": 16,
+      "type": {
+        "def": {
+          "tuple": [
+            17,
+            0
+          ]
+        }
+      }
+    },
+    {
+      "id": 17,
+      "type": {
+        "path": [
+          "shared",
+          "Role"
+        ],
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "name": "TokenManager",
+                "index": 0
+              },
+              {
+                "name": "TokenUpdater",
+                "index": 1
+              },
+              {
+                "name": "EmergencyController",
+                "index": 2
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 18,
+      "type": {
+        "path": [
+          "ink_storage_traits",
+          "impls",
+          "ResolverKey"
+        ],
+        "params": [
+          {
+            "name": "L",
+            "type": 8
+          },
+          {
+            "name": "R",
+            "type": 19
+          }
+        ],
+        "def": {
+          "composite": {}
+        }
+      }
+    },
+    {
+      "id": 19,
+      "type": {
+        "path": [
+          "ink_storage_traits",
+          "impls",
+          "ManualKey"
+        ],
+        "params": [
+          {
+            "name": "ParentKey",
+            "type": 10
+          }
+        ],
+        "def": {
+          "composite": {}
+        }
+      }
+    },
+    {
+      "id": 20,
+      "type": {
+        "path": [
           "registry",
           "registry",
           "Registry"
@@ -224,6 +410,16 @@
                 "name": "tokens",
                 "type": 5,
                 "typeName": "<Mapping<u32, TokenData> as::ink::storage::traits::\nAutoStorableHint<::ink::storage::traits::ManualKey<3940217661u32,\n()>,>>::Type"
+              },
+              {
+                "name": "token_contract_to_id",
+                "type": 11,
+                "typeName": "<Mapping<AccountId, u32> as::ink::storage::traits::\nAutoStorableHint<::ink::storage::traits::ManualKey<1263838047u32,\n()>,>>::Type"
+              },
+              {
+                "name": "role_members",
+                "type": 15,
+                "typeName": "<Mapping<(Role, AccountId), bool> as::ink::storage::traits::\nAutoStorableHint<::ink::storage::traits::ManualKey<467678002u32, ()\n>,>>::Type"
               },
               {
                 "name": "next_token_id",
@@ -241,7 +437,7 @@
       }
     },
     {
-      "id": 12,
+      "id": 21,
       "type": {
         "path": [
           "Result"
@@ -253,7 +449,7 @@
           },
           {
             "name": "E",
-            "type": 13
+            "type": 22
           }
         ],
         "def": {
@@ -272,7 +468,7 @@
                 "name": "Err",
                 "fields": [
                   {
-                    "type": 13
+                    "type": 22
                   }
                 ],
                 "index": 1
@@ -283,7 +479,7 @@
       }
     },
     {
-      "id": 13,
+      "id": 22,
       "type": {
         "path": [
           "ink_primitives",
@@ -302,7 +498,7 @@
       }
     },
     {
-      "id": 14,
+      "id": 23,
       "type": {
         "path": [
           "Result"
@@ -310,11 +506,11 @@
         "params": [
           {
             "name": "T",
-            "type": 15
+            "type": 24
           },
           {
             "name": "E",
-            "type": 13
+            "type": 22
           }
         ],
         "def": {
@@ -324,7 +520,7 @@
                 "name": "Ok",
                 "fields": [
                   {
-                    "type": 15
+                    "type": 24
                   }
                 ],
                 "index": 0
@@ -333,7 +529,7 @@
                 "name": "Err",
                 "fields": [
                   {
-                    "type": 13
+                    "type": 22
                   }
                 ],
                 "index": 1
@@ -344,7 +540,192 @@
       }
     },
     {
-      "id": 15,
+      "id": 24,
+      "type": {
+        "path": [
+          "Result"
+        ],
+        "params": [
+          {
+            "name": "T",
+            "type": 10
+          },
+          {
+            "name": "E",
+            "type": 25
+          }
+        ],
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "name": "Ok",
+                "fields": [
+                  {
+                    "type": 10
+                  }
+                ],
+                "index": 0
+              },
+              {
+                "name": "Err",
+                "fields": [
+                  {
+                    "type": 25
+                  }
+                ],
+                "index": 1
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 25,
+      "type": {
+        "path": [
+          "shared",
+          "Error"
+        ],
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "name": "Unauthorized",
+                "index": 0
+              },
+              {
+                "name": "UnauthorizedRole",
+                "index": 1
+              },
+              {
+                "name": "TokenNotFound",
+                "index": 2
+              },
+              {
+                "name": "TokenAlreadyExists",
+                "index": 3
+              },
+              {
+                "name": "InvalidTokenContract",
+                "index": 4
+              },
+              {
+                "name": "ZeroAddress",
+                "index": 5
+              },
+              {
+                "name": "InvalidWeight",
+                "index": 6
+              },
+              {
+                "name": "InvalidTier",
+                "index": 7
+              },
+              {
+                "name": "InvalidParameter",
+                "index": 8
+              },
+              {
+                "name": "OracleCallFailed",
+                "index": 9
+              },
+              {
+                "name": "InsufficientBalance",
+                "index": 10
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 26,
+      "type": {
+        "path": [
+          "Result"
+        ],
+        "params": [
+          {
+            "name": "T",
+            "type": 14
+          },
+          {
+            "name": "E",
+            "type": 22
+          }
+        ],
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "name": "Ok",
+                "fields": [
+                  {
+                    "type": 14
+                  }
+                ],
+                "index": 0
+              },
+              {
+                "name": "Err",
+                "fields": [
+                  {
+                    "type": 22
+                  }
+                ],
+                "index": 1
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 27,
+      "type": {
+        "path": [
+          "Result"
+        ],
+        "params": [
+          {
+            "name": "T",
+            "type": 28
+          },
+          {
+            "name": "E",
+            "type": 22
+          }
+        ],
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "name": "Ok",
+                "fields": [
+                  {
+                    "type": 28
+                  }
+                ],
+                "index": 0
+              },
+              {
+                "name": "Err",
+                "fields": [
+                  {
+                    "type": 22
+                  }
+                ],
+                "index": 1
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 28,
       "type": {
         "path": [
           "Result"
@@ -356,7 +737,7 @@
           },
           {
             "name": "E",
-            "type": 16
+            "type": 25
           }
         ],
         "def": {
@@ -375,7 +756,7 @@
                 "name": "Err",
                 "fields": [
                   {
-                    "type": 16
+                    "type": 25
                   }
                 ],
                 "index": 1
@@ -386,42 +767,7 @@
       }
     },
     {
-      "id": 16,
-      "type": {
-        "path": [
-          "shared",
-          "Error"
-        ],
-        "def": {
-          "variant": {
-            "variants": [
-              {
-                "name": "Unauthorized",
-                "index": 0
-              },
-              {
-                "name": "TokenNotFound",
-                "index": 1
-              },
-              {
-                "name": "OracleCallFailed",
-                "index": 2
-              },
-              {
-                "name": "InvalidParameter",
-                "index": 3
-              },
-              {
-                "name": "InsufficientBalance",
-                "index": 4
-              }
-            ]
-          }
-        }
-      }
-    },
-    {
-      "id": 17,
+      "id": 29,
       "type": {
         "path": [
           "Result"
@@ -429,11 +775,11 @@
         "params": [
           {
             "name": "T",
-            "type": 18
+            "type": 30
           },
           {
             "name": "E",
-            "type": 13
+            "type": 22
           }
         ],
         "def": {
@@ -443,7 +789,7 @@
                 "name": "Ok",
                 "fields": [
                   {
-                    "type": 18
+                    "type": 30
                   }
                 ],
                 "index": 0
@@ -452,7 +798,7 @@
                 "name": "Err",
                 "fields": [
                   {
-                    "type": 13
+                    "type": 22
                   }
                 ],
                 "index": 1
@@ -463,7 +809,7 @@
       }
     },
     {
-      "id": 18,
+      "id": 30,
       "type": {
         "path": [
           "Result"
@@ -471,11 +817,11 @@
         "params": [
           {
             "name": "T",
-            "type": 19
+            "type": 31
           },
           {
             "name": "E",
-            "type": 16
+            "type": 25
           }
         ],
         "def": {
@@ -485,7 +831,7 @@
                 "name": "Ok",
                 "fields": [
                   {
-                    "type": 19
+                    "type": 31
                   }
                 ],
                 "index": 0
@@ -494,7 +840,7 @@
                 "name": "Err",
                 "fields": [
                   {
-                    "type": 16
+                    "type": 25
                   }
                 ],
                 "index": 1
@@ -505,7 +851,7 @@
       }
     },
     {
-      "id": 19,
+      "id": 31,
       "type": {
         "path": [
           "shared",
@@ -560,91 +906,7 @@
       }
     },
     {
-      "id": 20,
-      "type": {
-        "path": [
-          "Result"
-        ],
-        "params": [
-          {
-            "name": "T",
-            "type": 21
-          },
-          {
-            "name": "E",
-            "type": 13
-          }
-        ],
-        "def": {
-          "variant": {
-            "variants": [
-              {
-                "name": "Ok",
-                "fields": [
-                  {
-                    "type": 21
-                  }
-                ],
-                "index": 0
-              },
-              {
-                "name": "Err",
-                "fields": [
-                  {
-                    "type": 13
-                  }
-                ],
-                "index": 1
-              }
-            ]
-          }
-        }
-      }
-    },
-    {
-      "id": 21,
-      "type": {
-        "path": [
-          "Result"
-        ],
-        "params": [
-          {
-            "name": "T",
-            "type": 10
-          },
-          {
-            "name": "E",
-            "type": 16
-          }
-        ],
-        "def": {
-          "variant": {
-            "variants": [
-              {
-                "name": "Ok",
-                "fields": [
-                  {
-                    "type": 10
-                  }
-                ],
-                "index": 0
-              },
-              {
-                "name": "Err",
-                "fields": [
-                  {
-                    "type": 16
-                  }
-                ],
-                "index": 1
-              }
-            ]
-          }
-        }
-      }
-    },
-    {
-      "id": 22,
+      "id": 32,
       "type": {
         "path": [
           "Result"
@@ -656,7 +918,7 @@
           },
           {
             "name": "E",
-            "type": 13
+            "type": 22
           }
         ],
         "def": {
@@ -675,7 +937,7 @@
                 "name": "Err",
                 "fields": [
                   {
-                    "type": 13
+                    "type": 22
                   }
                 ],
                 "index": 1
@@ -686,7 +948,7 @@
       }
     },
     {
-      "id": 23,
+      "id": 33,
       "type": {
         "path": [
           "Result"
@@ -698,7 +960,7 @@
           },
           {
             "name": "E",
-            "type": 13
+            "type": 22
           }
         ],
         "def": {
@@ -717,7 +979,7 @@
                 "name": "Err",
                 "fields": [
                   {
-                    "type": 13
+                    "type": 22
                   }
                 ],
                 "index": 1
@@ -728,7 +990,7 @@
       }
     },
     {
-      "id": 24,
+      "id": 34,
       "type": {
         "path": [
           "Result"
@@ -736,11 +998,11 @@
         "params": [
           {
             "name": "T",
-            "type": 25
+            "type": 35
           },
           {
             "name": "E",
-            "type": 13
+            "type": 22
           }
         ],
         "def": {
@@ -750,7 +1012,7 @@
                 "name": "Ok",
                 "fields": [
                   {
-                    "type": 25
+                    "type": 35
                   }
                 ],
                 "index": 0
@@ -759,7 +1021,7 @@
                 "name": "Err",
                 "fields": [
                   {
-                    "type": 13
+                    "type": 22
                   }
                 ],
                 "index": 1
@@ -770,57 +1032,7 @@
       }
     },
     {
-      "id": 25,
-      "type": {
-        "def": {
-          "primitive": "bool"
-        }
-      }
-    },
-    {
-      "id": 26,
-      "type": {
-        "path": [
-          "Result"
-        ],
-        "params": [
-          {
-            "name": "T",
-            "type": 27
-          },
-          {
-            "name": "E",
-            "type": 13
-          }
-        ],
-        "def": {
-          "variant": {
-            "variants": [
-              {
-                "name": "Ok",
-                "fields": [
-                  {
-                    "type": 27
-                  }
-                ],
-                "index": 0
-              },
-              {
-                "name": "Err",
-                "fields": [
-                  {
-                    "type": 13
-                  }
-                ],
-                "index": 1
-              }
-            ]
-          }
-        }
-      }
-    },
-    {
-      "id": 27,
+      "id": 35,
       "type": {
         "path": [
           "Result"
@@ -832,7 +1044,7 @@
           },
           {
             "name": "E",
-            "type": 16
+            "type": 25
           }
         ],
         "def": {
@@ -851,7 +1063,7 @@
                 "name": "Err",
                 "fields": [
                   {
-                    "type": 16
+                    "type": 25
                   }
                 ],
                 "index": 1
@@ -862,7 +1074,90 @@
       }
     },
     {
-      "id": 28,
+      "id": 36,
+      "type": {
+        "path": [
+          "Result"
+        ],
+        "params": [
+          {
+            "name": "T",
+            "type": 37
+          },
+          {
+            "name": "E",
+            "type": 22
+          }
+        ],
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "name": "Ok",
+                "fields": [
+                  {
+                    "type": 37
+                  }
+                ],
+                "index": 0
+              },
+              {
+                "name": "Err",
+                "fields": [
+                  {
+                    "type": 22
+                  }
+                ],
+                "index": 1
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 37,
+      "type": {
+        "path": [
+          "Option"
+        ],
+        "params": [
+          {
+            "name": "T",
+            "type": 4
+          }
+        ],
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "name": "None",
+                "index": 0
+              },
+              {
+                "name": "Some",
+                "fields": [
+                  {
+                    "type": 4
+                  }
+                ],
+                "index": 1
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 38,
+      "type": {
+        "def": {
+          "primitive": "str"
+        }
+      }
+    },
+    {
+      "id": 39,
       "type": {
         "path": [
           "ink_primitives",
@@ -882,7 +1177,7 @@
       }
     },
     {
-      "id": 29,
+      "id": 40,
       "type": {
         "def": {
           "primitive": "u64"
@@ -890,7 +1185,7 @@
       }
     },
     {
-      "id": 30,
+      "id": 41,
       "type": {
         "path": [
           "ink_env",
@@ -972,6 +1267,36 @@
               }
             },
             {
+              "name": "token_contract_to_id",
+              "layout": {
+                "root": {
+                  "root_key": "0x5fa3544b",
+                  "layout": {
+                    "leaf": {
+                      "key": "0x5fa3544b",
+                      "ty": 4
+                    }
+                  },
+                  "ty": 11
+                }
+              }
+            },
+            {
+              "name": "role_members",
+              "layout": {
+                "root": {
+                  "root_key": "0x3233e01b",
+                  "layout": {
+                    "leaf": {
+                      "key": "0x3233e01b",
+                      "ty": 14
+                    }
+                  },
+                  "ty": 15
+                }
+              }
+            },
+            {
               "name": "next_token_id",
               "layout": {
                 "leaf": {
@@ -992,7 +1317,7 @@
           ]
         }
       },
-      "ty": 11
+      "ty": 20
     }
   },
   "spec": {
@@ -1003,7 +1328,7 @@
         "payable": false,
         "args": [],
         "returnType": {
-          "type": 12,
+          "type": 21,
           "displayName": [
             "ink_primitives",
             "ConstructorResult"
@@ -1016,6 +1341,117 @@
       }
     ],
     "messages": [
+      {
+        "label": "grant_role",
+        "selector": "0x2aabfab5",
+        "mutates": true,
+        "payable": false,
+        "args": [
+          {
+            "label": "role",
+            "type": {
+              "type": 17,
+              "displayName": [
+                "Role"
+              ]
+            }
+          },
+          {
+            "label": "account",
+            "type": {
+              "type": 0,
+              "displayName": [
+                "AccountId"
+              ]
+            }
+          }
+        ],
+        "returnType": {
+          "type": 23,
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ]
+        },
+        "docs": [
+          " Grant a role to an account (owner only)"
+        ],
+        "default": false
+      },
+      {
+        "label": "revoke_role",
+        "selector": "0x35e1ef4a",
+        "mutates": true,
+        "payable": false,
+        "args": [
+          {
+            "label": "role",
+            "type": {
+              "type": 17,
+              "displayName": [
+                "Role"
+              ]
+            }
+          },
+          {
+            "label": "account",
+            "type": {
+              "type": 0,
+              "displayName": [
+                "AccountId"
+              ]
+            }
+          }
+        ],
+        "returnType": {
+          "type": 23,
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ]
+        },
+        "docs": [
+          " Revoke a role from an account (owner only)"
+        ],
+        "default": false
+      },
+      {
+        "label": "has_role",
+        "selector": "0x8d194a68",
+        "mutates": false,
+        "payable": false,
+        "args": [
+          {
+            "label": "role",
+            "type": {
+              "type": 17,
+              "displayName": [
+                "Role"
+              ]
+            }
+          },
+          {
+            "label": "account",
+            "type": {
+              "type": 0,
+              "displayName": [
+                "AccountId"
+              ]
+            }
+          }
+        ],
+        "returnType": {
+          "type": 26,
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ]
+        },
+        "docs": [
+          " Check if an account has a specific role"
+        ],
+        "default": false
+      },
       {
         "label": "add_token",
         "selector": "0x84731716",
@@ -1042,7 +1478,7 @@
           }
         ],
         "returnType": {
-          "type": 14,
+          "type": 27,
           "displayName": [
             "ink",
             "MessageResult"
@@ -1050,34 +1486,6 @@
         },
         "docs": [
           " Add a new token to the registry"
-        ],
-        "default": false
-      },
-      {
-        "label": "get_token_data",
-        "selector": "0xecb3f7d0",
-        "mutates": false,
-        "payable": false,
-        "args": [
-          {
-            "label": "token_id",
-            "type": {
-              "type": 4,
-              "displayName": [
-                "u32"
-              ]
-            }
-          }
-        ],
-        "returnType": {
-          "type": 17,
-          "displayName": [
-            "ink",
-            "MessageResult"
-          ]
-        },
-        "docs": [
-          " Get token data with live oracle prices"
         ],
         "default": false
       },
@@ -1125,7 +1533,7 @@
           }
         ],
         "returnType": {
-          "type": 20,
+          "type": 23,
           "displayName": [
             "ink",
             "MessageResult"
@@ -1137,13 +1545,69 @@
         "default": false
       },
       {
+        "label": "remove_token",
+        "selector": "0xc964c4ec",
+        "mutates": true,
+        "payable": false,
+        "args": [
+          {
+            "label": "token_id",
+            "type": {
+              "type": 4,
+              "displayName": [
+                "u32"
+              ]
+            }
+          }
+        ],
+        "returnType": {
+          "type": 23,
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ]
+        },
+        "docs": [
+          " Remove a token from the registry"
+        ],
+        "default": false
+      },
+      {
+        "label": "get_token_data",
+        "selector": "0xecb3f7d0",
+        "mutates": false,
+        "payable": false,
+        "args": [
+          {
+            "label": "token_id",
+            "type": {
+              "type": 4,
+              "displayName": [
+                "u32"
+              ]
+            }
+          }
+        ],
+        "returnType": {
+          "type": 29,
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ]
+        },
+        "docs": [
+          " Get token data with live oracle prices"
+        ],
+        "default": false
+      },
+      {
         "label": "get_token_count",
         "selector": "0x744362af",
         "mutates": false,
         "payable": false,
         "args": [],
         "returnType": {
-          "type": 22,
+          "type": 32,
           "displayName": [
             "ink",
             "MessageResult"
@@ -1161,7 +1625,7 @@
         "payable": false,
         "args": [],
         "returnType": {
-          "type": 23,
+          "type": 33,
           "displayName": [
             "ink",
             "MessageResult"
@@ -1189,7 +1653,7 @@
           }
         ],
         "returnType": {
-          "type": 24,
+          "type": 26,
           "displayName": [
             "ink",
             "MessageResult"
@@ -1217,7 +1681,7 @@
           }
         ],
         "returnType": {
-          "type": 26,
+          "type": 34,
           "displayName": [
             "ink",
             "MessageResult"
@@ -1227,13 +1691,41 @@
           " Get basic token data without oracle calls"
         ],
         "default": false
+      },
+      {
+        "label": "get_token_id_by_contract",
+        "selector": "0x75e203e0",
+        "mutates": false,
+        "payable": false,
+        "args": [
+          {
+            "label": "token_contract",
+            "type": {
+              "type": 0,
+              "displayName": [
+                "AccountId"
+              ]
+            }
+          }
+        ],
+        "returnType": {
+          "type": 36,
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ]
+        },
+        "docs": [
+          " Get token ID by token contract address"
+        ],
+        "default": false
       }
     ],
     "events": [
       {
         "label": "TokenAdded",
         "module_path": "registry::registry",
-        "signature_topic": "0x78f872a9f1c19bd5cc0663556269594976c192cb5585bc2bb82dbbc24535bcda",
+        "signature_topic": "0x9944b3f8fc4ed5f29562b3360554c433884be77858aad348ec1c1a34113d2d3f",
         "args": [
           {
             "label": "token_id",
@@ -1248,7 +1740,7 @@
           },
           {
             "label": "token_contract",
-            "indexed": false,
+            "indexed": true,
             "type": {
               "type": 0,
               "displayName": [
@@ -1267,6 +1759,17 @@
               ]
             },
             "docs": []
+          },
+          {
+            "label": "added_by",
+            "indexed": false,
+            "type": {
+              "type": 0,
+              "displayName": [
+                "AccountId"
+              ]
+            },
+            "docs": []
           }
         ],
         "docs": []
@@ -1274,7 +1777,7 @@
       {
         "label": "TokenUpdated",
         "module_path": "registry::registry",
-        "signature_topic": "0xccd85863adc46ac076050b673e9e7f386c96146d71f20068fc83c3b0082e453d",
+        "signature_topic": "0xa09bc17ded368581e008f40f8951270f07eeb36c3d5b9af68bdfbd64688863fd",
         "args": [
           {
             "label": "token_id",
@@ -1319,6 +1822,181 @@
               ]
             },
             "docs": []
+          },
+          {
+            "label": "updated_by",
+            "indexed": false,
+            "type": {
+              "type": 0,
+              "displayName": [
+                "AccountId"
+              ]
+            },
+            "docs": []
+          }
+        ],
+        "docs": []
+      },
+      {
+        "label": "TokenRemoved",
+        "module_path": "registry::registry",
+        "signature_topic": "0x3c36aaf9d02ef8cf29c9e88caa03477015774640e4dfd5e87cdc264da8ccec84",
+        "args": [
+          {
+            "label": "token_id",
+            "indexed": true,
+            "type": {
+              "type": 4,
+              "displayName": [
+                "u32"
+              ]
+            },
+            "docs": []
+          },
+          {
+            "label": "token_contract",
+            "indexed": true,
+            "type": {
+              "type": 0,
+              "displayName": [
+                "AccountId"
+              ]
+            },
+            "docs": []
+          },
+          {
+            "label": "removed_by",
+            "indexed": false,
+            "type": {
+              "type": 0,
+              "displayName": [
+                "AccountId"
+              ]
+            },
+            "docs": []
+          }
+        ],
+        "docs": []
+      },
+      {
+        "label": "RoleGranted",
+        "module_path": "registry::registry",
+        "signature_topic": "0x5fcf93016d2d44f4d121f7459a0402cddff018c31c9c7a0bcce4692b9fec3203",
+        "args": [
+          {
+            "label": "role",
+            "indexed": true,
+            "type": {
+              "type": 17,
+              "displayName": [
+                "Role"
+              ]
+            },
+            "docs": []
+          },
+          {
+            "label": "account",
+            "indexed": true,
+            "type": {
+              "type": 0,
+              "displayName": [
+                "AccountId"
+              ]
+            },
+            "docs": []
+          },
+          {
+            "label": "granted_by",
+            "indexed": false,
+            "type": {
+              "type": 0,
+              "displayName": [
+                "AccountId"
+              ]
+            },
+            "docs": []
+          }
+        ],
+        "docs": []
+      },
+      {
+        "label": "RoleRevoked",
+        "module_path": "registry::registry",
+        "signature_topic": "0x9233b468e8bfd302ede55369ae31d7a6fbf01820dc5cb262735a228b001d8fd0",
+        "args": [
+          {
+            "label": "role",
+            "indexed": true,
+            "type": {
+              "type": 17,
+              "displayName": [
+                "Role"
+              ]
+            },
+            "docs": []
+          },
+          {
+            "label": "account",
+            "indexed": true,
+            "type": {
+              "type": 0,
+              "displayName": [
+                "AccountId"
+              ]
+            },
+            "docs": []
+          },
+          {
+            "label": "revoked_by",
+            "indexed": false,
+            "type": {
+              "type": 0,
+              "displayName": [
+                "AccountId"
+              ]
+            },
+            "docs": []
+          }
+        ],
+        "docs": []
+      },
+      {
+        "label": "OperationFailed",
+        "module_path": "registry::registry",
+        "signature_topic": "0x2ae4149cbdea8f120e435a0c96e2ce9dd61b92d48c49f4b8f0e4cff561b6ac92",
+        "args": [
+          {
+            "label": "operation",
+            "indexed": false,
+            "type": {
+              "type": 38,
+              "displayName": [
+                "String"
+              ]
+            },
+            "docs": []
+          },
+          {
+            "label": "error",
+            "indexed": false,
+            "type": {
+              "type": 25,
+              "displayName": [
+                "Error"
+              ]
+            },
+            "docs": []
+          },
+          {
+            "label": "caller",
+            "indexed": false,
+            "type": {
+              "type": 0,
+              "displayName": [
+                "AccountId"
+              ]
+            },
+            "docs": []
           }
         ],
         "docs": []
@@ -1326,7 +2004,7 @@
     ],
     "docs": [],
     "lang_error": {
-      "type": 13,
+      "type": 22,
       "displayName": [
         "ink",
         "LangError"
@@ -1346,13 +2024,13 @@
         ]
       },
       "hash": {
-        "type": 28,
+        "type": 39,
         "displayName": [
           "Hash"
         ]
       },
       "timestamp": {
-        "type": 29,
+        "type": 40,
         "displayName": [
           "Timestamp"
         ]
@@ -1364,7 +2042,7 @@
         ]
       },
       "chainExtension": {
-        "type": 30,
+        "type": 41,
         "displayName": [
           "ChainExtension"
         ]

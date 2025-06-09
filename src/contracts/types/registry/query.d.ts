@@ -10,6 +10,7 @@ import type {
   ContractCallResult,
 } from "dedot/contracts";
 import type {
+  SharedRole,
   SharedError,
   InkPrimitivesLangError,
   SharedEnrichedTokenData,
@@ -18,6 +19,72 @@ import type {
 
 export interface ContractQuery<ChainApi extends GenericSubstrateApi>
   extends GenericContractQuery<ChainApi> {
+  /**
+   * Grant a role to an account (owner only)
+   *
+   * @param {SharedRole} role
+   * @param {AccountId32Like} account
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x2aabfab5
+   **/
+  grantRole: GenericContractQueryCall<
+    ChainApi,
+    (
+      role: SharedRole,
+      account: AccountId32Like,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >
+  >;
+
+  /**
+   * Revoke a role from an account (owner only)
+   *
+   * @param {SharedRole} role
+   * @param {AccountId32Like} account
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x35e1ef4a
+   **/
+  revokeRole: GenericContractQueryCall<
+    ChainApi,
+    (
+      role: SharedRole,
+      account: AccountId32Like,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >
+  >;
+
+  /**
+   * Check if an account has a specific role
+   *
+   * @param {SharedRole} role
+   * @param {AccountId32Like} account
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x8d194a68
+   **/
+  hasRole: GenericContractQueryCall<
+    ChainApi,
+    (
+      role: SharedRole,
+      account: AccountId32Like,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<boolean, ContractCallResult<ChainApi>>
+    >
+  >;
+
   /**
    * Add a new token to the registry
    *
@@ -36,27 +103,6 @@ export interface ContractQuery<ChainApi extends GenericSubstrateApi>
     ) => Promise<
       GenericContractCallResult<
         Result<number, SharedError>,
-        ContractCallResult<ChainApi>
-      >
-    >
-  >;
-
-  /**
-   * Get token data with live oracle prices
-   *
-   * @param {number} tokenId
-   * @param {ContractCallOptions} options
-   *
-   * @selector 0xecb3f7d0
-   **/
-  getTokenData: GenericContractQueryCall<
-    ChainApi,
-    (
-      tokenId: number,
-      options?: ContractCallOptions,
-    ) => Promise<
-      GenericContractCallResult<
-        Result<SharedEnrichedTokenData, SharedError>,
         ContractCallResult<ChainApi>
       >
     >
@@ -84,6 +130,48 @@ export interface ContractQuery<ChainApi extends GenericSubstrateApi>
     ) => Promise<
       GenericContractCallResult<
         Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >
+  >;
+
+  /**
+   * Remove a token from the registry
+   *
+   * @param {number} tokenId
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0xc964c4ec
+   **/
+  removeToken: GenericContractQueryCall<
+    ChainApi,
+    (
+      tokenId: number,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >
+  >;
+
+  /**
+   * Get token data with live oracle prices
+   *
+   * @param {number} tokenId
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0xecb3f7d0
+   **/
+  getTokenData: GenericContractQueryCall<
+    ChainApi,
+    (
+      tokenId: number,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<SharedEnrichedTokenData, SharedError>,
         ContractCallResult<ChainApi>
       >
     >
@@ -155,6 +243,27 @@ export interface ContractQuery<ChainApi extends GenericSubstrateApi>
     ) => Promise<
       GenericContractCallResult<
         Result<SharedTokenData, SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >
+  >;
+
+  /**
+   * Get token ID by token contract address
+   *
+   * @param {AccountId32Like} tokenContract
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x75e203e0
+   **/
+  getTokenIdByContract: GenericContractQueryCall<
+    ChainApi,
+    (
+      tokenContract: AccountId32Like,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        number | undefined,
         ContractCallResult<ChainApi>
       >
     >
