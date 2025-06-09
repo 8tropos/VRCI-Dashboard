@@ -2,7 +2,6 @@
 
 'use client';
 
-import { WalletConnector } from '@/components/wallet-connector';
 import { NetworkStatusCard } from '@/components/cards/network-status-card';
 import { WalletStatusCard } from '@/components/cards/wallet-status-card';
 import { ContractsStatusCard } from '@/components/cards/contracts-status-card';
@@ -13,19 +12,16 @@ export default function HomePage() {
   const { signer, connectedAccount } = useTypink();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-8">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="max-w-6xl mx-auto p-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-12">
-          <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">
-              W3PI - Web3 Portfolio Intelligence
-            </h1>
-            <p className="text-xl text-gray-600">
-              Decentralized portfolio management built with ink! smart contracts
-            </p>
-          </div>
-          <WalletConnector />
+        <div className="mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            W3PI - Web3 Portfolio Intelligence
+          </h1>
+          <p className="text-xl text-gray-600">
+            Decentralized portfolio management built with ink! smart contracts
+          </p>
         </div>
 
         {/* Status Cards */}

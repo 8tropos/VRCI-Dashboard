@@ -14,12 +14,12 @@ export function ContractsStatusCard() {
                     <span className="text-sm text-gray-700">Oracle Contract</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
+                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                     <span className="text-sm text-gray-700">Registry Contract</span>
                 </div>
             </div>
             <p className="text-xs text-gray-500 mt-1">
-                Oracle ready • Registry coming soon
+                Both contracts deployed and ready
             </p>
         </div>
     );

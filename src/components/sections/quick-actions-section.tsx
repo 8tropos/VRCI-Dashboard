@@ -27,12 +27,13 @@ export function QuickActionsSection() {
                     </p>
                 </button>
                 <button
-                    className={`btn-outline text-left p-4 rounded-lg transition-all ${!signer ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'
+                    onClick={() => router.push('/registry')}
+                    className={`btn-primary text-left p-4 rounded-lg transition-all ${!signer ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'
                         }`}
                     disabled={!signer}
                 >
                     <h3 className="font-semibold mb-1">Registry Contract</h3>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm opacity-90">
                         Manage portfolio tokens and configurations
                     </p>
                 </button>

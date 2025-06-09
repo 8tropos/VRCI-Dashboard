@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { MainProvider } from '@/components/providers/main-provider';
+import { ContractNav } from '@/components/navigation/contract-nav';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -25,6 +26,7 @@ export default function RootLayout({
       <body className={`${inter.className} min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800`}>
         <MainProvider>
           <div className="min-h-screen flex flex-col">
+            <ContractNav />
             <main className="flex-1">
               {children}
             </main>
