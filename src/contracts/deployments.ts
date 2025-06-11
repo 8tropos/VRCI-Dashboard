@@ -2,11 +2,13 @@
 export enum ContractId {
     ORACLE = 'oracle',
     REGISTRY = 'registry',
+    TOKEN = 'token',
 }
 
 // Import your generated metadata directly
 import oracleMetadata from './artifacts/oracle/oracle.json';
 import registryMetadata from './artifacts/registry/registry.json';
+import tokenMetadata from './artifacts/token/token.json';
 
 // Typink deployments for Pop Testnet only
 export const deployments = [
@@ -21,5 +23,11 @@ export const deployments = [
       network: 'pop_testnet',
       address: process.env.NEXT_PUBLIC_REGISTRY_ADDRESS || '',
       metadata: registryMetadata,
+    },
+    {
+        id: ContractId.TOKEN,
+        network: 'pop_testnet',
+        address: process.env.NEXT_PUBLIC_TOKEN_ADDRESS || '',
+        metadata: tokenMetadata,
     },
 ];

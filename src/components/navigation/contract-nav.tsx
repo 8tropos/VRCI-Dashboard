@@ -4,7 +4,7 @@
 
 import { useRouter, usePathname } from 'next/navigation';
 import { WalletConnector } from '@/components/wallet-connector';
-import { TrendingUp, Package, Home, BarChart3 } from 'lucide-react';
+import { TrendingUp, Package, Home, BarChart3, Coins } from 'lucide-react';
 
 export function ContractNav() {
     const router = useRouter();
@@ -28,6 +28,12 @@ export function ContractNav() {
             href: '/registry',
             icon: Package,
             description: 'Token portfolio management'
+        },
+        {
+            name: 'Token',
+            href: '/token',
+            icon: Coins,
+            description: 'PSP22 token operations'
         },
         {
             name: 'Analytics',
@@ -73,8 +79,8 @@ export function ContractNav() {
                                         key={item.name}
                                         onClick={() => router.push(item.href)}
                                         className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${active
-                                                ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300'
-                                                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-gray-700'
+                                            ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300'
+                                            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-gray-700'
                                             }`}
                                         title={item.description}
                                     >
@@ -107,8 +113,8 @@ export function ContractNav() {
                                     key={item.name}
                                     onClick={() => router.push(item.href)}
                                     className={`flex items-center space-x-1 px-3 py-2 rounded-lg text-xs font-medium transition-colors whitespace-nowrap ${active
-                                            ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300'
-                                            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-gray-700'
+                                        ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300'
+                                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-gray-700'
                                         }`}
                                 >
                                     <Icon className="h-3 w-3" />
