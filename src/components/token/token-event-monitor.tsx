@@ -116,8 +116,27 @@ export function TokenEventMonitor() {
         }
     };
 
-    const formatAddress = (address: string) => {
-        return `${address.slice(0, 6)}...${address.slice(-4)}`;
+    const formatAddress = (address: any) => {
+        try {
+            let addressStr = '';
+            if (typeof address === 'string') {
+                addressStr = address;
+            } else if (address && typeof address.address === 'function') {
+                addressStr = address.address();
+            } else if (address && typeof address === 'object' && address.address) {
+                addressStr = address.address;
+            } else {
+                addressStr = String(address);
+            }
+
+            if (!addressStr || addressStr.length < 10) {
+                return addressStr || 'Unknown';
+            }
+
+            return `${addressStr.slice(0, 6)}...${addressStr.slice(-4)}`;
+        } catch {
+            return 'Invalid Address';
+        }
     };
 
     const getEventDescription = (event: ContractEvent) => {
