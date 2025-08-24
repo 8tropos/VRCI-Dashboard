@@ -55,12 +55,14 @@ The platform consists of three core smart contracts:
 ### Quick Start
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/your-username/w3pi-web.git
    cd w3pi-web
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    # or
@@ -68,11 +70,13 @@ The platform consists of three core smart contracts:
    ```
 
 3. **Set up environment variables**
+
    ```bash
    cp env.example .env.local
    ```
-   
+
    Edit `.env.local` and add your contract addresses:
+
    ```env
    NEXT_PUBLIC_ORACLE_ADDRESS=your_oracle_contract_address
    NEXT_PUBLIC_REGISTRY_ADDRESS=your_registry_contract_address
@@ -80,6 +84,7 @@ The platform consists of three core smart contracts:
    ```
 
 4. **Start the development server**
+
    ```bash
    npm run dev
    # or
@@ -282,16 +287,11 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Documentation**: [docs/](./docs/)
 - **Issues**: [GitHub Issues](https://github.com/your-username/w3pi-web/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/your-username/w3pi-web/discussions)
-- **Email**: support@w3pi.com
+- **Email**:
 
 ## 🗺️ Roadmap
 
 - [ ] **Analytics Dashboard** - Advanced portfolio analytics
-- [ ] **Mobile App** - Native mobile application
-- [ ] **Multi-Chain Support** - Support for additional parachains
-- [ ] **DeFi Integration** - Yield farming and staking features
-- [ ] **Social Features** - Portfolio sharing and social trading
-- [ ] **Advanced Notifications** - Real-time alerts and updates
 
 ---
 
