@@ -1,8 +1,8 @@
 import { useTokensByAssetIds } from "@/hooks/use-chaindata-json";
 import { NATIVE_TOKEN_KEY } from "@/lib/utils.dot-ui";
 import { useBalance, useTypink, type NetworkId } from "typink";
-import { useAssetBalance } from "../../hooks/use-asset-balance.dedot";
-import { ClientOnly } from "../client-only";
+import { useAssetBalance } from "@/hooks/use-asset-balance.dedot";
+import { ClientOnly } from "@/components/client-only";
 import {
   BalanceDisplayBase,
   BalanceDisplaySkeletonBase,

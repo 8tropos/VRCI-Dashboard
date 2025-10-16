@@ -8,7 +8,6 @@ import type { RegistryContractApi } from '@/lib/contracts/registry';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { AddressInput } from '@/components/address-input.dedot';
-import { TxButton } from '@/components/tx-button.dedot';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Plus, Edit, Package, DollarSign, TrendingUp, Layers, Trash2, CheckCircle, XCircle, Loader2, AlertCircle } from 'lucide-react';
 
@@ -473,9 +472,8 @@ export function RegistryTokenManager() {
                                 📦 <strong>Add Token:</strong> Registers a new token with its oracle. Initial balance, weight, and tier will be set to 0 and can be updated later.
                             </p>
                         </div>
-                        <TxButton
-                            tx={addTokenTx}
-                            args={[tokenContract as `0x${string}`, oracleContract as `0x${string}`]}
+                        <Button
+                            onClick={handleAddToken}
                             disabled={!registryContract || !tokenContract.trim() || !oracleContract.trim() || isLoading}
                             className="w-full"
                         >
@@ -485,7 +483,7 @@ export function RegistryTokenManager() {
                                 <Plus className="h-4 w-4 mr-2" />
                             )}
                             {isLoading && managementState.operation === 'add' ? 'Adding Token...' : 'Add Token to Registry'}
-                        </TxButton>
+                        </Button>
                     </div>
                 )}
 
@@ -623,9 +621,8 @@ export function RegistryTokenManager() {
                                 📝 <strong>Update Token:</strong> Modify portfolio data for an existing token. Weight represents investment allocation, tier indicates risk/priority level.
                             </p>
                         </div>
-                        <TxButton
-                            tx={updateTokenTx}
-                            args={[updateTokenId, balance, weightInvestment, tier]}
+                        <Button
+                            onClick={handleUpdateToken}
                             disabled={!registryContract || !updateTokenId || !balance || !weightInvestment || !tier || isLoading}
                             className="w-full"
                         >
@@ -635,7 +632,7 @@ export function RegistryTokenManager() {
                                 <Edit className="h-4 w-4 mr-2" />
                             )}
                             {isLoading && managementState.operation === 'update' ? 'Updating Token...' : 'Update Token Data'}
-                        </TxButton>
+                        </Button>
                     </div>
                 )}
 
@@ -670,9 +667,8 @@ export function RegistryTokenManager() {
                                 ⚠️ <strong>Warning:</strong> This action will permanently remove the token and all its data from the registry. This cannot be undone.
                             </p>
                         </div>
-                        <TxButton
-                            tx={removeTokenTx}
-                            args={[removeTokenId]}
+                        <Button
+                            onClick={handleRemoveToken}
                             disabled={!registryContract || !removeTokenId.trim() || isLoading}
                             variant="destructive"
                             className="w-full"
@@ -683,7 +679,7 @@ export function RegistryTokenManager() {
                                 <Trash2 className="h-4 w-4 mr-2" />
                             )}
                             {isLoading && managementState.operation === 'remove' ? 'Removing Token...' : 'Remove Token from Registry'}
-                        </TxButton>
+                        </Button>
                     </div>
                 )}
 

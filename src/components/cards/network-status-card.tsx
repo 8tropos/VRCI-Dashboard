@@ -10,7 +10,12 @@ export function NetworkStatusCard() {
             <h3 className="text-lg font-semibold text-gray-800 mb-2">
                 Network Status
             </h3>
-            <NetworkIndicator />
+            <NetworkIndicator 
+                chainId="passet_hub_testnet"
+                at="best"
+                showBlockNumber={true}
+                showLogo={true}
+            />
         </div>
     );
 }

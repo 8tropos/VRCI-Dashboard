@@ -1,6 +1,6 @@
 import type { ISubmittableExtrinsic, ISubmittableResult } from "dedot/types";
 import { type UseTxReturnType, useTypink } from "typink";
-import { type TxButtonBaseProps } from "../blocks/tx-button/components/tx-button.base";
+import { type TxButtonBaseProps } from "@/components/tx-button.base";
 
 export interface AccountManagementHookProps {
   accounts: import("typink").TypinkAccount[];
