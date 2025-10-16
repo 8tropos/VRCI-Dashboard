@@ -10,7 +10,7 @@
     "contracts:gen": "for f in ./src/contracts/schemas/*.json; do bunx dedot typink -m $f -o ./src/lib/contracts; done"
   },
   "dependencies": {
-    "@dedot/chaintypes": "latest",
+    "@dedot/chaintypes": "^0.166.0",
     "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-tabs": "^1.1.12",
     "class-variance-authority": "^0.7.1",

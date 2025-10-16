@@ -4,8 +4,7 @@
 
 import { useState } from 'react';
 import { useContract, useContractTx } from 'typink';
-import { ContractId } from '@/contracts/deployments';
-import type { TokenContractApi } from '@/contracts/types/token';
+import type { TokenContractApi } from '@/lib/contracts/token';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,7 +17,7 @@ interface RoleState {
 }
 
 export function TokenRoleManager() {
-    const { contract: tokenContract } = useContract<TokenContractApi>(ContractId.TOKEN);
+    const { contract: tokenContract } = useContract<TokenContractApi>('token');
 
     const [targetAccount, setTargetAccount] = useState<string>('');
     const [newOwner, setNewOwner] = useState<string>('');
@@ -71,7 +70,7 @@ export function TokenRoleManager() {
         try {
             const tx = roleType === 'minter' ? addMinterTx : addBurnerTx;
             await tx.signAndSend({
-                args: [targetAccount.trim()],
+                args: [targetAccount.trim() as `0x${string}`],
                 callback: (progress) => {
                     if (progress.status.type === 'BestChainBlockIncluded') {
                         if (progress.dispatchError) {
@@ -129,7 +128,7 @@ export function TokenRoleManager() {
         try {
             const tx = roleType === 'minter' ? removeMinterTx : removeBurnerTx;
             await tx.signAndSend({
-                args: [targetAccount.trim()],
+                args: [targetAccount.trim() as `0x${string}`],
                 callback: (progress) => {
                     if (progress.status.type === 'BestChainBlockIncluded') {
                         if (progress.dispatchError) {
@@ -186,7 +185,7 @@ export function TokenRoleManager() {
 
         try {
             await transferOwnershipTx.signAndSend({
-                args: [newOwner.trim()],
+                args: [newOwner.trim() as `0x${string}`],
                 callback: (progress) => {
                     if (progress.status.type === 'BestChainBlockIncluded') {
                         if (progress.dispatchError) {
