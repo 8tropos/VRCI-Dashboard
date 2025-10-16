@@ -2,6 +2,8 @@
 
 'use client';
 
+import { rpcUrl } from "@/contracts/deployments";
+
 export function NetworkStatusCard() {
     return (
         <div className="card">
@@ -13,7 +15,7 @@ export function NetworkStatusCard() {
                 <span className="text-sm text-gray-700">POP Testnet Connected</span>
             </div>
             <p className="text-xs text-gray-500 mt-1">
-                Using RPC: wss://rpc2.paseo.popnetwork.xyz
+                Using RPC: ${rpcUrl}
             </p>
         </div>
     );

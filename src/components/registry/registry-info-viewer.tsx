@@ -3,9 +3,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useContract, useTypink } from 'typink';
-import { ContractId } from '@/contracts/deployments';
-import type { RegistryContractApi } from '@/contracts/types/registry';
+import { useContract, useContractQuery, useTypink } from 'typink';
+import type { RegistryContractApi } from '@/lib/contracts/registry';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -32,52 +31,30 @@ interface RoleCheckResult {
 }
 
 export function RegistryInfoViewer() {
-    const { contract: registryContract } = useContract<RegistryContractApi>(ContractId.REGISTRY);
+    const { contract: registryContract } = useContract<RegistryContractApi>('registry');
     const { connectedAccount } = useTypink();
 
     // State management
-    const [registryInfo, setRegistryInfo] = useState<RegistryInfo | null>(null);
-    const [roleCheckResult, setRoleCheckResult] = useState<RoleCheckResult | null>(null);
     const [checkAccountAddress, setCheckAccountAddress] = useState<string>('');
-    const [infoState, setInfoState] = useState<InfoState>({ type: 'idle' });
+    const [roleCheckResult, setRoleCheckResult] = useState<RoleCheckResult | null>(null);
     const [roleState, setRoleState] = useState<InfoState>({ type: 'idle' });
 
+    // Use Typink hooks for contract queries
+    const ownerQuery = useContractQuery({
+        contract: registryContract,
+        fn: 'getOwner'
+    });
+    
+    const tokenCountQuery = useContractQuery({
+        contract: registryContract,
+        fn: 'getTokenCount'
+    });
+
     const loadRegistryInfo = async () => {
-        if (!registryContract) {
-            setInfoState({ type: 'error', message: 'Registry contract not available' });
-            return;
-        }
-
-        setInfoState({ type: 'loading', message: 'Loading registry information...' });
-
-        try {
-            // Load owner and token count in parallel
-            const [ownerResult, countResult] = await Promise.all([
-                registryContract.query.getOwner(),
-                registryContract.query.getTokenCount()
-            ]);
-
-            const owner = ownerResult.data?.address() || '';
-            const tokenCount = countResult.data || 0;
-
-            setRegistryInfo({
-                owner,
-                tokenCount,
-                lastUpdated: new Date()
-            });
-
-            setInfoState({
-                type: 'success',
-                message: `Successfully loaded registry info • ${tokenCount} tokens registered`
-            });
-
-        } catch (err) {
-            console.error('Error loading registry info:', err);
-            setInfoState({
-                type: 'error',
-                message: `Failed to load registry info: ${err instanceof Error ? err.message : 'Unknown error'}`
-            });
-        }
+        await Promise.all([
+            ownerQuery.refresh(),
+            tokenCountQuery.refresh()
+        ]);
     };
 
     const checkAccountRoles = async (accountAddress?: string) => {
@@ -96,13 +73,12 @@ export function RegistryInfoViewer() {
 
         try {
             // Check roles in parallel
-            const [tokenManagerResult, tokenUpdaterResult, ownerResult] = await Promise.all([
-                registryContract.query.hasRole('TokenManager', targetAccount),
-                registryContract.query.hasRole('TokenUpdater', targetAccount),
-                registryContract.query.getOwner()
+            const [tokenManagerResult, tokenUpdaterResult] = await Promise.all([
+                registryContract.query.hasRole('TokenManager', targetAccount as `0x${string}`),
+                registryContract.query.hasRole('TokenUpdater', targetAccount as `0x${string}`)
             ]);
 
-            const owner = ownerResult.data?.address() || '';
+            const owner = ownerQuery.data || '';
             const isOwner = owner.toLowerCase() === targetAccount.toLowerCase();
 
             const roles = {
@@ -131,19 +107,21 @@ export function RegistryInfoViewer() {
         }
     };
 
-    // Auto-load registry info when contract becomes available
-    useEffect(() => {
-        if (registryContract) {
-            loadRegistryInfo();
-        }
-    }, [registryContract]);
-
     // Auto-check current account roles when account changes
     useEffect(() => {
         if (registryContract && connectedAccount?.address) {
             checkAccountRoles();
         }
     }, [registryContract, connectedAccount?.address]);
+
+    // Extract data from Typink query results
+    const ownerData = ownerQuery.data;
+    const tokenCountData = tokenCountQuery.data;
+    const registryInfo = ownerData && tokenCountData ? {
+        owner: ownerData,
+        tokenCount: Number(tokenCountData),
+        lastUpdated: new Date()
+    } : null;
 
     const formatAddress = (address: string) => {
         return `${address.slice(0, 8)}...${address.slice(-8)}`;
@@ -181,22 +159,23 @@ export function RegistryInfoViewer() {
                 </CardHeader>
                 <CardContent className="space-y-6">
                     {/* Status Message */}
-                    {infoState.type !== 'idle' && (
-                        <div className={`p-4 rounded-lg border flex items-start space-x-3 ${infoState.type === 'loading'
-                                ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800'
-                                : infoState.type === 'success'
-                                    ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800'
-                                    : 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800'
-                            }`}>
-                            {getStateIcon(infoState)}
+                    {(ownerQuery.isLoading || tokenCountQuery.isLoading) && (
+                        <div className="p-4 rounded-lg border flex items-start space-x-3 bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800">
+                            <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
                             <div className="flex-1">
-                                <p className={`text-sm font-medium ${infoState.type === 'loading'
-                                        ? 'text-blue-800 dark:text-blue-200'
-                                        : infoState.type === 'success'
-                                            ? 'text-green-800 dark:text-green-200'
-                                            : 'text-red-800 dark:text-red-200'
-                                    }`}>
-                                    {infoState.message}
+                                <p className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                                    Loading registry information...
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
+                    {(ownerQuery.error || tokenCountQuery.error) && (
+                        <div className="p-4 rounded-lg border flex items-start space-x-3 bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800">
+                            <XCircle className="h-4 w-4 text-red-600" />
+                            <div className="flex-1">
+                                <p className="text-sm font-medium text-red-800 dark:text-red-200">
+                                    {ownerQuery.error?.message || tokenCountQuery.error?.message || 'Failed to load registry information'}
                                 </p>
                             </div>
                         </div>
@@ -205,11 +184,11 @@ export function RegistryInfoViewer() {
                     <div className="flex justify-between items-center">
                         <Button
                             onClick={loadRegistryInfo}
-                            disabled={!registryContract || infoState.type === 'loading'}
+                            disabled={!registryContract || ownerQuery.isLoading || tokenCountQuery.isLoading}
                             variant="outline"
                             size="sm"
                         >
-                            {infoState.type === 'loading' ? (
+                            {(ownerQuery.isLoading || tokenCountQuery.isLoading) ? (
                                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
                             ) : (
                                 <RefreshCw className="h-4 w-4 mr-2" />

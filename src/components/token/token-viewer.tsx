@@ -3,9 +3,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useContract } from 'typink';
-import { ContractId } from '@/contracts/deployments';
-import type { TokenContractApi } from '@/contracts/types/token';
+import { useContract, useContractQuery } from 'typink';
+import type { TokenContractApi } from '@/lib/contracts/token';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,84 +17,91 @@ interface QueryState {
 }
 
 export function TokenViewer() {
-    const { contract: tokenContract } = useContract<TokenContractApi>(ContractId.TOKEN);
+    const { contract: tokenContract } = useContract<TokenContractApi>('token');
 
     const [accountAddress, setAccountAddress] = useState<string>('');
     const [spenderAddress, setSpenderAddress] = useState<string>('');
     const [queryType, setQueryType] = useState<'supply' | 'balance' | 'allowance' | 'metadata'>('supply');
     const [queryState, setQueryState] = useState<QueryState>({ type: 'idle' });
 
+    // Use Typink hooks for contract queries
+    const totalSupplyQuery = useContractQuery({
+        contract: tokenContract,
+        fn: 'psp22TotalSupply'
+    });
+
+    const balanceQuery = useContractQuery({
+        contract: tokenContract,
+        fn: 'psp22BalanceOf',
+        args: accountAddress ? [accountAddress as `0x${string}`] : ['0x0000000000000000000000000000000000000000000000000000000000000000']
+    });
+
+    const allowanceQuery = useContractQuery({
+        contract: tokenContract,
+        fn: 'psp22Allowance',
+        args: (accountAddress && spenderAddress) ? [accountAddress as `0x${string}`, spenderAddress as `0x${string}`] : ['0x0000000000000000000000000000000000000000000000000000000000000000', '0x0000000000000000000000000000000000000000000000000000000000000000']
+    });
+
+    const nameQuery = useContractQuery({
+        contract: tokenContract,
+        fn: 'psp22MetadataTokenName'
+    });
+
+    const symbolQuery = useContractQuery({
+        contract: tokenContract,
+        fn: 'psp22MetadataTokenSymbol'
+    });
+
+    const decimalsQuery = useContractQuery({
+        contract: tokenContract,
+        fn: 'psp22MetadataTokenDecimals'
+    });
+
     const resetQuery = () => {
         setQueryState({ type: 'idle' });
     };
 
     const handleGetTotalSupply = async () => {
-        if (!tokenContract) {
-            setQueryState({ type: 'error', message: 'Token contract not available' });
-            return;
-        }
-
-        setQueryState({ type: 'pending', message: 'Fetching total supply...' });
-
-        try {
-            const result = await tokenContract.query.psp22TotalSupply();
-            const supply = result.data || 0;
-
+        await totalSupplyQuery.refresh();
+        if (totalSupplyQuery.data) {
+            const supply = Number(totalSupplyQuery.data);
             setQueryState({
                 type: 'success',
-                message: `Total supply: ${(Number(supply) / 10 ** 12).toFixed(4)} tokens`,
+                message: `Total supply: ${(supply / 10 ** 12).toFixed(4)} tokens`,
                 data: { type: 'supply', supply }
-            });
-        } catch (err) {
-            console.error('Error querying total supply:', err);
-            setQueryState({
-                type: 'error',
-                message: `Failed to fetch total supply: ${err instanceof Error ? err.message : 'Unknown error'}`
             });
         }
     };
 
     const handleGetBalance = async () => {
-        if (!tokenContract || !accountAddress.trim()) {
+        if (!accountAddress.trim()) {
             setQueryState({ type: 'error', message: 'Please enter a valid account address' });
             return;
         }
 
-        setQueryState({ type: 'pending', message: 'Fetching balance...' });
-
-        try {
-            const result = await tokenContract.query.psp22BalanceOf(accountAddress.trim());
-            const balance = result.data || 0;
-
+        await balanceQuery.refresh();
+        if (balanceQuery.data) {
+            const balance = Number(balanceQuery.data);
             setQueryState({
                 type: 'success',
-                message: `Balance: ${(Number(balance) / 10 ** 12).toFixed(4)} tokens`,
+                message: `Balance: ${(balance / 10 ** 12).toFixed(4)} tokens`,
                 data: { type: 'balance', balance, account: accountAddress.trim() }
-            });
-        } catch (err) {
-            console.error('Error querying balance:', err);
-            setQueryState({
-                type: 'error',
-                message: `Failed to fetch balance: ${err instanceof Error ? err.message : 'Unknown error'}`
             });
         }
     };
 
     const handleGetAllowance = async () => {
-        if (!tokenContract || !accountAddress.trim() || !spenderAddress.trim()) {
+        if (!accountAddress.trim() || !spenderAddress.trim()) {
             setQueryState({ type: 'error', message: 'Please enter valid owner and spender addresses' });
             return;
         }
 
-        setQueryState({ type: 'pending', message: 'Fetching allowance...' });
-
-        try {
-            const result = await tokenContract.query.psp22Allowance(accountAddress.trim(), spenderAddress.trim());
-            const allowance = result.data || 0;
-
+        await allowanceQuery.refresh();
+        if (allowanceQuery.data) {
+            const allowance = Number(allowanceQuery.data);
             setQueryState({
                 type: 'success',
-                message: `Allowance: ${(Number(allowance) / 10 ** 12).toFixed(4)} tokens`,
+                message: `Allowance: ${(allowance / 10 ** 12).toFixed(4)} tokens`,
                 data: {
                     type: 'allowance',
                     allowance,
@@ -103,46 +109,27 @@ export function TokenViewer() {
                     spender: spenderAddress.trim()
                 }
             });
-        } catch (err) {
-            console.error('Error querying allowance:', err);
-            setQueryState({
-                type: 'error',
-                message: `Failed to fetch allowance: ${err instanceof Error ? err.message : 'Unknown error'}`
-            });
         }
     };
 
     const handleGetMetadata = async () => {
-        if (!tokenContract) {
-            setQueryState({ type: 'error', message: 'Token contract not available' });
-            return;
-        }
+        await Promise.all([
+            nameQuery.refresh(),
+            symbolQuery.refresh(),
+            decimalsQuery.refresh()
+        ]);
 
-        setQueryState({ type: 'pending', message: 'Fetching token metadata...' });
-
-        try {
-            const [nameResult, symbolResult, decimalsResult] = await Promise.all([
-                tokenContract.query.psp22MetadataTokenName(),
-                tokenContract.query.psp22MetadataTokenSymbol(),
-                tokenContract.query.psp22MetadataTokenDecimals()
-            ]);
-
+        if (nameQuery.data && symbolQuery.data && decimalsQuery.data) {
             const metadata = {
-                name: nameResult.data || 'Unknown',
-                symbol: symbolResult.data || 'UNK',
-                decimals: decimalsResult.data || 0
+                name: nameQuery.data,
+                symbol: symbolQuery.data,
+                decimals: Number(decimalsQuery.data)
             };
 
             setQueryState({
                 type: 'success',
                 message: `Token metadata retrieved`,
                 data: { type: 'metadata', metadata }
-            });
-        } catch (err) {
-            console.error('Error querying metadata:', err);
-            setQueryState({
-                type: 'error',
-                message: `Failed to fetch metadata: ${err instanceof Error ? err.message : 'Unknown error'}`
             });
         }
     };

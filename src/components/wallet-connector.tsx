@@ -16,8 +16,7 @@ export function WalletConnector() {
         signer,
         network,
         wallets,
-        connectWallet,
-        connectedWallet
+        connectWallet
     } = useTypink();
 
     // Get balances for all accounts
@@ -207,9 +206,6 @@ export function WalletConnector() {
             >
                 <div className="flex items-center space-x-2">
                     <CheckCircle className={`h-4 w-4 ${justConnected ? 'text-green-600' : 'text-green-500'}`} />
-                    {connectedWallet && (
-                        <img src={connectedWallet.logo} alt={connectedWallet.name} className="w-4 h-4" />
-                    )}
                 </div>
                 <div className="text-left">
                     <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
@@ -228,14 +224,12 @@ export function WalletConnector() {
                     {/* Connected Wallet Info */}
                     <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-green-50 dark:bg-green-900/20">
                         <div className="flex items-center justify-center mb-3">
-                            {connectedWallet && (
-                                <div className="flex items-center space-x-2">
-                                    <img src={connectedWallet.logo} alt={connectedWallet.name} className="w-6 h-6" />
-                                    <span className="text-sm font-semibold text-green-800 dark:text-green-200">
-                                        {connectedWallet.name} - v{connectedWallet.version}
-                                    </span>
-                                </div>
-                            )}
+                            <div className="flex items-center space-x-2">
+                                <CheckCircle className="w-6 h-6 text-green-600" />
+                                <span className="text-sm font-semibold text-green-800 dark:text-green-200">
+                                    Wallet Connected
+                                </span>
+                            </div>
                         </div>
                     </div>
 

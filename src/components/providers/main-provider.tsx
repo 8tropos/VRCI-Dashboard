@@ -5,7 +5,7 @@
 import { ReactNode } from 'react';
 import { TypinkProvider } from 'typink';
 import { AppProvider } from './app-provider';
-import { deployments } from '@/contracts/deployments';
+import { deployments, rpcUrl } from '@/contracts/deployments';
 
 const DEFAULT_CALLER = '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY'; // Alice
 
@@ -16,8 +16,8 @@ const customPopTestnet = {
     logo: 'https://raw.githubusercontent.com/dedotdev/typink/refs/heads/main/assets/networks/pop-network.svg',
     name: 'POP Testnet',
     pjsUrl: 'https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Frpc2.paseo.popnetwork.xyz',
-    providers: ['wss://rpc2.paseo.popnetwork.xyz'],
-    rpcUrl: 'wss://rpc2.paseo.popnetwork.xyz/',
+    providers: [rpcUrl],
+    rpcUrl: `${rpcUrl}/`,
     symbol: 'PAS',
 }
 const SUPPORTED_NETWORKS = [customPopTestnet];

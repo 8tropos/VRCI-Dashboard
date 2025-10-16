@@ -10,6 +10,8 @@ import oracleMetadata from './artifacts/oracle/oracle.json';
 import registryMetadata from './artifacts/registry/registry.json';
 import tokenMetadata from './artifacts/token/token.json';
 
+export const rpcUrl = process.env.NEXT_PUBLIC_RPC_URL || 'wss://rpc1.paseo.popnetwork.xyz';
+
 // Typink deployments for Pop Testnet only
 export const deployments = [
     {
