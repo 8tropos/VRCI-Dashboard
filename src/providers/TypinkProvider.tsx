@@ -5,59 +5,64 @@
 import { ReactNode } from 'react';
 import { TypinkProvider as BaseTypinkProvider } from 'typink';
 
-// Paseo Testnet Configuration (supports ink! contracts)
-const PASEO_NETWORK = {
-  id: "paseo_testnet",
-  name: "Paseo Testnet",
-  rpc: "wss://paseo-rpc.polkadot.io",
-  chainId: 0,
+// Passet Hub Testnet Configuration (supports ink! v6 contracts)
+const PASSET_HUB_NETWORK = {
+  id: "passet_hub_testnet",
+  name: "Passet Hub Testnet",
+  rpc: "wss://passet-hub-paseo.ibp.network",
+  chainId: 420420422,
   decimals: 10,
   symbol: "PAS",
-  logo: "https://raw.githubusercontent.com/dedotdev/typink/main/assets/networks/paseo.svg",
-  pjsUrl: "https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Fpaseo-rpc.polkadot.io",
-  faucetUrl: "https://faucet.polkadot.io",
-  providers: ["wss://paseo-rpc.polkadot.io"]
+  logo: "https://raw.githubusercontent.com/dedotdev/typink/main/assets/networks/passet-hub.svg",
+  pjsUrl: "https://blockscout-passet-hub.parity-testnet.parity.io",
+  faucetUrl: "https://faucet.passet-hub.parity-testnet.parity.io",
+  providers: ["wss://passet-hub-paseo.ibp.network"]
 };
 
-// Contract addresses on Paseo Testnet (dummy addresses for testing)
+// Contract addresses on Passet Hub Testnet (actual deployed addresses)
 const CONTRACT_ADDRESSES = {
-  TOKEN: '0x0000000000000000000000000000000000000001',
-  ORACLE: '0x0000000000000000000000000000000000000002',
-  REGISTRY: '0x0000000000000000000000000000000000000003',
-  PORTFOLIO: '0x0000000000000000000000000000000000000004',
-  STAKING: '0x0000000000000000000000000000000000000005',
-  DEX: '0x0000000000000000000000000000000000000006'
+  TOKEN: '0x873091e24278a4adb6a5fcf7c8a99b9c31179cc0', // Your deployed token contract
+  ORACLE: '0x0000000000000000000000000000000000000002', // To be deployed
+  REGISTRY: '0x0000000000000000000000000000000000000003', // To be deployed
+  PORTFOLIO: '0x0000000000000000000000000000000000000004', // To be deployed
+  STAKING: '0x0000000000000000000000000000000000000005', // To be deployed
+  DEX: '0x0000000000000000000000000000000000000006' // To be deployed
 };
 
-// Import contract metadata
-import tokenMetadata from '@/contracts/artifacts/token/token.json';
-import oracleMetadata from '@/contracts/artifacts/oracle/oracle.json';
-import registryMetadata from '@/contracts/artifacts/registry/registry.json';
+// Import contract metadata for TypinkProvider
+import tokenMetadata from '@/contracts/metadata/token.json';
+import oracleMetadata from '@/contracts/metadata/oracle.json';
+import registryMetadata from '@/contracts/metadata/registry.json';
 
-// Contract deployments configuration
+// Import new Typink-generated contract APIs for type safety
+import type { TokenContractApi } from '@/lib/contracts/token';
+import type { OracleContractApi } from '@/lib/contracts/oracle';
+import type { RegistryContractApi } from '@/lib/contracts/registry';
+
+// Contract deployments configuration using new Typink system
 const deployments = [
   {
     id: 'token',
-    network: 'paseo_testnet',
+    network: 'passet_hub_testnet',
     address: CONTRACT_ADDRESSES.TOKEN,
     metadata: tokenMetadata
   },
   {
     id: 'oracle',
-    network: 'paseo_testnet', 
+    network: 'passet_hub_testnet', 
     address: CONTRACT_ADDRESSES.ORACLE,
     metadata: oracleMetadata
   },
   {
     id: 'registry',
-    network: 'paseo_testnet',
+    network: 'passet_hub_testnet',
     address: CONTRACT_ADDRESSES.REGISTRY,
     metadata: registryMetadata
   }
-  // Note: Portfolio, Staking, and DEX contracts will be added when their metadata is available
+  // Note: Portfolio, Staking, and DEX contracts will be added when deployed
 ];
 
-const supportedNetworks = [PASEO_NETWORK];
+const supportedNetworks = [PASSET_HUB_NETWORK];
 
 interface TypinkProviderProps {
   children: ReactNode;
@@ -68,7 +73,7 @@ export function TypinkProvider({ children }: TypinkProviderProps) {
             <BaseTypinkProvider
               appName="W3PI - Web3 Portfolio Intelligence"
               deployments={deployments}
-              defaultNetworkId="paseo_testnet"
+              defaultNetworkId="passet_hub_testnet"
               supportedNetworks={supportedNetworks}
               defaultCaller="5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY" // Alice for testing
             >
@@ -78,4 +83,4 @@ export function TypinkProvider({ children }: TypinkProviderProps) {
 }
 
 // Export contract addresses for use in components
-export { CONTRACT_ADDRESSES, PASEO_NETWORK };
+export { CONTRACT_ADDRESSES, PASSET_HUB_NETWORK };
