@@ -7,6 +7,7 @@ import { PolkadotProvider } from '@/lib/polkadot-provider.dedot';
 import { ContractNav } from '@/components/navigation/contract-nav';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Providers from './providers';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -24,26 +25,28 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className} min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800`}>
-        <PolkadotProvider>
-          <div className="min-h-screen flex flex-col">
-            <ContractNav />
-            <main className="flex-1">
-              {children}
-            </main>
-          </div>
-          {/* <ToastContainer
-            position="bottom-right"
-            autoClose={5000}
-            hideProgressBar={false}
-            newestOnTop={false}
-            closeOnClick
-            rtl={false}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover
-            theme="light"
-          /> */}
-        </PolkadotProvider>
+        <Providers>
+          <PolkadotProvider>
+            <div className="min-h-screen flex flex-col">
+              <ContractNav />
+              <main className="flex-1">
+                {children}
+              </main>
+            </div>
+            {/* <ToastContainer
+              position="bottom-right"
+              autoClose={5000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme="light"
+            /> */}
+          </PolkadotProvider>
+        </Providers>
       </body>
     </html>
   );

@@ -9,6 +9,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { AddressInput } from '@/components/address-input.dedot';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Progress } from '@/components/ui/progress';
+import { Separator } from '@/components/ui/separator';
 import { Plus, Edit, Package, DollarSign, TrendingUp, Layers, Trash2, CheckCircle, XCircle, Loader2, AlertCircle } from 'lucide-react';
 
 interface ManagementState {
@@ -698,7 +701,8 @@ export function RegistryTokenManager() {
                 )}
 
                 {/* Contract Status & Permissions */}
-                <div className="space-y-3">
+                <div className="space-y-4">
+                    <Separator />
                     <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border">
                         <div className="space-y-2 text-sm">
                             <div className="flex items-center justify-between">
@@ -715,6 +719,11 @@ export function RegistryTokenManager() {
                                     <span>{isLoading ? 'Processing...' : 'Ready'}</span>
                                 </span>
                             </div>
+                            {isLoading && (
+                                <div className="mt-2">
+                                    <Progress value={33} className="w-full h-2" />
+                                </div>
+                            )}
                         </div>
 
                         {!registryContract && (
