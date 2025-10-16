@@ -4,8 +4,7 @@
 
 import { useState } from 'react';
 import { useContract, useContractTx } from 'typink';
-import { ContractId } from '@/contracts/deployments';
-import type { OracleContractApi } from '@/contracts/types/oracle';
+import type { OracleContractApi } from '@/lib/contracts/oracle';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,7 +12,7 @@ import { UserPlus, UserMinus, Users, Shield, CheckCircle } from 'lucide-react';
 import { txToaster } from '@/utils/txToaster';
 
 export function OracleAuthorizationManager() {
-    const { contract: oracleContract } = useContract<OracleContractApi>(ContractId.ORACLE);
+    const { contract: oracleContract } = useContract<OracleContractApi>('oracle');
     const [updaterAddress, setUpdaterAddress] = useState<string>('');
     const [removeAddress, setRemoveAddress] = useState<string>('');
     const [checkAddress, setCheckAddress] = useState<string>('');

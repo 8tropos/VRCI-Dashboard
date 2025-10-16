@@ -4,8 +4,7 @@
 
 import { useState } from 'react';
 import { useContract, useContractTx } from 'typink';
-import { ContractId } from '@/contracts/deployments';
-import type { OracleContractApi } from '@/contracts/types/oracle';
+import type { OracleContractApi } from '@/lib/contracts/oracle';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
@@ -13,7 +12,7 @@ import { Upload, DollarSign, TrendingUp, AlertCircle, CheckCircle, Loader } from
 import { txToaster } from '@/utils/txToaster';
 
 export function OraclePriceUpdater() {
-    const { contract: oracleContract } = useContract<OracleContractApi>(ContractId.ORACLE);
+    const { contract: oracleContract } = useContract<OracleContractApi>('oracle');
     const [tokenAddress, setTokenAddress] = useState<string>('');
     const [price, setPrice] = useState<string>('');
     const [marketCap, setMarketCap] = useState<string>('');

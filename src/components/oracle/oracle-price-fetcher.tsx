@@ -4,9 +4,7 @@
 
 import { useState } from 'react';
 import { useContract } from 'typink';
-import { ContractId } from '@/contracts/deployments';
-// Import your generated types from dedot CLI
-import type { OracleContractApi } from '@/contracts/types/oracle';
+import type { OracleContractApi } from '@/lib/contracts/oracle';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
@@ -14,7 +12,7 @@ import { TrendingUp, DollarSign, RefreshCw, Search, AlertCircle } from 'lucide-r
 import { formatBalance } from 'typink';
 
 export function OraclePriceFetcher() {
-    const { contract: oracleContract } = useContract<OracleContractApi>(ContractId.ORACLE);
+    const { contract: oracleContract } = useContract<OracleContractApi>('oracle');
     const [tokenAddress, setTokenAddress] = useState<string>('');
     const [isQuerying, setIsQuerying] = useState(false);
     const [queryResult, setQueryResult] = useState<any>(null);
