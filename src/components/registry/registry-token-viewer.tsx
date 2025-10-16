@@ -7,6 +7,7 @@ import { useContract } from 'typink';
 import type { RegistryContractApi } from '@/lib/contracts/registry';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { AddressInput } from '@/components/address-input.dedot';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Search, Package, TrendingUp, DollarSign, Layers, RefreshCw, AlertCircle, CheckCircle, XCircle, Loader2, Clock } from 'lucide-react';
 
@@ -363,12 +364,11 @@ export function RegistryTokenViewer() {
                                     <label htmlFor="contractAddress" className="text-sm font-medium">
                                         Token Contract Address
                                     </label>
-                                    <Input
-                                        id="contractAddress"
+                                    <AddressInput
                                         placeholder="Enter token contract address"
                                         value={contractAddress}
-                                        onChange={(e) => {
-                                            setContractAddress(e.target.value);
+                                        onChange={(value) => {
+                                            setContractAddress(value);
                                             resetQuery();
                                         }}
                                         className="font-mono text-sm"

@@ -7,6 +7,7 @@ import { useContract, useContractTx } from 'typink';
 import type { RegistryContractApi } from '@/lib/contracts/registry';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { AddressInput } from '@/components/address-input.dedot';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Settings, DollarSign, TrendingUp, RefreshCw, CheckCircle, XCircle, Loader2, AlertCircle } from 'lucide-react';
 
@@ -399,10 +400,10 @@ export function RegistryConfigurationManager() {
                         <span>Set DOT/USD Oracle</span>
                     </h3>
                     <div className="space-y-3">
-                        <Input
+                        <AddressInput
                             placeholder="Enter DOT/USD oracle contract address"
                             value={newOracleAddress}
-                            onChange={(e) => setNewOracleAddress(e.target.value)}
+                            onChange={setNewOracleAddress}
                             className="font-mono text-sm"
                             disabled={isLoading}
                         />

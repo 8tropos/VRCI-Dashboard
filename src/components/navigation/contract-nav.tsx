@@ -3,7 +3,7 @@
 'use client';
 
 import { useRouter, usePathname } from 'next/navigation';
-import { WalletConnector } from '@/components/wallet-connector';
+import { ConnectWallet } from '@/components/connect-wallet.dedot';
 import { TrendingUp, Package, Home, BarChart3, Coins } from 'lucide-react';
 
 export function ContractNav() {
@@ -97,7 +97,7 @@ export function ContractNav() {
 
                     {/* Right side - Wallet Connector */}
                     <div className="flex items-center">
-                        <WalletConnector />
+                        <ConnectWallet />
                     </div>
                 </div>
 

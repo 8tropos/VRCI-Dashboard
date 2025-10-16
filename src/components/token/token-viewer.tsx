@@ -7,6 +7,7 @@ import { useContract, useContractQuery } from 'typink';
 import type { TokenContractApi } from '@/lib/contracts/token';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { AddressInput } from '@/components/address-input.dedot';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Search, Coins, Users, TrendingUp, CheckCircle, XCircle, Loader2, AlertCircle } from 'lucide-react';
 
@@ -212,12 +213,11 @@ export function TokenViewer() {
                             <label htmlFor="accountAddress" className="text-sm font-medium">
                                 Account Address
                             </label>
-                            <Input
-                                id="accountAddress"
+                            <AddressInput
                                 placeholder="Enter account address"
                                 value={accountAddress}
-                                onChange={(e) => {
-                                    setAccountAddress(e.target.value);
+                                onChange={(value) => {
+                                    setAccountAddress(value);
                                     resetQuery();
                                 }}
                                 className="font-mono text-sm"
