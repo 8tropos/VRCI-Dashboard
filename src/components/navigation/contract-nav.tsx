@@ -4,7 +4,7 @@
 
 import { useRouter, usePathname } from 'next/navigation';
 import { ConnectWallet } from '@/components/connect-wallet.dedot';
-import { TrendingUp, Package, Home, BarChart3, Coins } from 'lucide-react';
+import { TrendingUp, Package, Home, BarChart3, Coins, Wallet, Lock, ArrowLeftRight } from 'lucide-react';
 
 export function ContractNav() {
     const router = useRouter();
@@ -34,6 +34,24 @@ export function ContractNav() {
             href: '/token',
             icon: Coins,
             description: 'PSP22 token operations'
+        },
+        {
+            name: 'Portfolio',
+            href: '/portfolio',
+            icon: Wallet,
+            description: 'Investment portfolio management'
+        },
+        {
+            name: 'Staking',
+            href: '/staking',
+            icon: Lock,
+            description: 'Token staking & rewards'
+        },
+        {
+            name: 'DEX',
+            href: '/dex',
+            icon: ArrowLeftRight,
+            description: 'Decentralized exchange'
         },
         {
             name: 'Analytics',
