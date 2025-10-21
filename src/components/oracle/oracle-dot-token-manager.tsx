@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useContract } from 'typink';
+import { useContract, useContractQuery } from 'typink';
 import type { OracleContractApi } from '@/lib/contracts/oracle';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,17 +18,16 @@ export default function OracleDotTokenManager() {
   const [error, setError] = useState<string | null>(null);
 
   // Query hooks
-  const { data: dotTokenAddress, isLoading: isLoadingAddress } = useContractQuery(
-    oracleContract,
-    'getDotTokenAddress',
-    []
-  );
+  const { data: dotTokenAddress, isLoading: isLoadingAddress } = useContractQuery({
+    contract: oracleContract,
+    fn: 'getDotTokenAddress',
+  });
 
-  const { data: isDotToken, isLoading: isLoadingCheck } = useContractQuery(
-    oracleContract,
-    'isDotToken',
-    tokenAddress ? [tokenAddress] : null
-  );
+  const { data: isDotToken, isLoading: isLoadingCheck } = useContractQuery({
+    contract: oracleContract,
+    fn: 'isDotToken',
+    args: tokenAddress ? [tokenAddress as `0x${string}`] : ['0x0000000000000000000000000000000000000000' as `0x${string}`],
+  });
 
   const handleCheckDotToken = async () => {
     if (!tokenAddress) {
@@ -41,7 +40,11 @@ export default function OracleDotTokenManager() {
     setResult(null);
 
     try {
-      const result = await oracleContract.query.isDotToken(tokenAddress);
+      if (!oracleContract) {
+        setError('Contract not available');
+        return;
+      }
+      const result = await oracleContract.query.isDotToken(tokenAddress as `0x${string}`);
       setResult({
         isDotToken: result,
         tokenAddress: tokenAddress
@@ -71,7 +74,7 @@ export default function OracleDotTokenManager() {
             <Label>Current DOT Token Address</Label>
             <div className="flex items-center gap-2">
               <Input
-                value={dotTokenAddress || ''}
+                value={dotTokenAddress?.toString() || ''}
                 readOnly
                 className="font-mono text-sm"
                 placeholder="Loading..."

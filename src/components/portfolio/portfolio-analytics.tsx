@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useContract } from 'typink';
+import { useContract, useContractQuery } from 'typink';
 import type { PortfolioContractApi } from '@/lib/contracts/portfolio';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -12,24 +12,11 @@ export default function PortfolioAnalytics() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Query hooks for portfolio analytics
-  const { data: analytics, isLoading: isLoadingAnalytics } = useContractQuery(
-    portfolioContract,
-    'getPortfolioAnalytics',
-    []
-  );
-
-  const { data: performance, isLoading: isLoadingPerformance } = useContractQuery(
-    portfolioContract,
-    'getTokenPerformance',
-    []
-  );
-
-  const { data: historicalData, isLoading: isLoadingHistorical } = useContractQuery(
-    portfolioContract,
-    'getHistoricalData',
-    []
-  );
+  // State for portfolio analytics
+  const [analytics, setAnalytics] = useState<any>(null);
+  const [performance, setPerformance] = useState<any>(null);
+  const [historicalData, setHistoricalData] = useState<any>(null);
+  const [isLoadingData, setIsLoadingData] = useState(false);
 
   const formatValue = (value: bigint) => {
     return `${(Number(value) / 1e18).toFixed(4)} W3PI`;

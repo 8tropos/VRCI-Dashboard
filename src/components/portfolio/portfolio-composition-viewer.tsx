@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useContract } from 'typink';
+import { useContract, useContractQuery } from 'typink';
 import type { PortfolioContractApi } from '@/lib/contracts/portfolio';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useContract } from 'typink';
+import { useContract, useContractQuery } from 'typink';
 import type { DexContractApi } from '@/lib/contracts/dex';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,30 +17,12 @@ export default function DexPriceViewer() {
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Query hooks
-  const { data: tokenPrice, isLoading: isLoadingPrice } = useContractQuery(
-    dexContract,
-    'getTokenPrice',
-    tokenAddress ? [tokenAddress] : null
-  );
-
-  const { data: totalLiquidity, isLoading: isLoadingLiquidity } = useContractQuery(
-    dexContract,
-    'getTotalLiquidity',
-    []
-  );
-
-  const { data: totalVolume, isLoading: isLoadingVolume } = useContractQuery(
-    dexContract,
-    'getTotalVolume',
-    []
-  );
-
-  const { data: feeRate, isLoading: isLoadingFeeRate } = useContractQuery(
-    dexContract,
-    'getFeeRate',
-    []
-  );
+  // State for price data
+  const [tokenPrice, setTokenPrice] = useState<any>(null);
+  const [totalLiquidity, setTotalLiquidity] = useState<any>(null);
+  const [totalVolume, setTotalVolume] = useState<any>(null);
+  const [feeRate, setFeeRate] = useState<any>(null);
+  const [isLoadingData, setIsLoadingData] = useState(false);
 
   const handleGetPrice = async () => {
     if (!tokenAddress) {
@@ -53,7 +35,11 @@ export default function DexPriceViewer() {
     setResult(null);
 
     try {
-      const result = await dexContract.query.getTokenPrice(tokenAddress);
+      if (!dexContract) {
+        setError('Contract not available');
+        return;
+      }
+      const result = await dexContract.query.getTokenPrice(tokenAddress as `0x${string}`);
       setResult({
         tokenAddress,
         price: result

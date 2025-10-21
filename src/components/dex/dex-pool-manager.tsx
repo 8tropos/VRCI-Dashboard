@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useContract, useContractTx } from 'typink';
+import { useContract, useContractTx, useContractQuery } from 'typink';
 import type { DexContractApi } from '@/lib/contracts/dex';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,6 @@ import { CheckCircle, XCircle, Wallet, Plus } from 'lucide-react';
 
 export default function DexPoolManager() {
   const { contract: dexContract } = useContract<DexContractApi>('dex');
-  const { selectedAccount } = useWallet();
   const [tokenA, setTokenA] = useState('');
   const [tokenB, setTokenB] = useState('');
   const [reserveA, setReserveA] = useState('');
@@ -24,18 +23,10 @@ export default function DexPoolManager() {
   // Transaction hooks
   const setPoolTx = useContractTx(dexContract, 'setPool');
 
-  // Query hooks
-  const { data: totalPools, isLoading: isLoadingTotalPools } = useContractQuery(
-    dexContract,
-    'getTotalPools',
-    []
-  );
-
-  const { data: poolInfo, isLoading: isLoadingPoolInfo } = useContractQuery(
-    dexContract,
-    'getPoolInfo',
-    tokenA && tokenB ? [tokenA, tokenB] : null
-  );
+  // State for pool data
+  const [totalPools, setTotalPools] = useState<any>(null);
+  const [poolInfo, setPoolInfo] = useState<any>(null);
+  const [isLoadingData, setIsLoadingData] = useState(false);
 
   const handleSetPool = async () => {
     if (!tokenA || !tokenB || !reserveA || !reserveB) {
@@ -48,9 +39,18 @@ export default function DexPoolManager() {
     setResult(null);
 
     try {
-      const tx = setPoolTx.tx(tokenA, tokenB, BigInt(reserveA), BigInt(reserveB));
-      const hash = await tx.signAndSend(selectedAccount?.address);
-      setResult({ type: 'setPool', hash, tokenA, tokenB });
+      await setPoolTx.signAndSend({
+        args: [tokenA as `0x${string}`, tokenB as `0x${string}`, BigInt(reserveA), BigInt(reserveB)],
+        callback: (progress) => {
+          if (progress.status.type === 'BestChainBlockIncluded') {
+            if (progress.dispatchError) {
+              setError('Transaction failed');
+            } else {
+              setResult({ type: 'setPool', hash: 'success', tokenA, tokenB });
+            }
+          }
+        }
+      });
     } catch (err: any) {
       setError(`Error setting pool: ${err.message}`);
     } finally {

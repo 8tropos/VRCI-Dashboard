@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useContract } from 'typink';
+import { useContract, useContractQuery } from 'typink';
 import type { OracleContractApi } from '@/lib/contracts/oracle';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,29 +14,25 @@ export default function OracleValidationConfigViewer() {
   const [error, setError] = useState<string | null>(null);
 
   // Query hooks for validation configuration
-  const { data: validationConfig, isLoading: isLoadingConfig } = useContractQuery(
-    oracleContract,
-    'getValidationConfig',
-    []
-  );
+  const { data: validationConfig, isLoading: isLoadingConfig } = useContractQuery({
+    contract: oracleContract,
+    fn: 'getValidationConfig',
+  });
 
-  const { data: maxDeviation, isLoading: isLoadingDeviation } = useContractQuery(
-    oracleContract,
-    'getMaxDeviation',
-    []
-  );
+  const { data: maxDeviation, isLoading: isLoadingDeviation } = useContractQuery({
+    contract: oracleContract,
+    fn: 'getMaxDeviation',
+  });
 
-  const { data: stalenessThreshold, isLoading: isLoadingStaleness } = useContractQuery(
-    oracleContract,
-    'getStalenessThreshold',
-    []
-  );
+  const { data: stalenessThreshold, isLoading: isLoadingStaleness } = useContractQuery({
+    contract: oracleContract,
+    fn: 'getStalenessThreshold',
+  });
 
-  const { data: minUpdateInterval, isLoading: isLoadingInterval } = useContractQuery(
-    oracleContract,
-    'getMinUpdateInterval',
-    []
-  );
+  const { data: minUpdateInterval, isLoading: isLoadingInterval } = useContractQuery({
+    contract: oracleContract,
+    fn: 'getMinUpdateInterval',
+  });
 
   const formatBasisPoints = (bp: number) => {
     return `${(bp / 100).toFixed(2)}%`;

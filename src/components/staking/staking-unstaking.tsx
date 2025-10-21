@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useContract, useContractTx } from 'typink';
+import { useContract, useContractTx, useContractQuery } from 'typink';
 import type { StakingContractApi } from '@/lib/contracts/staking';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

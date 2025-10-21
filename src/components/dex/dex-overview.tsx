@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useContract } from 'typink';
+import { useContract, useContractQuery } from 'typink';
 import type { DexContractApi } from '@/lib/contracts/dex';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -12,16 +12,13 @@ export default function DexOverview() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Query hooks for DEX overview
+  // State for DEX overview data
   const [totalPools, setTotalPools] = useState<any>(null);
-
   const [totalLiquidity, setTotalLiquidity] = useState<any>(null);
-
   const [totalVolume, setTotalVolume] = useState<any>(null);
-
   const [isPaused, setIsPaused] = useState<any>(null);
-
   const [feeRate, setFeeRate] = useState<any>(null);
+  const [isLoadingData, setIsLoadingData] = useState(false);
 
   const formatAmount = (amount: bigint) => {
     return `${(Number(amount) / 1e18).toFixed(4)}`;
@@ -32,8 +29,7 @@ export default function DexOverview() {
     return `${percentage.toFixed(2)}%`;
   };
 
-  const isLoadingAny = isLoadingTotalPools || isLoadingTotalLiquidity || isLoadingTotalVolume || 
-                      isLoadingPaused || isLoadingFeeRate;
+  const isLoadingAny = isLoadingData;
 
   return (
     <div className="space-y-6">

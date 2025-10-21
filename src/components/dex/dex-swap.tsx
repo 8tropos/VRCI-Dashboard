@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useContract, useContractTx } from 'typink';
+import { useContract, useContractTx, useContractQuery } from 'typink';
 import type { DexContractApi } from '@/lib/contracts/dex';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,6 @@ import { CheckCircle, XCircle, ArrowLeftRight, TrendingUp } from 'lucide-react';
 
 export default function DexSwap() {
   const { contract: dexContract } = useContract<DexContractApi>('dex');
-  const { selectedAccount } = useWallet();
   const [fromToken, setFromToken] = useState('');
   const [toToken, setToToken] = useState('');
   const [amount, setAmount] = useState('');
@@ -24,12 +23,9 @@ export default function DexSwap() {
   // Transaction hooks
   const swapTx = useContractTx(dexContract, 'swap');
 
-  // Query hooks
-  const { data: swapQuote, isLoading: isLoadingQuote } = useContractQuery(
-    dexContract,
-    'getSwapQuote',
-    fromToken && toToken && amount ? [fromToken, toToken, BigInt(amount)] : null
-  );
+  // State for swap data
+  const [swapQuote, setSwapQuote] = useState<any>(null);
+  const [isLoadingData, setIsLoadingData] = useState(false);
 
   const handleSwap = async () => {
     if (!fromToken || !toToken || !amount) {
@@ -42,10 +38,19 @@ export default function DexSwap() {
     setResult(null);
 
     try {
-      const pathArray = path ? path.split(',').map(p => p.trim()) : [fromToken, toToken];
-      const tx = swapTx.tx(fromToken, toToken, BigInt(amount), pathArray);
-      const hash = await tx.signAndSend(selectedAccount?.address);
-      setResult({ type: 'swap', hash, fromToken, toToken, amount });
+      const pathArray = path ? path.split(',').map(p => p.trim() as `0x${string}`) : [fromToken as `0x${string}`, toToken as `0x${string}`];
+      await swapTx.signAndSend({
+        args: [fromToken as `0x${string}`, toToken as `0x${string}`, BigInt(amount), pathArray],
+        callback: (progress) => {
+          if (progress.status.type === 'BestChainBlockIncluded') {
+            if (progress.dispatchError) {
+              setError('Transaction failed');
+            } else {
+              setResult({ type: 'swap', hash: 'success', fromToken, toToken, amount });
+            }
+          }
+        }
+      });
     } catch (err: any) {
       setError(`Error swapping tokens: ${err.message}`);
     } finally {
