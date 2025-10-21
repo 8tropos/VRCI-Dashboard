@@ -4,7 +4,6 @@ import {
   ConnectWalletBase,
   type ConnectWalletBaseProps,
 } from "./connect-wallet.base";
-import { PolkadotProvider } from "@/lib/polkadot-provider.dedot";
 import { useTypink } from "typink";
 
 export type ConnectWalletProps = Omit<ConnectWalletBaseProps, "services">;
@@ -36,10 +35,7 @@ export function ConnectWallet(props: ConnectWalletProps) {
   );
 }
 
+// ConnectWalletWithProvider is no longer needed since TypinkProvider is at app level
 export function ConnectWalletWithProvider(props: ConnectWalletProps) {
-  return (
-    <PolkadotProvider>
-      <ConnectWallet {...props} />
-    </PolkadotProvider>
-  );
+  return <ConnectWallet {...props} />;
 }

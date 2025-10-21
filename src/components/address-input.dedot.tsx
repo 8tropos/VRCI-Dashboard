@@ -7,7 +7,7 @@ import {
   type AddressInputBaseProps,
 } from "./address-input.base";
 // Import Dedot-specific hooks
-import { PolkadotProvider } from "@/lib/polkadot-provider.dedot";
+// PolkadotProvider import removed - using TypinkProvider at app level
 import { useIdentityOf } from "@/hooks/use-identity-of.dedot";
 import { useIdentitySearch } from "@/hooks/use-search-identity.dedot";
 import { type NetworkId, paseoPeople, usePolkadotClient } from "typink";
@@ -50,12 +50,9 @@ function AddressInputInner(props: AddressInputProps) {
 }
 
 // Wrapped version with provider for drop-in usage
+// AddressInputWithProvider is no longer needed since TypinkProvider is at app level
 export function AddressInputWithProvider(props: AddressInputProps) {
-  return (
-    <PolkadotProvider>
-      <AddressInput {...props} />
-    </PolkadotProvider>
-  );
+  return <AddressInput {...props} />;
 }
 
 AddressInputWithProvider.displayName = "AddressInputWithProvider";

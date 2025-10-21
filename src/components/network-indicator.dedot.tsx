@@ -6,7 +6,7 @@ import {
   NetworkIndicatorSkeleton,
   type NetworkIndicatorBaseProps,
 } from "./network-indicator.base";
-import { PolkadotProvider } from "@/lib/polkadot-provider.dedot";
+// PolkadotProvider import removed - using TypinkProvider at app level
 import { useMemo } from "react";
 import { ClientConnectionStatus, useBlockInfo, useTypink } from "typink";
 
@@ -45,12 +45,9 @@ export function NetworkIndicatorInner<TNetworkId extends string>(
   return <NetworkIndicatorBase {...props} services={services} />;
 }
 
+// NetworkIndicatorWithProvider is no longer needed since TypinkProvider is at app level
 export function NetworkIndicatorWithProvider(
   props: NetworkIndicatorProps<string>
 ) {
-  return (
-    <PolkadotProvider>
-      <NetworkIndicator {...props} />
-    </PolkadotProvider>
-  );
+  return <NetworkIndicator {...props} />;
 }

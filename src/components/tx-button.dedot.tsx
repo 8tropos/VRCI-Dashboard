@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { PolkadotProvider } from "@/lib/polkadot-provider.dedot";
+// PolkadotProvider import removed - using TypinkProvider at app level
 import { TxButtonBase, type TxButtonBaseProps } from "./tx-button.base";
 import { useTypink, useTxFee, useBalance } from "typink";
 import { DEFAULT_CALLER } from "@/lib/utils.dot-ui";
@@ -62,11 +62,7 @@ export function TxButton<TTx extends AnyUseTx>(props: TxButtonProps<TTx>) {
 export function TxButtonWithProvider<TTx extends AnyUseTx>(
   props: TxButtonProps<TTx>
 ) {
-  return (
-    <PolkadotProvider>
-      <TxButton {...props} />
-    </PolkadotProvider>
-  );
+  return <TxButton {...props} />;
 }
 
 TxButtonWithProvider.displayName = "TxButtonWithProvider";
