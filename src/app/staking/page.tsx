@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useContract } from 'typink';
+import { useTypink } from 'typink';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -15,26 +15,18 @@ import StakingUnstaking from '@/components/staking/staking-unstaking';
 import StakingConfiguration from '@/components/staking/staking-configuration';
 
 export default function StakingPage() {
-  const [selectedStaking, setSelectedStaking] = useState<string>('');
+  const { signer, connectedAccount } = useTypink();
+  const [activeTab, setActiveTab] = useState<string>('overview');
   const [error, setError] = useState<string | null>(null);
 
-  // Contract connection
-  const stakingContract = useContract(selectedStaking);
-
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Staking Management</h1>
-          <p className="text-gray-600 mt-2">
-            Stake W3PI tokens and earn rewards with flexible unstaking options
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Info className="h-5 w-5 text-blue-600" />
-          <span className="text-sm text-gray-600">Staking System</span>
-        </div>
-      </div>
+    <div className="container mx-auto py-10">
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="text-3xl font-bold">Staking Dashboard</CardTitle>
+          <CardDescription>Manage your token staking and rewards.</CardDescription>
+        </CardHeader>
+      </Card>
 
       {error && (
         <Alert variant="destructive">
@@ -42,7 +34,7 @@ export default function StakingPage() {
         </Alert>
       )}
 
-      <Tabs defaultValue="overview" className="space-y-6">
+      <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value)} className="space-y-6">
         <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="overview" className="flex items-center gap-2">
             <TrendingUp className="h-4 w-4" />
