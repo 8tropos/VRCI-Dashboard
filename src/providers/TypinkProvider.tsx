@@ -33,11 +33,17 @@ const CONTRACT_ADDRESSES = {
 import tokenMetadata from '@/contracts/metadata/token.json';
 import oracleMetadata from '@/contracts/metadata/oracle.json';
 import registryMetadata from '@/contracts/metadata/registry.json';
+import portfolioMetadata from '@/contracts/metadata/portfolio.json';
+import stakingMetadata from '@/contracts/metadata/staking.json';
+import dexMetadata from '@/contracts/metadata/dex.json';
 
 // Import new Typink-generated contract APIs for type safety
 import type { TokenContractApi } from '@/lib/contracts/token';
 import type { OracleContractApi } from '@/lib/contracts/oracle';
 import type { RegistryContractApi } from '@/lib/contracts/registry';
+import type { PortfolioContractApi } from '@/lib/contracts/portfolio';
+import type { StakingContractApi } from '@/lib/contracts/staking';
+import type { DexContractApi } from '@/lib/contracts/dex';
 
 // Contract deployments configuration using new Typink system
 const deployments = [
@@ -58,8 +64,25 @@ const deployments = [
     network: 'passet_hub_testnet',
     address: CONTRACT_ADDRESSES.REGISTRY,
     metadata: registryMetadata
+  },
+  {
+    id: 'portfolio',
+    network: 'passet_hub_testnet',
+    address: CONTRACT_ADDRESSES.PORTFOLIO,
+    metadata: portfolioMetadata
+  },
+  {
+    id: 'staking',
+    network: 'passet_hub_testnet',
+    address: CONTRACT_ADDRESSES.STAKING,
+    metadata: stakingMetadata
+  },
+  {
+    id: 'dex',
+    network: 'passet_hub_testnet',
+    address: CONTRACT_ADDRESSES.DEX,
+    metadata: dexMetadata
   }
-  // Note: Portfolio, Staking, and DEX contracts will be added when deployed
 ];
 
 const supportedNetworks = [PASSET_HUB_NETWORK];
