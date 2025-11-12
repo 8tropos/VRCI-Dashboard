@@ -9,23 +9,24 @@ import { encodeAddress } from "dedot/utils";
 import {
   ClientConnectionStatus,
   type NetworkId,
-  paseoPeople,
   usePolkadotClient,
   useTypink,
 } from "typink";
 
 export function useIdentitySearch(
   displayName: string | null | undefined,
-  identityChain: NetworkId = paseoPeople.id
+  identityChain?: NetworkId
 ) {
   const { supportedNetworks } = useTypink();
-  const network = supportedNetworks.find((n) => n.id === identityChain);
+  const defaultNetworkId = supportedNetworks[0]?.id ?? "passet_hub_testnet";
+  const networkId = identityChain ?? defaultNetworkId;
+  const network = supportedNetworks.find((n) => n.id === networkId);
   const { client: peopleClient, status: peopleStatus } = usePolkadotClient(
     network?.id
   );
 
   return useQuery({
-    queryKey: ["identity-search-dedot", displayName, identityChain],
+    queryKey: ["identity-search-dedot", displayName, networkId],
     queryFn: async (): Promise<IdentitySearchResult[]> => {
       if (
         !peopleClient ||

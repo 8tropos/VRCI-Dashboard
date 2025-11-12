@@ -10,7 +10,7 @@ import {
 // PolkadotProvider import removed - using TypinkProvider at app level
 import { useIdentityOf } from "@/hooks/use-identity-of.dedot";
 import { useIdentitySearch } from "@/hooks/use-search-identity.dedot";
-import { type NetworkId, paseoPeople, usePolkadotClient } from "typink";
+import { type NetworkId, usePolkadotClient, useTypink } from "typink";
 import { Input } from "@/components/ui/input";
 
 export type AddressInputProps = Omit<
@@ -27,24 +27,28 @@ export function AddressInput(props: AddressInputProps) {
 }
 
 function AddressInputInner(props: AddressInputProps) {
-  const { status } = usePolkadotClient(props.identityChain ?? paseoPeople.id);
+  const { supportedNetworks } = useTypink();
+  const defaultNetworkId = supportedNetworks[0]?.id ?? "passet_hub_testnet";
+  const identityChain = props.identityChain ?? defaultNetworkId;
+  
+  const { status } = usePolkadotClient(identityChain);
 
   const services = useMemo(
     () => ({
       useIdentityOf: (address: string, identityChain?: NetworkId) =>
-        useIdentityOf({ address, chainId: identityChain ?? paseoPeople.id }),
+        useIdentityOf({ address, chainId: identityChain ?? defaultNetworkId }),
       useIdentitySearch,
       clientStatus: status,
       explorerUrl: "",
     }),
-    [status]
+    [status, defaultNetworkId]
   );
 
   return (
     <AddressInputBase
       {...props}
       services={services}
-      identityChain={props.identityChain ?? paseoPeople.id}
+      identityChain={identityChain}
     />
   );
 }

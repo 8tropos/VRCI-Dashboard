@@ -7,6 +7,7 @@
 ## Technology Stack
 
 ### Core Technologies
+
 - **Frontend Framework**: Next.js 15 (App Router)
 - **Smart Contract Integration**: Typink (by Dedot team)
 - **Blockchain**: Pop Testnet (Polkadot parachain)
@@ -15,6 +16,7 @@
 - **Package Manager**: npm/yarn
 
 ### Key Dependencies
+
 ```json
 {
   "typink": "^0.15.0",
@@ -29,6 +31,7 @@
 ## Smart Contracts
 
 ### Contract Architecture
+
 1. **Oracle Contract** (`oracle.rs`)
    - Provides price feeds and market data
    - Manages token pricing information
@@ -40,19 +43,22 @@
    - Handles token metadata and balances
 
 ### Generated Types
+
 - Used Dedot CLI to generate TypeScript types from contract metadata
 - Command: `npx dedot typink -m src/contracts/artifacts/oracle/oracle.json -o src/contracts/types`
 
 ## Network Configuration
 
 ### Pop Testnet Setup
+
 - **Network ID**: `pop_testnet`
 - **RPC Endpoint**: `wss://rpc2.paseo.popnetwork.xyz/`
 - **Native Token**: PAS (Paseo tokens)
 - **Decimals**: 10
-- **Faucet**: https://onboard.popnetwork.xyz
+- **Faucet**: <https://onboard.popnetwork.xyz>
 
 ### Why Pop Testnet?
+
 - Polkadot parachain optimized for smart contracts
 - Stable testnet environment
 - Good developer tooling support
@@ -82,6 +88,7 @@ src/
 ## Key Features Implemented
 
 ### 1. Wallet Connection
+
 - Support for multiple Polkadot wallets (Polkadot.js, Talisman, SubWallet)
 - Auto-detection of installed wallet extensions
 - Account switching and management
@@ -89,18 +96,21 @@ src/
 - Connection state management with feedback
 
 ### 2. Network Management
+
 - Pop Testnet integration
 - Custom network configuration
 - Network status indicators
 - RPC endpoint management
 
 ### 3. Contract Integration
+
 - Type-safe contract interactions
 - Automated type generation
 - Contract deployment management
 - Error handling and validation
 
 ### 4. User Interface
+
 - Responsive design with Tailwind CSS
 - Dark mode support
 - Loading states and animations
@@ -110,6 +120,7 @@ src/
 ## Development Approach
 
 ### Step-by-Step Implementation
+
 1. **Project Setup** - Next.js 15 with TypeScript
 2. **Typink Integration** - Provider setup and configuration
 3. **Network Configuration** - Pop Testnet custom setup
@@ -119,6 +130,7 @@ src/
 7. **State Management** - React hooks and context
 
 ### Design Principles
+
 - **Type Safety** - Full TypeScript coverage
 - **User Experience** - Clear feedback and intuitive interface
 - **Modularity** - Reusable components and providers

@@ -3,7 +3,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import { ContractNav } from '@/components/navigation/contract-nav';
+import { DashboardLayout } from '@/components/dashboard-layout';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Providers from './providers';
@@ -24,15 +24,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800`}>
+      <body className={`${inter.className} min-h-screen`}>
         <Providers>
           <TypinkWrapper>
-            <div className="min-h-screen flex flex-col">
-              <ContractNav />
-              <main className="flex-1">
-                {children}
-              </main>
-            </div>
+            <DashboardLayout>
+              {children}
+            </DashboardLayout>
             {/* <ToastContainer
               position="bottom-right"
               autoClose={5000}

@@ -12,7 +12,7 @@ export const oracleTokenDataSchema = z.object({
   ath: z.number().nonnegative().nullable(),
   atl: z.number().nonnegative().nullable(),
   supply: z.number().nonnegative().nullable(),
-  source: z.enum(['coinmarketcap', 'cryptorates', 'cryptoprices', 'coingecko', 'binance']),
+  source: z.enum(['coinmarketcap', 'cryptorates', 'cryptoprices', 'coingecko', 'binance', 'cryptoratesai']),
 });
 
 export const oracleResponseSchema = z.object({

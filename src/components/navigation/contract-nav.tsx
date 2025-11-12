@@ -4,7 +4,7 @@
 
 import { useRouter, usePathname } from 'next/navigation';
 import { ConnectWallet } from '@/components/connect-wallet.dedot';
-import { TrendingUp, Package, Home, BarChart3, Coins, Wallet, Lock, ArrowLeftRight } from 'lucide-react';
+import { TrendingUp, Package, Home, BarChart3, Coins, Wallet, Lock, ArrowLeftRight, Settings } from 'lucide-react';
 
 export function ContractNav() {
     const router = useRouter();
@@ -58,6 +58,12 @@ export function ContractNav() {
             href: '/analytics',
             icon: BarChart3,
             description: 'Market analytics & insights'
+        },
+        {
+            name: 'Admin',
+            href: '/admin',
+            icon: Settings,
+            description: 'Admin panel for token management'
         }
     ];
 
