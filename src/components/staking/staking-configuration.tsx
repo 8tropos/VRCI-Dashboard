@@ -3,12 +3,13 @@
 import { useState } from 'react';
 import { useContract, useContractTx, useContractQuery } from 'typink';
 import type { StakingContractApi } from '@/lib/contracts/staking';
+import { CONTRACT_ADDRESSES } from '@/providers/TypinkProvider';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { CheckCircle, XCircle, Settings, Clock } from 'lucide-react';
+import { CheckCircle, XCircle, Settings, Clock, RefreshCw, Copy, Wallet } from 'lucide-react';
 
 export default function StakingConfiguration() {
   const { contract: stakingContract } = useContract<StakingContractApi>('staking');
@@ -17,6 +18,12 @@ export default function StakingConfiguration() {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
+  // Contract reference configuration state
+  const [w3piTokenAddress, setW3piTokenAddress] = useState<string>(CONTRACT_ADDRESSES.TOKEN);
+  const [registryAddress, setRegistryAddress] = useState<string>(CONTRACT_ADDRESSES.REGISTRY);
+  const [feeWalletAddress, setFeeWalletAddress] = useState<string>('5Dc2AZgBtFERxPqVxhxMfmeKQt8BMfxSeMyxQCyCxqy35e1a');
 
   // Transaction hooks
   // Note: Some methods don't exist in Staking contract API
@@ -24,6 +31,9 @@ export default function StakingConfiguration() {
   // const setUnstakingPeriodTx = useContractTx(stakingContract, 'setUnstakingPeriod');
   const pauseTx = useContractTx(stakingContract, 'pause');
   const resumeTx = useContractTx(stakingContract, 'unpause');
+  const setW3piTokenTx = useContractTx(stakingContract, 'setW3piToken');
+  const setRegistryTx = useContractTx(stakingContract, 'setRegistry');
+  const setFeeWalletTx = useContractTx(stakingContract, 'setFeeWallet');
 
   // State for staking configuration
   // Note: These methods don't exist in Staking contract API
@@ -128,6 +138,111 @@ export default function StakingConfiguration() {
   const formatPeriod = (period: bigint) => {
     const days = Number(period) / (24 * 60 * 60);
     return `${days.toFixed(1)} days`;
+  };
+
+  // Helper function to validate H160 address
+  const isValidAddress = (address: string): boolean => {
+    return /^0x[a-fA-F0-9]{40}$/.test(address);
+  };
+
+  // Helper function to copy address to clipboard
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setSuccess('Address copied to clipboard!');
+    setTimeout(() => setSuccess(null), 2000);
+  };
+
+  // Handle setting W3PI token address
+  const handleSetW3piToken = async () => {
+    if (!isValidAddress(w3piTokenAddress)) {
+      setError('Invalid W3PI token contract address');
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      await setW3piTokenTx.signAndSend({
+        args: [w3piTokenAddress as `0x${string}`],
+        callback: (progress) => {
+          if (progress.status.type === 'BestChainBlockIncluded') {
+            if (progress.dispatchError) {
+              setError('Transaction failed');
+            } else {
+              setSuccess('W3PI token address set successfully!');
+            }
+          }
+        }
+      });
+    } catch (err: any) {
+      setError(`Error setting W3PI token address: ${err.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle setting Registry address
+  const handleSetRegistry = async () => {
+    if (!isValidAddress(registryAddress)) {
+      setError('Invalid Registry contract address');
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      await setRegistryTx.signAndSend({
+        args: [registryAddress as `0x${string}`],
+        callback: (progress) => {
+          if (progress.status.type === 'BestChainBlockIncluded') {
+            if (progress.dispatchError) {
+              setError('Transaction failed');
+            } else {
+              setSuccess('Registry address set successfully!');
+            }
+          }
+        }
+      });
+    } catch (err: any) {
+      setError(`Error setting Registry address: ${err.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle setting Fee Wallet address
+  const handleSetFeeWallet = async () => {
+    if (!isValidAddress(feeWalletAddress)) {
+      setError('Invalid fee wallet address. Must be H160 format (0x followed by 40 hex characters)');
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      await setFeeWalletTx.signAndSend({
+        args: [feeWalletAddress as `0x${string}`],
+        callback: (progress) => {
+          if (progress.status.type === 'BestChainBlockIncluded') {
+            if (progress.dispatchError) {
+              setError('Transaction failed');
+            } else {
+              setSuccess('Fee wallet address set successfully!');
+            }
+          }
+        }
+      });
+    } catch (err: any) {
+      setError(`Error setting fee wallet address: ${err.message}`);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -277,6 +392,138 @@ export default function StakingConfiguration() {
               <li>Pause system for maintenance</li>
               <li>Resume normal operations when ready</li>
               <li>All changes require owner permissions</li>
+            </ul>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Contract References Configuration */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Wallet className="h-5 w-5" />
+            Contract References Configuration
+          </CardTitle>
+          <CardDescription>
+            Configure contract references for Staking contract. These references enable cross-contract calls.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Set W3PI Token Address */}
+          <div className="space-y-2">
+            <Label htmlFor="w3pi-token-address">W3PI Token Contract Address</Label>
+            <div className="flex gap-2">
+              <Input
+                id="w3pi-token-address"
+                type="text"
+                placeholder="0x..."
+                value={w3piTokenAddress}
+                onChange={(e) => setW3piTokenAddress(e.target.value)}
+                className="font-mono"
+              />
+              <Button
+                onClick={handleSetW3piToken}
+                disabled={isLoading || !isValidAddress(w3piTokenAddress)}
+                className="flex items-center gap-2"
+              >
+                {isLoading ? (
+                  <>
+                    <RefreshCw className="h-4 w-4 animate-spin" />
+                    Setting...
+                  </>
+                ) : (
+                  'Set W3PI Token'
+                )}
+              </Button>
+            </div>
+          </div>
+
+          {/* Set Registry Address */}
+          <div className="space-y-2">
+            <Label htmlFor="registry-address">Registry Contract Address</Label>
+            <div className="flex gap-2">
+              <Input
+                id="registry-address"
+                type="text"
+                placeholder="0x..."
+                value={registryAddress}
+                onChange={(e) => setRegistryAddress(e.target.value)}
+                className="font-mono"
+              />
+              <Button
+                onClick={handleSetRegistry}
+                disabled={isLoading || !isValidAddress(registryAddress)}
+                className="flex items-center gap-2"
+              >
+                {isLoading ? (
+                  <>
+                    <RefreshCw className="h-4 w-4 animate-spin" />
+                    Setting...
+                  </>
+                ) : (
+                  'Set Registry'
+                )}
+              </Button>
+            </div>
+          </div>
+
+          {/* Set Fee Wallet Address */}
+          <div className="space-y-2">
+            <Label htmlFor="fee-wallet-address">Fee Wallet Address (H160 format)</Label>
+            <div className="flex gap-2">
+              <Input
+                id="fee-wallet-address"
+                type="text"
+                placeholder="0x..."
+                value={feeWalletAddress}
+                onChange={(e) => setFeeWalletAddress(e.target.value)}
+                className="font-mono"
+              />
+              <Button
+                onClick={handleSetFeeWallet}
+                disabled={isLoading || !isValidAddress(feeWalletAddress)}
+                className="flex items-center gap-2"
+              >
+                {isLoading ? (
+                  <>
+                    <RefreshCw className="h-4 w-4 animate-spin" />
+                    Setting...
+                  </>
+                ) : (
+                  'Set Fee Wallet'
+                )}
+              </Button>
+            </div>
+            <p className="text-xs text-gray-500">
+              Note: Fee wallet must be in H160 format (0x followed by 40 hex characters). 
+              If you have a Polkadot SS58 address, convert it to H160 format first.
+            </p>
+          </div>
+
+          {/* Success/Error Messages */}
+          {success && (
+            <Alert className="border-green-200 bg-green-50 dark:bg-green-900/20">
+              <CheckCircle className="h-4 w-4 text-green-600" />
+              <AlertDescription>{success}</AlertDescription>
+            </Alert>
+          )}
+
+          {error && (
+            <Alert variant="destructive">
+              <XCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          {/* Information */}
+          <div className="text-sm text-gray-600 dark:text-gray-400 space-y-2 border-t pt-4">
+            <p><strong>About Contract References:</strong></p>
+            <ul className="list-disc list-inside space-y-1 ml-4">
+              <li>W3PI Token: The W3PI token contract for staking operations</li>
+              <li>Registry: The Registry contract for token tier information</li>
+              <li>Fee Wallet: Address where staking fees are collected</li>
+              <li>All configuration requires owner permissions</li>
+              <li>These references enable cross-contract calls between Staking and other contracts</li>
             </ul>
           </div>
         </CardContent>
