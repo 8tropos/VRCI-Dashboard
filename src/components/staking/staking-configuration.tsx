@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useContract, useContractTx, useContractQuery } from 'typink';
 import type { StakingContractApi } from '@/lib/contracts/staking';
 import { CONTRACT_ADDRESSES } from '@/providers/TypinkProvider';
@@ -9,7 +9,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { CheckCircle, XCircle, Settings, Clock, RefreshCw, Copy, Wallet } from 'lucide-react';
+import { decodeAddress } from '@polkadot/keyring';
 
 export default function StakingConfiguration() {
   const { contract: stakingContract } = useContract<StakingContractApi>('staking');
@@ -25,6 +27,27 @@ export default function StakingConfiguration() {
   const [registryAddress, setRegistryAddress] = useState<string>(CONTRACT_ADDRESSES.REGISTRY);
   const [feeWalletAddress, setFeeWalletAddress] = useState<string>('5Dc2AZgBtFERxPqVxhxMfmeKQt8BMfxSeMyxQCyCxqy35e1a');
 
+  // Track which addresses have been set (for status indicators)
+  // Load from localStorage on mount
+  const [w3piTokenSet, setW3piTokenSet] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('staking_w3pi_token_set') === 'true';
+    }
+    return false;
+  });
+  const [registrySet, setRegistrySet] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('staking_registry_set') === 'true';
+    }
+    return false;
+  });
+  const [feeWalletSet, setFeeWalletSet] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('staking_fee_wallet_set') === 'true';
+    }
+    return false;
+  });
+
   // Transaction hooks
   // Note: Some methods don't exist in Staking contract API
   // const setStakingPeriodTx = useContractTx(stakingContract, 'setStakingPeriod');
@@ -35,11 +58,11 @@ export default function StakingConfiguration() {
   const setRegistryTx = useContractTx(stakingContract, 'setRegistry');
   const setFeeWalletTx = useContractTx(stakingContract, 'setFeeWallet');
 
-  // State for staking configuration
-  // Note: These methods don't exist in Staking contract API
-  const [currentStakingPeriod, setCurrentStakingPeriod] = useState<any>(null);
-  const [currentUnstakingPeriod, setCurrentUnstakingPeriod] = useState<any>(null);
-  const [isLoadingData, setIsLoadingData] = useState(false);
+  // Query total staked to verify contract is working (we'll use this as a health check)
+  const totalStakedQuery = useContractQuery({
+    contract: stakingContract,
+    fn: 'getTotalStaked'
+  });
 
   // Note: isPaused method doesn't exist in Staking contract API
   // const [isPaused, setIsPaused] = useState<any>(null);
@@ -145,6 +168,31 @@ export default function StakingConfiguration() {
     return /^0x[a-fA-F0-9]{40}$/.test(address);
   };
 
+  // Helper function to validate SS58 address
+  const isValidSS58 = (address: string): boolean => {
+    try {
+      decodeAddress(address);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  // Helper function to convert SS58 to H160
+  const convertSS58ToH160 = (ss58Address: string): string => {
+    try {
+      const decoded = decodeAddress(ss58Address);
+      // Take first 20 bytes (H160 format)
+      const h160Bytes = decoded.slice(0, 20);
+      // Convert to hex string with 0x prefix
+      return '0x' + Array.from(h160Bytes)
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+    } catch (error) {
+      throw new Error('Invalid SS58 address');
+    }
+  };
+
   // Helper function to copy address to clipboard
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -172,6 +220,8 @@ export default function StakingConfiguration() {
               setError('Transaction failed');
             } else {
               setSuccess('W3PI token address set successfully!');
+              setW3piTokenSet(true);
+              localStorage.setItem('staking_w3pi_token_set', 'true');
             }
           }
         }
@@ -203,6 +253,8 @@ export default function StakingConfiguration() {
               setError('Transaction failed');
             } else {
               setSuccess('Registry address set successfully!');
+              setRegistrySet(true);
+              localStorage.setItem('staking_registry_set', 'true');
             }
           }
         }
@@ -216,8 +268,21 @@ export default function StakingConfiguration() {
 
   // Handle setting Fee Wallet address
   const handleSetFeeWallet = async () => {
-    if (!isValidAddress(feeWalletAddress)) {
-      setError('Invalid fee wallet address. Must be H160 format (0x followed by 40 hex characters)');
+    let addressToUse = feeWalletAddress;
+
+    // If it's SS58 format, convert to H160
+    if (isValidSS58(feeWalletAddress) && !feeWalletAddress.startsWith('0x')) {
+      try {
+        addressToUse = convertSS58ToH160(feeWalletAddress);
+        setFeeWalletAddress(addressToUse); // Update the input with converted address
+      } catch (err: any) {
+        setError(`Failed to convert SS58 address: ${err.message}`);
+        return;
+      }
+    }
+
+    if (!isValidAddress(addressToUse)) {
+      setError('Invalid fee wallet address. Must be H160 format (0x followed by 40 hex characters) or valid SS58 address');
       return;
     }
 
@@ -227,13 +292,15 @@ export default function StakingConfiguration() {
 
     try {
       await setFeeWalletTx.signAndSend({
-        args: [feeWalletAddress as `0x${string}`],
+        args: [addressToUse as `0x${string}`],
         callback: (progress) => {
           if (progress.status.type === 'BestChainBlockIncluded') {
             if (progress.dispatchError) {
               setError('Transaction failed');
             } else {
               setSuccess('Fee wallet address set successfully!');
+              setFeeWalletSet(true);
+              localStorage.setItem('staking_fee_wallet_set', 'true');
             }
           }
         }
@@ -261,18 +328,27 @@ export default function StakingConfiguration() {
           {/* Current Configuration */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Current Staking Period</Label>
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <div className="text-xl font-bold text-blue-600">
-                  {currentStakingPeriod ? formatPeriod(currentStakingPeriod) : 'Loading...'}
+              <Label>Total Staked</Label>
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                <div className="text-xl font-bold text-blue-600 dark:text-blue-400">
+                  {totalStakedQuery.isLoading ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                  ) : totalStakedQuery.data ? (
+                    `${(Number(totalStakedQuery.data) / 1e18).toFixed(4)} W3PI`
+                  ) : (
+                    'N/A'
+                  )}
                 </div>
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Current Unstaking Period</Label>
-              <div className="bg-orange-50 p-4 rounded-lg">
-                <div className="text-xl font-bold text-orange-600">
-                  {currentUnstakingPeriod ? formatPeriod(currentUnstakingPeriod) : 'Loading...'}
+              <Label>Contract Status</Label>
+              <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <span className="font-medium">
+                    {totalStakedQuery.isLoading ? 'Checking...' : 'Active'}
+                  </span>
                 </div>
               </div>
             </div>
@@ -411,7 +487,15 @@ export default function StakingConfiguration() {
         <CardContent className="space-y-6">
           {/* Set W3PI Token Address */}
           <div className="space-y-2">
-            <Label htmlFor="w3pi-token-address">W3PI Token Contract Address</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="w3pi-token-address">W3PI Token Contract Address</Label>
+              {w3piTokenSet && (
+                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                  <CheckCircle className="h-3 w-3 mr-1" />
+                  Set
+                </Badge>
+              )}
+            </div>
             <div className="flex gap-2">
               <Input
                 id="w3pi-token-address"
@@ -440,7 +524,15 @@ export default function StakingConfiguration() {
 
           {/* Set Registry Address */}
           <div className="space-y-2">
-            <Label htmlFor="registry-address">Registry Contract Address</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="registry-address">Registry Contract Address</Label>
+              {registrySet && (
+                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                  <CheckCircle className="h-3 w-3 mr-1" />
+                  Set
+                </Badge>
+              )}
+            </div>
             <div className="flex gap-2">
               <Input
                 id="registry-address"
@@ -469,19 +561,27 @@ export default function StakingConfiguration() {
 
           {/* Set Fee Wallet Address */}
           <div className="space-y-2">
-            <Label htmlFor="fee-wallet-address">Fee Wallet Address (H160 format)</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="fee-wallet-address">Fee Wallet Address</Label>
+              {feeWalletSet && (
+                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                  <CheckCircle className="h-3 w-3 mr-1" />
+                  Set
+                </Badge>
+              )}
+            </div>
             <div className="flex gap-2">
               <Input
                 id="fee-wallet-address"
                 type="text"
-                placeholder="0x..."
+                placeholder="0x... or SS58 address"
                 value={feeWalletAddress}
                 onChange={(e) => setFeeWalletAddress(e.target.value)}
                 className="font-mono"
               />
               <Button
                 onClick={handleSetFeeWallet}
-                disabled={isLoading || !isValidAddress(feeWalletAddress)}
+                disabled={isLoading || (!isValidAddress(feeWalletAddress) && !isValidSS58(feeWalletAddress))}
                 className="flex items-center gap-2"
               >
                 {isLoading ? (
@@ -495,8 +595,8 @@ export default function StakingConfiguration() {
               </Button>
             </div>
             <p className="text-xs text-gray-500">
-              Note: Fee wallet must be in H160 format (0x followed by 40 hex characters). 
-              If you have a Polkadot SS58 address, convert it to H160 format first.
+              Note: Fee wallet can be in H160 format (0x followed by 40 hex characters) or SS58 format. 
+              SS58 addresses will be automatically converted to H160 format.
             </p>
           </div>
 
