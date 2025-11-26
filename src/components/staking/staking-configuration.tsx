@@ -473,6 +473,142 @@ export default function StakingConfiguration() {
         </CardContent>
       </Card>
 
+      {/* Configuration Verification */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <CheckCircle className="h-5 w-5" />
+                Configuration Verification
+              </CardTitle>
+              <CardDescription>
+                Verify that all contract references are properly configured
+              </CardDescription>
+            </div>
+            <Button
+              onClick={() => {
+                totalStakedQuery.refresh();
+              }}
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Verify
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Contract Health Check */}
+          <div className="space-y-2 p-4 border rounded-lg">
+            <div className="flex items-center justify-between">
+              <Label>Contract Health</Label>
+              {totalStakedQuery.isLoading ? (
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+              ) : totalStakedQuery.data !== undefined ? (
+                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                  <CheckCircle className="h-3 w-3 mr-1" />
+                  Healthy
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+                  <XCircle className="h-3 w-3 mr-1" />
+                  Error
+                </Badge>
+              )}
+            </div>
+            <div className="text-xs text-gray-600 dark:text-gray-400">
+              Total Staked: {totalStakedQuery.isLoading ? 'Loading...' : totalStakedQuery.data ? `${(Number(totalStakedQuery.data) / 1e18).toFixed(4)} W3PI` : 'N/A'}
+            </div>
+            <div className="text-xs text-gray-500 dark:text-gray-500">
+              Query Status: {totalStakedQuery.isLoading ? 'Querying...' : totalStakedQuery.error ? 'Failed' : 'Success'}
+            </div>
+          </div>
+
+          {/* Contract References Verification */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* W3PI Token Verification */}
+            <div className="space-y-2 p-4 border rounded-lg">
+              <div className="flex items-center justify-between">
+                <Label>W3PI Token</Label>
+                {w3piTokenSet ? (
+                  <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                    <CheckCircle className="h-3 w-3 mr-1" />
+                    Set
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+                    <XCircle className="h-3 w-3 mr-1" />
+                    Not Set
+                  </Badge>
+                )}
+              </div>
+              <div className="text-xs font-mono text-gray-600 dark:text-gray-400">
+                Current: {w3piTokenAddress || 'Not set'}
+              </div>
+              <div className="text-xs font-mono text-gray-500 dark:text-gray-500">
+                Expected: {CONTRACT_ADDRESSES.TOKEN}
+              </div>
+            </div>
+
+            {/* Registry Verification */}
+            <div className="space-y-2 p-4 border rounded-lg">
+              <div className="flex items-center justify-between">
+                <Label>Registry</Label>
+                {registrySet ? (
+                  <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                    <CheckCircle className="h-3 w-3 mr-1" />
+                    Set
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+                    <XCircle className="h-3 w-3 mr-1" />
+                    Not Set
+                  </Badge>
+                )}
+              </div>
+              <div className="text-xs font-mono text-gray-600 dark:text-gray-400">
+                Current: {registryAddress || 'Not set'}
+              </div>
+              <div className="text-xs font-mono text-gray-500 dark:text-gray-500">
+                Expected: {CONTRACT_ADDRESSES.REGISTRY}
+              </div>
+            </div>
+
+            {/* Fee Wallet Verification */}
+            <div className="space-y-2 p-4 border rounded-lg">
+              <div className="flex items-center justify-between">
+                <Label>Fee Wallet</Label>
+                {feeWalletSet ? (
+                  <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                    <CheckCircle className="h-3 w-3 mr-1" />
+                    Set
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+                    <XCircle className="h-3 w-3 mr-1" />
+                    Not Set
+                  </Badge>
+                )}
+              </div>
+              <div className="text-xs font-mono text-gray-600 dark:text-gray-400">
+                Current: {feeWalletAddress || 'Not set'}
+              </div>
+              <div className="text-xs text-gray-500 dark:text-gray-500">
+                Note: Fee wallet is set via transaction
+              </div>
+            </div>
+          </div>
+
+          {/* Note about verification */}
+          <div className="text-xs text-gray-500 dark:text-gray-400 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+            <p><strong>Note:</strong> Staking contract doesn't expose getter methods for contract references. 
+            Status is based on successful transaction confirmations. Use the "Verify" button to check contract health.</p>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Contract References Configuration */}
       <Card>
         <CardHeader>

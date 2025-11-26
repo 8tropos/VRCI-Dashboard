@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CheckCircle, XCircle, Settings, RefreshCw, Copy } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 export default function PortfolioConfigManager() {
   const { contract: portfolioContract } = useContract<PortfolioContractApi>('portfolio');
@@ -501,6 +502,156 @@ export default function PortfolioConfigManager() {
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
+
+          {/* Verification Section */}
+          <div className="space-y-4 border-t pt-6">
+            <div className="flex items-center justify-between">
+              <h3 className="font-medium text-lg">Configuration Verification</h3>
+              <Button
+                onClick={handleRefresh}
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2"
+              >
+                <RefreshCw className="h-4 w-4" />
+                Verify
+              </Button>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Registry Verification */}
+              <div className="space-y-2 p-4 border rounded-lg">
+                <div className="flex items-center justify-between">
+                  <Label>Registry Contract</Label>
+                  {registryQuery.isLoading ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                  ) : currentRegistry ? (
+                    currentRegistry.toLowerCase() === CONTRACT_ADDRESSES.REGISTRY.toLowerCase() ? (
+                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        Verified
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
+                        <XCircle className="h-3 w-3 mr-1" />
+                        Mismatch
+                      </Badge>
+                    )
+                  ) : (
+                    <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+                      <XCircle className="h-3 w-3 mr-1" />
+                      Not Set
+                    </Badge>
+                  )}
+                </div>
+                <div className="text-xs font-mono text-gray-600 dark:text-gray-400">
+                  Current: {currentRegistry || 'Not set'}
+                </div>
+                <div className="text-xs font-mono text-gray-500 dark:text-gray-500">
+                  Expected: {CONTRACT_ADDRESSES.REGISTRY}
+                </div>
+              </div>
+
+              {/* Token Verification */}
+              <div className="space-y-2 p-4 border rounded-lg">
+                <div className="flex items-center justify-between">
+                  <Label>Token Contract</Label>
+                  {tokenQuery.isLoading ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                  ) : currentToken ? (
+                    currentToken.toLowerCase() === CONTRACT_ADDRESSES.TOKEN.toLowerCase() ? (
+                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        Verified
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
+                        <XCircle className="h-3 w-3 mr-1" />
+                        Mismatch
+                      </Badge>
+                    )
+                  ) : (
+                    <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+                      <XCircle className="h-3 w-3 mr-1" />
+                      Not Set
+                    </Badge>
+                  )}
+                </div>
+                <div className="text-xs font-mono text-gray-600 dark:text-gray-400">
+                  Current: {currentToken || 'Not set'}
+                </div>
+                <div className="text-xs font-mono text-gray-500 dark:text-gray-500">
+                  Expected: {CONTRACT_ADDRESSES.TOKEN}
+                </div>
+              </div>
+
+              {/* DEX Verification */}
+              <div className="space-y-2 p-4 border rounded-lg">
+                <div className="flex items-center justify-between">
+                  <Label>DEX Contract</Label>
+                  {dexQuery.isLoading ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                  ) : currentDex ? (
+                    currentDex.toLowerCase() === CONTRACT_ADDRESSES.DEX.toLowerCase() ? (
+                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        Verified
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
+                        <XCircle className="h-3 w-3 mr-1" />
+                        Mismatch
+                      </Badge>
+                    )
+                  ) : (
+                    <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+                      <XCircle className="h-3 w-3 mr-1" />
+                      Not Set
+                    </Badge>
+                  )}
+                </div>
+                <div className="text-xs font-mono text-gray-600 dark:text-gray-400">
+                  Current: {currentDex || 'Not set'}
+                </div>
+                <div className="text-xs font-mono text-gray-500 dark:text-gray-500">
+                  Expected: {CONTRACT_ADDRESSES.DEX}
+                </div>
+              </div>
+
+              {/* Oracle Verification */}
+              <div className="space-y-2 p-4 border rounded-lg">
+                <div className="flex items-center justify-between">
+                  <Label>Oracle Contract</Label>
+                  {oracleQuery.isLoading ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                  ) : currentOracle ? (
+                    currentOracle.toLowerCase() === CONTRACT_ADDRESSES.ORACLE.toLowerCase() ? (
+                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        Verified
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
+                        <XCircle className="h-3 w-3 mr-1" />
+                        Mismatch
+                      </Badge>
+                    )
+                  ) : (
+                    <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+                      <XCircle className="h-3 w-3 mr-1" />
+                      Not Set
+                    </Badge>
+                  )}
+                </div>
+                <div className="text-xs font-mono text-gray-600 dark:text-gray-400">
+                  Current: {currentOracle || 'Not set'}
+                </div>
+                <div className="text-xs font-mono text-gray-500 dark:text-gray-500">
+                  Expected: {CONTRACT_ADDRESSES.ORACLE}
+                </div>
+              </div>
+            </div>
+          </div>
 
           {/* Information */}
           <div className="text-sm text-gray-600 dark:text-gray-400 space-y-2 border-t pt-4">
