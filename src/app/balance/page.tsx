@@ -89,18 +89,68 @@ export default function BalancePage() {
         }
       }
 
-      // 2. USDC Token Info (balance querying requires contract instance creation)
+      // 2. USDC Balance - Query using API route
       const usdcToken = DEPLOYED_TOKENS.USDC;
       if (usdcToken && 'contractAddress' in usdcToken) {
-        tokenBalances.push({
-          symbol: usdcToken.symbol,
-          name: usdcToken.name,
-          contractAddress: usdcToken.contractAddress,
-          balance: 0n, // Balance querying for other tokens requires creating contract instances
-          decimals: usdcToken.decimals || 18,
-          isLoading: false,
-          error: 'Balance query requires contract instance - feature coming soon',
-        });
+        try {
+          const response = await fetch(`/api/contracts/token/call`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              method: 'psp22BalanceOf',
+              args: [userAddress],
+              address: usdcToken.contractAddress,
+            }),
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.data !== undefined) {
+              // Handle different response formats
+              let balance = 0n;
+              if (typeof data.data === 'string') {
+                balance = BigInt(data.data.replace(/,/g, ''));
+              } else if (typeof data.data === 'number') {
+                balance = BigInt(data.data);
+              } else if (data.data && typeof data.data.toString === 'function') {
+                balance = BigInt(data.data.toString().replace(/,/g, ''));
+              }
+              
+              tokenBalances.push({
+                symbol: usdcToken.symbol,
+                name: usdcToken.name,
+                contractAddress: usdcToken.contractAddress,
+                balance,
+                decimals: usdcToken.decimals || 18,
+                isLoading: false,
+              });
+            } else {
+              // No error, just zero balance or query failed silently
+              tokenBalances.push({
+                symbol: usdcToken.symbol,
+                name: usdcToken.name,
+                contractAddress: usdcToken.contractAddress,
+                balance: 0n,
+                decimals: usdcToken.decimals || 18,
+                isLoading: false,
+              });
+            }
+          } else {
+            const errorData = await response.json().catch(() => ({ error: 'Request failed' }));
+            throw new Error(errorData.error || 'API request failed');
+          }
+        } catch (err: any) {
+          console.error('Error loading USDC balance:', err);
+          tokenBalances.push({
+            symbol: usdcToken.symbol,
+            name: usdcToken.name,
+            contractAddress: usdcToken.contractAddress,
+            balance: 0n,
+            decimals: usdcToken.decimals || 18,
+            isLoading: false,
+            error: err.message || 'Failed to query balance',
+          });
+        }
       }
 
       // 3. Registered Tokens from Registry
@@ -153,22 +203,72 @@ export default function BalancePage() {
               continue;
             }
 
-            // Add token info (balance querying requires contract instance creation)
             // Skip if already added (e.g., USDC)
             const alreadyAdded = tokenBalances.some(
               (t) => t.contractAddress.toLowerCase() === normalizedAddress.toLowerCase()
             );
             
             if (!alreadyAdded) {
-              tokenBalances.push({
-                symbol: deployedToken?.symbol || `Token ${id}`,
-                name: deployedToken?.name || `Token ${id}`,
-                contractAddress: normalizedAddress,
-                balance: 0n, // Balance query requires contract instance creation
-                decimals: deployedToken?.decimals || 18,
-                isLoading: false,
-                error: 'Balance query requires contract instance - feature coming soon',
-              });
+              // Query balance for this token using API route
+              try {
+                const response = await fetch(`/api/contracts/token/call`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    method: 'psp22BalanceOf',
+                    args: [userAddress],
+                    address: normalizedAddress,
+                  }),
+                });
+                
+                if (response.ok) {
+                  const data = await response.json();
+                  if (data.success && data.data !== undefined) {
+                    // Handle different response formats
+                    let balance = 0n;
+                    if (typeof data.data === 'string') {
+                      balance = BigInt(data.data.replace(/,/g, ''));
+                    } else if (typeof data.data === 'number') {
+                      balance = BigInt(data.data);
+                    } else if (data.data && typeof data.data.toString === 'function') {
+                      balance = BigInt(data.data.toString().replace(/,/g, ''));
+                    }
+                    
+                    tokenBalances.push({
+                      symbol: deployedToken?.symbol || `Token ${id}`,
+                      name: deployedToken?.name || `Token ${id}`,
+                      contractAddress: normalizedAddress,
+                      balance,
+                      decimals: deployedToken?.decimals || 18,
+                      isLoading: false,
+                    });
+                  } else {
+                    // No error, just zero balance or query failed silently
+                    tokenBalances.push({
+                      symbol: deployedToken?.symbol || `Token ${id}`,
+                      name: deployedToken?.name || `Token ${id}`,
+                      contractAddress: normalizedAddress,
+                      balance: 0n,
+                      decimals: deployedToken?.decimals || 18,
+                      isLoading: false,
+                    });
+                  }
+                } else {
+                  const errorData = await response.json().catch(() => ({ error: 'Request failed' }));
+                  throw new Error(errorData.error || 'API request failed');
+                }
+              } catch (err: any) {
+                console.error(`Error loading balance for token ${id}:`, err);
+                tokenBalances.push({
+                  symbol: deployedToken?.symbol || `Token ${id}`,
+                  name: deployedToken?.name || `Token ${id}`,
+                  contractAddress: normalizedAddress,
+                  balance: 0n,
+                  decimals: deployedToken?.decimals || 18,
+                  isLoading: false,
+                  error: err.message || 'Failed to query balance',
+                });
+              }
             }
           } catch (err) {
             console.warn(`Failed to load token ${id}:`, err);
