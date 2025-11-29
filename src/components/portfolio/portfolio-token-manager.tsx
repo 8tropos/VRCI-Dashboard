@@ -10,25 +10,42 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, XCircle, Plus, Wallet, Loader2, RefreshCw, AlertTriangle, Target } from 'lucide-react';
+import { CheckCircle, XCircle, Plus, Wallet, Loader2, RefreshCw, AlertTriangle, Target, Calculator, TrendingUp } from 'lucide-react';
 import { LabelWithHelp } from '@/components/ui/field-help';
 import { txToaster } from '@/utils/txToaster';
 import { getDeployedToken, DEPLOYED_TOKENS } from '@/lib/token-deployments';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 interface RegisteredToken {
   tokenId: number;
   symbol?: string;
   name?: string;
   contractAddress: string;
+  marketCap?: bigint;
+  price?: bigint;
+}
+
+interface TokenWithWeight extends RegisteredToken {
+  calculatedWeight: number;
+  calculatedAmount: string;
+  investmentAmount: number;
 }
 
 export default function PortfolioTokenManager() {
   const { contract: portfolioContract } = useContract<PortfolioContractApi>('portfolio');
   const { contract: registryContract } = useContract<RegistryContractApi>('registry');
   
+  // Manual entry state
   const [tokenId, setTokenId] = useState('');
   const [amount, setAmount] = useState('');
   const [targetWeight, setTargetWeight] = useState('');
+  
+  // Automatic weight calculation state
+  const [totalInvestment, setTotalInvestment] = useState('');
+  const [selectedTokens, setSelectedTokens] = useState<Set<number>>(new Set());
+  const [tokensWithWeights, setTokensWithWeights] = useState<TokenWithWeight[]>([]);
+  const [isCalculating, setIsCalculating] = useState(false);
+  
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
@@ -50,7 +67,7 @@ export default function PortfolioTokenManager() {
     fn: 'getTokenCount',
   });
 
-  // Load registered tokens from Registry
+  // Load registered tokens from Registry with market cap data
   useEffect(() => {
     const loadRegisteredTokens = async () => {
       if (!registryContract) return;
@@ -69,31 +86,49 @@ export default function PortfolioTokenManager() {
         const tokens: RegisteredToken[] = [];
         for (let id = 1; id <= count; id++) {
           try {
-            const result = await registryContract.query.getBasicTokenData(id);
-            if (!result.data) continue;
-
-            let tokenData: any = null;
-            if ('isOk' in result.data && result.data.isOk) {
-              tokenData = result.data.value;
-            } else if ('isErr' in result.data && result.data.isErr) {
-              continue;
-            } else {
-              tokenData = result.data;
+            // Get enriched token data which includes market cap
+            const enrichedResult = await registryContract.query.getEnrichedTokenData(id);
+            let enrichedData: any = null;
+            
+            if (enrichedResult.data) {
+              if ('isOk' in enrichedResult.data && enrichedResult.data.isOk) {
+                enrichedData = enrichedResult.data.value;
+              } else if ('isErr' in enrichedResult.data && enrichedData.isErr) {
+                // Fallback to basic data if enriched fails
+              } else {
+                enrichedData = enrichedResult.data;
+              }
             }
 
-            if (!tokenData) continue;
+            // Fallback to basic data if enriched data not available
+            if (!enrichedData) {
+              const basicResult = await registryContract.query.getBasicTokenData(id);
+              if (!basicResult.data) continue;
+
+              let tokenData: any = null;
+              if ('isOk' in basicResult.data && basicResult.data.isOk) {
+                tokenData = basicResult.data.value;
+              } else if ('isErr' in basicResult.data && basicResult.data.isErr) {
+                continue;
+              } else {
+                tokenData = basicResult.data;
+              }
+              enrichedData = tokenData;
+            }
+
+            if (!enrichedData) continue;
 
             // Extract contract address
             let contractAddress: string = 'Unknown';
-            if (tokenData.tokenContract) {
-              if (typeof tokenData.tokenContract === 'string') {
-                contractAddress = tokenData.tokenContract;
-              } else if (typeof (tokenData.tokenContract as any)?.address === 'function') {
-                contractAddress = (tokenData.tokenContract as any).address();
-              } else if (typeof (tokenData.tokenContract as any)?.toString === 'function') {
-                contractAddress = (tokenData.tokenContract as any).toString();
+            if (enrichedData.tokenContract) {
+              if (typeof enrichedData.tokenContract === 'string') {
+                contractAddress = enrichedData.tokenContract;
+              } else if (typeof (enrichedData.tokenContract as any)?.address === 'function') {
+                contractAddress = (enrichedData.tokenContract as any).address();
+              } else if (typeof (enrichedData.tokenContract as any)?.toString === 'function') {
+                contractAddress = (enrichedData.tokenContract as any).toString();
               } else {
-                contractAddress = String(tokenData.tokenContract);
+                contractAddress = String(enrichedData.tokenContract);
               }
             }
 
@@ -112,6 +147,8 @@ export default function PortfolioTokenManager() {
               symbol: deployedToken?.symbol,
               name: deployedToken?.name,
               contractAddress: normalizedAddress,
+              marketCap: enrichedData.marketCap ? BigInt(enrichedData.marketCap.toString()) : undefined,
+              price: enrichedData.price ? BigInt(enrichedData.price.toString()) : undefined,
             });
           } catch (err) {
             // Skip tokens that fail to load
@@ -131,6 +168,160 @@ export default function PortfolioTokenManager() {
       loadRegisteredTokens();
     }
   }, [registryContract, registryTokenCountQuery.data]);
+
+  // Calculate weights based on market cap proportions
+  const calculateWeightsFromMarketCap = () => {
+    if (!totalInvestment || selectedTokens.size === 0) {
+      setTokensWithWeights([]);
+      return;
+    }
+
+    setIsCalculating(true);
+    try {
+      const investmentAmount = parseFloat(totalInvestment);
+      if (isNaN(investmentAmount) || investmentAmount <= 0) {
+        setError('Please enter a valid investment amount');
+        setIsCalculating(false);
+        return;
+      }
+
+      // Get selected tokens with market cap data
+      const selectedTokenData = registeredTokens.filter(
+        (t) => selectedTokens.has(t.tokenId) && t.marketCap !== undefined && t.marketCap > 0n
+      );
+
+      if (selectedTokenData.length === 0) {
+        setError('Selected tokens must have market cap data. Please ensure tokens have been updated in the Oracle.');
+        setIsCalculating(false);
+        return;
+      }
+
+      // Calculate total market cap
+      const totalMarketCap = selectedTokenData.reduce(
+        (sum, token) => sum + (token.marketCap || 0n),
+        0n
+      );
+
+      if (totalMarketCap === 0n) {
+        setError('Total market cap is zero. Cannot calculate weights.');
+        setIsCalculating(false);
+        return;
+      }
+
+      // Calculate weights and amounts for each token
+      const tokensWithCalculatedWeights: TokenWithWeight[] = selectedTokenData.map((token) => {
+        const marketCapShare = Number(token.marketCap || 0n) / Number(totalMarketCap);
+        const weightBp = Math.round(marketCapShare * 10000); // Convert to basis points
+        const tokenInvestment = investmentAmount * marketCapShare;
+        
+        // Calculate token amount based on price (if available)
+        // Note: This is a simplified calculation. In production, you'd need to:
+        // 1. Get token decimals from the token contract
+        // 2. Properly scale the price and investment amounts
+        // 3. Handle different decimal precisions
+        let calculatedAmount = '0';
+        if (token.price && token.price > 0n) {
+          try {
+            // Price is typically stored with 18 decimals in the contract
+            // Investment is in USD, so we need: tokenAmount = (investmentUSD * 10^18) / price
+            // This gives us the amount in token's smallest unit (assuming 18 decimals for token too)
+            const priceBigInt = token.price;
+            const investmentScaled = BigInt(Math.round(tokenInvestment * 1e18));
+            const tokenAmount = (investmentScaled * BigInt(1e18)) / priceBigInt;
+            calculatedAmount = tokenAmount.toString();
+          } catch (err) {
+            console.warn(`Could not calculate amount for token ${token.tokenId}:`, err);
+            // Fallback: use a placeholder that user can adjust manually
+            calculatedAmount = '0';
+          }
+        }
+
+        return {
+          ...token,
+          calculatedWeight: weightBp,
+          calculatedAmount,
+          investmentAmount: tokenInvestment,
+        };
+      });
+
+      // Verify total weights sum to 10000
+      const totalWeight = tokensWithCalculatedWeights.reduce((sum, t) => sum + t.calculatedWeight, 0);
+      if (totalWeight !== 10000) {
+        // Adjust the last token's weight to make total exactly 10000
+        const diff = 10000 - totalWeight;
+        if (tokensWithCalculatedWeights.length > 0) {
+          tokensWithCalculatedWeights[tokensWithCalculatedWeights.length - 1].calculatedWeight += diff;
+        }
+      }
+
+      setTokensWithWeights(tokensWithCalculatedWeights);
+      setError(null);
+    } catch (err: any) {
+      console.error('Error calculating weights:', err);
+      setError(`Error calculating weights: ${err.message}`);
+    } finally {
+      setIsCalculating(false);
+    }
+  };
+
+  // Handle bulk token addition with calculated weights
+  const handleBulkAddTokens = async () => {
+    if (tokensWithWeights.length === 0) {
+      setError('No tokens with calculated weights. Please calculate weights first.');
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+    setResult(null);
+
+    try {
+      let successCount = 0;
+      const totalCount = tokensWithWeights.length;
+
+      // Add tokens sequentially
+      for (let i = 0; i < tokensWithWeights.length; i++) {
+        const token = tokensWithWeights[i];
+        const toaster = txToaster(`Adding ${token.symbol || 'Token'} (${i + 1}/${totalCount})...`);
+        
+        try {
+          toaster.onTxPending();
+          
+          await addTokenHoldingTx.signAndSend({
+            args: [token.tokenId, BigInt(token.calculatedAmount || '0'), token.calculatedWeight],
+            callback: (progress) => {
+              toaster.onTxProgress(progress);
+              if (progress.status.type === 'BestChainBlockIncluded' && !progress.dispatchError) {
+                successCount++;
+                if (successCount === totalCount) {
+                  // All tokens added
+                  setResult({
+                    type: 'bulkAdd',
+                    hash: 'success',
+                    count: totalCount,
+                  });
+                  setTokensWithWeights([]);
+                  setSelectedTokens(new Set());
+                  setTotalInvestment('');
+                  remainingWeightQuery.refresh();
+                }
+              }
+            },
+          });
+        } catch (err: any) {
+          console.error(`Error adding token ${token.tokenId}:`, err);
+          toaster.onTxError(err instanceof Error ? err : new Error('Unknown error'));
+          setError(`Error adding ${token.symbol || 'token'}: ${err.message}`);
+          // Continue with next token
+        }
+      }
+    } catch (err: any) {
+      console.error('Error in bulk add:', err);
+      setError(`Error adding tokens: ${err.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleAddToken = async () => {
     if (!tokenId || !amount || !targetWeight) {
@@ -226,15 +417,205 @@ export default function PortfolioTokenManager() {
 
   return (
     <div className="space-y-6">
-      {/* Add Token to Portfolio */}
+      {/* Automatic Weight Calculation Based on Market Cap */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Calculator className="h-5 w-5" />
+            Automatic Weight Calculation (Market Cap Based)
+          </CardTitle>
+          <CardDescription>
+            Calculate token weights automatically based on market cap proportions (Phase 4.1)
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <Alert>
+            <TrendingUp className="h-4 w-4" />
+            <AlertDescription>
+              <strong>How it works:</strong> Enter your total investment amount (e.g., $1,000). 
+              The system will calculate token weights proportionally based on each token's share of the total market cap. 
+              For example, if Token A has 50% of the combined market cap, it will receive 50% of your investment (5000 basis points).
+            </AlertDescription>
+          </Alert>
+
+          {/* Total Investment Input */}
+          <div className="space-y-2">
+            <LabelWithHelp
+              htmlFor="totalInvestment"
+              helpText="Enter your total investment amount in USD (e.g., 1000 for $1,000). This amount will be distributed proportionally to tokens based on their market cap share. The system calculates weights automatically - you don't need to set them manually."
+            >
+              Total Investment Amount (USD) *
+            </LabelWithHelp>
+            <Input
+              id="totalInvestment"
+              type="number"
+              min="0"
+              step="0.01"
+              value={totalInvestment}
+              onChange={(e) => setTotalInvestment(e.target.value)}
+              placeholder="e.g., 1000"
+              disabled={isLoading || isCalculating}
+            />
+          </div>
+
+          {/* Token Selection */}
+          {registeredTokens.length > 0 && (
+            <div className="space-y-2">
+              <Label>Select Tokens to Add (must have market cap data)</Label>
+              <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg max-h-60 overflow-y-auto">
+                {isLoadingTokens ? (
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span className="text-sm text-gray-500">Loading tokens...</span>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {registeredTokens.map((token) => {
+                      const hasMarketCap = token.marketCap !== undefined && token.marketCap > 0n;
+                      return (
+                        <label
+                          key={token.tokenId}
+                          className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selectedTokens.has(token.tokenId)}
+                            onChange={(e) => {
+                              const newSelected = new Set(selectedTokens);
+                              if (e.target.checked) {
+                                if (hasMarketCap) {
+                                  newSelected.add(token.tokenId);
+                                } else {
+                                  setError(`${token.symbol || 'Token'} (ID: ${token.tokenId}) does not have market cap data. Please update it in the Oracle first.`);
+                                  return;
+                                }
+                              } else {
+                                newSelected.delete(token.tokenId);
+                              }
+                              setSelectedTokens(newSelected);
+                            }}
+                            disabled={!hasMarketCap || isLoading || isCalculating}
+                            className="rounded"
+                          />
+                          <span className="flex-1">
+                            <span className="font-medium">{token.symbol || 'Token'}</span>
+                            <span className="text-sm text-gray-500 ml-2">(ID: {token.tokenId})</span>
+                            {!hasMarketCap && (
+                              <Badge variant="outline" className="ml-2 text-xs">
+                                No Market Cap
+                              </Badge>
+                            )}
+                          </span>
+                          {token.marketCap && (
+                            <span className="text-xs text-gray-500">
+                              MC: ${(Number(token.marketCap) / 1e18).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                            </span>
+                          )}
+                        </label>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Calculate Weights Button */}
+          <Button
+            onClick={calculateWeightsFromMarketCap}
+            disabled={!totalInvestment || selectedTokens.size === 0 || isCalculating || isLoading}
+            className="w-full"
+          >
+            {isCalculating ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Calculating Weights...
+              </>
+            ) : (
+              <>
+                <Calculator className="h-4 w-4 mr-2" />
+                Calculate Weights from Market Cap
+              </>
+            )}
+          </Button>
+
+          {/* Calculated Weights Display */}
+          {tokensWithWeights.length > 0 && (
+            <div className="space-y-4">
+              <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                <h4 className="text-sm font-medium text-green-800 dark:text-green-200 mb-3">
+                  Calculated Token Allocations
+                </h4>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Token</TableHead>
+                      <TableHead>Weight</TableHead>
+                      <TableHead>Investment</TableHead>
+                      <TableHead>Amount</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {tokensWithWeights.map((token) => (
+                      <TableRow key={token.tokenId}>
+                        <TableCell className="font-medium">
+                          {token.symbol || 'Token'} (ID: {token.tokenId})
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline">
+                            {token.calculatedWeight} bp ({(token.calculatedWeight / 100).toFixed(2)}%)
+                          </Badge>
+                        </TableCell>
+                        <TableCell>${token.investmentAmount.toFixed(2)}</TableCell>
+                        <TableCell className="font-mono text-xs">
+                          {token.calculatedAmount || 'N/A'}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+                <div className="mt-3 pt-3 border-t border-green-300 dark:border-green-700">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-green-700 dark:text-green-300">Total Weight:</span>
+                    <span className="font-medium text-green-800 dark:text-green-200">
+                      {tokensWithWeights.reduce((sum, t) => sum + t.calculatedWeight, 0)} bp
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <Button
+                onClick={handleBulkAddTokens}
+                disabled={isLoading || addTokenHoldingTx.inBestBlockProgress}
+                className="w-full"
+                size="lg"
+              >
+                {isLoading || addTokenHoldingTx.inBestBlockProgress ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Adding Tokens...
+                  </>
+                ) : (
+                  <>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add All {tokensWithWeights.length} Tokens to Portfolio
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Manual Token Entry (Fallback) */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Plus className="h-5 w-5" />
-            Add Token to Portfolio
+            Manual Token Entry (Advanced)
           </CardTitle>
           <CardDescription>
-            Add registered tokens to the portfolio with target weights (Phase 4.1)
+            Manually add tokens with custom weights (use automatic calculation above for market cap-based weights)
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -392,6 +773,15 @@ export default function PortfolioTokenManager() {
             </Alert>
           )}
 
+          {result && result.type === 'bulkAdd' && (
+            <Alert className="border-green-200 bg-green-50">
+              <CheckCircle className="h-4 w-4 text-green-600" />
+              <AlertDescription>
+                Successfully added {result.count} tokens to the portfolio with market cap-based weights
+              </AlertDescription>
+            </Alert>
+          )}
+
           {error && (
             <Alert variant="destructive">
               <XCircle className="h-4 w-4" />
@@ -425,12 +815,21 @@ export default function PortfolioTokenManager() {
             <h4 className="text-sm font-medium text-amber-800 dark:text-amber-200 mb-2">
               What this does:
             </h4>
-            <ul className="text-xs text-amber-700 dark:text-amber-300 space-y-1 list-disc list-inside">
+            <ul className="text-xs text-amber-700 dark:text-amber-300 space-y-1 list-disc list-inside mb-3">
               <li>Locks in the current portfolio value as the baseline ($100)</li>
               <li>Enables performance tracking and index value calculations</li>
-              <li>Can only be executed once - make sure you're ready!</li>
               <li>Should be called after adding initial tokens to the portfolio</li>
             </ul>
+            <h4 className="text-sm font-medium text-amber-800 dark:text-amber-200 mb-2">
+              Why only once?
+            </h4>
+            <p className="text-xs text-amber-700 dark:text-amber-300">
+              The base portfolio value is used as an <strong>immutable reference point</strong> for calculating 
+              performance metrics over time. If you could reset it, you would lose the ability to track 
+              historical performance accurately. The index value formula is: 
+              <code className="bg-amber-100 dark:bg-amber-900/40 px-1 rounded">Index Value = (Current Portfolio Value / Base Portfolio Value) × Base Index Value</code>. 
+              Changing the base would invalidate all historical performance data and make comparisons meaningless.
+            </p>
           </div>
 
           <Button
