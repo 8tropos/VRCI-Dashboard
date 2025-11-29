@@ -49,6 +49,13 @@ export const DEPLOYED_TOKENS = {
     totalSupply: '1630000000000000000000000000',
     decimals: 18,
   },
+  USDC: {
+    name: 'USD Coin',
+    symbol: 'USDC',
+    contractAddress: '0xd81f336aa2d51efaf4466d764e1c75ef29044c55',
+    totalSupply: '1000000000000000000000000000',
+    decimals: 18,
+  },
 } as const;
 
 export type DeployedTokenSymbol = keyof typeof DEPLOYED_TOKENS;
