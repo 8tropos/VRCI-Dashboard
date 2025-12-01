@@ -20,7 +20,6 @@ export function OracleEmergencyControls() {
     const [emergencyVolume, setEmergencyVolume] = useState<string>('');
     const [isPaused, setIsPaused] = useState<boolean | null>(null);
     const [error, setError] = useState<string | null>(null);
-    const toaster = txToaster();
 
     const pauseUpdatesTx = useContractTx(oracleContract, 'pauseUpdates');
     const resumeUpdatesTx = useContractTx(oracleContract, 'resumeUpdates');
@@ -44,6 +43,10 @@ export function OracleEmergencyControls() {
         }
 
         setError(null);
+        
+        // Create toaster only when transaction starts
+        const toaster = txToaster('Signing transaction to pause updates...');
+        
         try {
             await pauseUpdatesTx.signAndSend({
                 args: [],
@@ -68,6 +71,10 @@ export function OracleEmergencyControls() {
         }
 
         setError(null);
+        
+        // Create toaster only when transaction starts
+        const toaster = txToaster('Signing transaction to resume updates...');
+        
         try {
             await resumeUpdatesTx.signAndSend({
                 args: [],
@@ -92,6 +99,10 @@ export function OracleEmergencyControls() {
         }
 
         setError(null);
+        
+        // Create toaster only when transaction starts
+        const toaster = txToaster('Signing emergency price override transaction...');
+        
         try {
             const priceInPlancks = BigInt(Math.floor(Number(emergencyPrice) * 10 ** 10));
             const marketCapInPlancks = emergencyMarketCap

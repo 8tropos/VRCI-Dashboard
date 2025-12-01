@@ -42,8 +42,6 @@ export function OracleDotUsdManager() {
         fn: 'getDotPriceLastUpdate'
     });
 
-    const toaster = txToaster();
-
     const loadDotPriceData = async () => {
         if (!oracleContract) return;
 
@@ -92,6 +90,10 @@ export function OracleDotUsdManager() {
         }
 
         setError(null);
+        
+        // Create toaster only when transaction starts
+        const toaster = txToaster('Signing transaction to update DOT/USD price...');
+        
         try {
             const scaledPrice = convertToScaledBigInt(dotPrice);
 
@@ -125,6 +127,10 @@ export function OracleDotUsdManager() {
         }
 
         setError(null);
+        
+        // Create toaster only when transaction starts
+        const toaster = txToaster('Signing emergency DOT price override transaction...');
+        
         try {
             const scaledPrice = convertToScaledBigInt(emergencyPrice);
 

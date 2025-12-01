@@ -18,7 +18,6 @@ export function OracleConfigManager() {
     const [stalenessThreshold, setStalenessThreshold] = useState<string>('');
     const [minUpdateInterval, setMinUpdateInterval] = useState<string>('');
     const [error, setError] = useState<string | null>(null);
-    const toaster = txToaster();
 
     const setMaxDeviationTx = useContractTx(oracleContract, 'setMaxDeviation');
     const setStalenessThresholdTx = useContractTx(oracleContract, 'setStalenessThreshold');
@@ -31,6 +30,10 @@ export function OracleConfigManager() {
         }
 
         setError(null);
+        
+        // Create toaster only when transaction starts
+        const toaster = txToaster('Signing transaction to set max deviation...');
+        
         try {
             const deviationBp = parseInt(maxDeviation) * 100; // Convert percentage to basis points
             await setMaxDeviationTx.signAndSend({
@@ -56,6 +59,10 @@ export function OracleConfigManager() {
         }
 
         setError(null);
+        
+        // Create toaster only when transaction starts
+        const toaster = txToaster('Signing transaction to set staleness threshold...');
+        
         try {
             const thresholdSeconds = BigInt(parseInt(stalenessThreshold));
             await setStalenessThresholdTx.signAndSend({
@@ -81,6 +88,10 @@ export function OracleConfigManager() {
         }
 
         setError(null);
+        
+        // Create toaster only when transaction starts
+        const toaster = txToaster('Signing transaction to set min update interval...');
+        
         try {
             const intervalSeconds = BigInt(parseInt(minUpdateInterval));
             await setMinUpdateIntervalTx.signAndSend({

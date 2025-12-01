@@ -21,7 +21,6 @@ export function OracleAuthorizationManager() {
     const [checkAddress, setCheckAddress] = useState<string>('');
     const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
     const [error, setError] = useState<string | null>(null);
-    const toaster = txToaster();
 
     const addUpdaterTx = useContractTx(oracleContract, 'addUpdater');
     const removeUpdaterTx = useContractTx(oracleContract, 'removeUpdater');
@@ -33,6 +32,10 @@ export function OracleAuthorizationManager() {
         }
 
         setError(null);
+        
+        // Create toaster only when transaction starts
+        const toaster = txToaster('Signing transaction to add updater...');
+        
         try {
             await addUpdaterTx.signAndSend({
                 args: [updaterAddress.trim()],
@@ -57,6 +60,10 @@ export function OracleAuthorizationManager() {
         }
 
         setError(null);
+        
+        // Create toaster only when transaction starts
+        const toaster = txToaster('Signing transaction to remove updater...');
+        
         try {
             await removeUpdaterTx.signAndSend({
                 args: [removeAddress.trim()],

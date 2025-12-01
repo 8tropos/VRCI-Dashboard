@@ -21,7 +21,6 @@ export function OraclePriceUpdater() {
     const [updateType, setUpdateType] = useState<'price' | 'market'>('price');
     const [txResult, setTxResult] = useState<any>(null);
     const [error, setError] = useState<string | null>(null);
-    const toaster = txToaster();
     // Use dummy token address for testing
     const dummyTokenAddress = '0x0101010101010101010101010101010101010101010101010101010101010101';
 
@@ -42,6 +41,9 @@ export function OraclePriceUpdater() {
 
         setError(null);
         setTxResult(null);
+
+        // Create toaster only when transaction starts
+        const toaster = txToaster('Signing transaction to update price...');
 
         try {
             const targetAddress = tokenAddress.trim() || dummyTokenAddress;
@@ -105,6 +107,9 @@ export function OraclePriceUpdater() {
 
         setError(null);
         setTxResult(null);
+
+        // Create toaster only when transaction starts
+        const toaster = txToaster('Signing transaction to update market data...');
 
         try {
             const targetAddress = tokenAddress.trim() || dummyTokenAddress;
