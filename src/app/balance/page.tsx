@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTypink, useContract, useContractQuery } from 'typink';
+import { useRouter } from 'next/navigation';
 import type { TokenContractApi } from '@/lib/contracts/token';
 import type { RegistryContractApi } from '@/lib/contracts/registry';
 import { CONTRACT_ADDRESSES } from '@/providers/TypinkProvider';
@@ -29,6 +30,7 @@ export default function BalancePage() {
   const { signer, connectedAccount } = useTypink();
   const { contract: w3piTokenContract } = useContract<TokenContractApi>('token');
   const { contract: registryContract } = useContract<RegistryContractApi>('registry');
+  const router = useRouter();
   
   const [balances, setBalances] = useState<TokenBalance[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -38,6 +40,7 @@ export default function BalancePage() {
   const tokenCountQuery = useContractQuery({
     contract: registryContract,
     fn: 'getTokenCount',
+    watch: true, // Watch for changes
   });
 
   // Get user address and convert to H160 if needed
@@ -66,8 +69,24 @@ export default function BalancePage() {
   
   const userAddress = rawUserAddress ? convertSS58ToH160(rawUserAddress) : undefined;
 
+  // Add a token to the balances list progressively
+  const addTokenBalance = useCallback((token: TokenBalance) => {
+    setBalances((prev) => {
+      // Check if token already exists (by contract address)
+      const exists = prev.some((t) => t.contractAddress.toLowerCase() === token.contractAddress.toLowerCase());
+      if (exists) {
+        // Update existing token
+        return prev.map((t) =>
+          t.contractAddress.toLowerCase() === token.contractAddress.toLowerCase() ? token : t
+        );
+      }
+      // Add new token
+      return [...prev, token];
+    });
+  }, []);
+
   // Load all token balances
-  const loadBalances = async () => {
+  const loadBalances = useCallback(async () => {
     if (!userAddress) {
       setError('Please connect your wallet');
       return;
@@ -75,6 +94,9 @@ export default function BalancePage() {
 
     setIsLoading(true);
     setError(null);
+    
+    // Clear existing balances to start fresh
+    setBalances([]);
 
     try {
       const tokenBalances: TokenBalance[] = [];
@@ -95,14 +117,16 @@ export default function BalancePage() {
             ? w3piDecimals 
             : 18;
           
-          tokenBalances.push({
+          const w3piToken: TokenBalance = {
             symbol: symbolResult.data || 'W3PI',
             name: nameResult.data || 'W3PI Token',
             contractAddress: CONTRACT_ADDRESSES.TOKEN,
             balance,
             decimals: validW3piDecimals,
             isLoading: false,
-          });
+          };
+          tokenBalances.push(w3piToken);
+          addTokenBalance(w3piToken); // Add immediately
         } catch (err: any) {
           console.error('Error loading W3PI balance:', err);
           tokenBalances.push({
@@ -167,14 +191,16 @@ export default function BalancePage() {
                 }
               }
               
-              tokenBalances.push({
+              const usdcTokenBalance: TokenBalance = {
                 symbol: usdcToken.symbol,
                 name: usdcToken.name,
                 contractAddress: usdcToken.contractAddress,
                 balance,
                 decimals: usdcToken.decimals || 18,
                 isLoading: false,
-              });
+              };
+              tokenBalances.push(usdcTokenBalance);
+              addTokenBalance(usdcTokenBalance); // Add immediately
             } else {
               // No error, just zero balance
               tokenBalances.push({
@@ -207,8 +233,17 @@ export default function BalancePage() {
       // 3. Registered Tokens from Registry
       console.log('registryContract', registryContract);
       if (registryContract) {
+        // Always refresh token count to ensure we have the latest data
+        console.log('Refreshing token count query...');
         await tokenCountQuery.refresh();
+        // Wait a bit for the refresh to complete
+        await new Promise(resolve => setTimeout(resolve, 300));
         const count = Number(tokenCountQuery.data || 0);
+        console.log('Token count from registry:', count);
+        
+        if (count === 0) {
+          console.warn('Token count is still 0 after refresh, skipping registered tokens');
+        }
 
         for (let id = 1; id <= count; id++) {
           try {
@@ -528,7 +563,7 @@ export default function BalancePage() {
                 }
               }
               
-              tokenBalances.push({
+              const registeredToken: TokenBalance = {
                 symbol: finalSymbol,
                 name: finalName,
                 contractAddress: normalizedAddress,
@@ -536,7 +571,9 @@ export default function BalancePage() {
                 decimals: finalDecimals,
                 isLoading: false,
                 ...(balanceError && { error: balanceError }),
-              });
+              };
+              tokenBalances.push(registeredToken);
+              addTokenBalance(registeredToken); // Add immediately as it loads
             }
           } catch (err) {
             console.warn(`Failed to load token ${id}:`, err);
@@ -545,6 +582,7 @@ export default function BalancePage() {
         }
       }
 
+      // Final check - ensure all tokens are in state (in case some were missed)
       setBalances(tokenBalances);
     } catch (err: any) {
       console.error('Error loading balances:', err);
@@ -552,13 +590,34 @@ export default function BalancePage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [userAddress, w3piTokenContract, registryContract, addTokenBalance]);
 
+  // Load balances when everything is ready
   useEffect(() => {
-    if (userAddress) {
-      loadBalances();
+    // Load balances when user address and contracts are ready
+    if (userAddress && w3piTokenContract && registryContract) {
+      console.log('Balance page: All dependencies ready, loading balances...', {
+        userAddress: !!userAddress,
+        w3piTokenContract: !!w3piTokenContract,
+        registryContract: !!registryContract,
+      });
+      // Always try to load - loadBalances will refresh tokenCountQuery if needed
+      const timer = setTimeout(() => {
+        console.log('Balance page: Calling loadBalances...');
+        loadBalances().catch((err) => {
+          console.error('Balance page: Error in loadBalances:', err);
+        });
+      }, 500);
+      
+      return () => clearTimeout(timer);
+    } else {
+      console.log('Balance page: Not all dependencies ready', {
+        userAddress: !!userAddress,
+        w3piTokenContract: !!w3piTokenContract,
+        registryContract: !!registryContract,
+      });
     }
-  }, [userAddress, w3piTokenContract, registryContract]);
+  }, [userAddress, w3piTokenContract, registryContract, loadBalances]);
 
   const formatBalance = (balance: bigint, decimals: number) => {
     // Ensure decimals is a valid number, default to 18 if invalid
@@ -618,7 +677,13 @@ export default function BalancePage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={loadBalances}
+                  onClick={() => {
+                    console.log('Refresh button clicked');
+                    loadBalances().catch((err) => {
+                      console.error('Error in loadBalances from refresh button:', err);
+                      setError(`Failed to refresh: ${err.message}`);
+                    });
+                  }}
                   disabled={isLoading}
                 >
                   <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
@@ -692,7 +757,11 @@ export default function BalancePage() {
                   </TableHeader>
                   <TableBody>
                     {balances.map((token, index) => (
-                      <TableRow key={index}>
+                      <TableRow 
+                        key={index}
+                        onClick={() => router.push(`/admin/token/${token.contractAddress}`)}
+                        className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                      >
                         <TableCell className="font-medium">{token.name}</TableCell>
                         <TableCell>
                           <Badge variant="outline">{token.symbol}</Badge>
@@ -708,7 +777,10 @@ export default function BalancePage() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => copyAddress(token.contractAddress)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                copyAddress(token.contractAddress);
+                              }}
                               className="h-6 w-6 p-0"
                             >
                               <Copy className="h-3 w-3" />
