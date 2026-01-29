@@ -15,7 +15,7 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "postinstall": "prisma generate",
-    "contracts:gen": "for f in ./src/contracts/schemas/*.json; do bunx dedot typink -m $f -o ./src/lib/contracts; done",
+    "contracts:gen": "for f in ./src/contracts/metadata/*.json; do bunx dedot typink -m $f -o ./src/lib/contracts; done",
     "db:seed": "bunx prisma db seed"
   },
   "dependencies": {
@@ -52,6 +52,7 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-toastify": "^11.0.5",
+    "recharts": "^3.7.0",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.3.0",
     "typink": "^0.5.1",
