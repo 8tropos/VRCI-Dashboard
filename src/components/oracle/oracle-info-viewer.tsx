@@ -12,7 +12,7 @@ import { Info, Clock, AlertCircle, RefreshCw, User } from 'lucide-react';
 
 export function OracleInfoViewer() {
     const [tokenAddress, setTokenAddress] = useState<string>('');
-    
+
     // Use dummy token address for testing
     const dummyTokenAddress = '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY';
     const targetAddress = tokenAddress.trim() || dummyTokenAddress;
@@ -25,18 +25,18 @@ export function OracleInfoViewer() {
         contract: oracleContract,
         fn: 'getValidationConfig'
     });
-    
+
     const ownerQuery = useContractQuery({
         contract: oracleContract,
         fn: 'getOwner'
     });
-    
+
     const lastUpdateQuery = useContractQuery({
         contract: oracleContract,
         fn: 'getLastUpdateTime',
         args: [targetAddress]
     });
-    
+
     const staleQuery = useContractQuery({
         contract: oracleContract,
         fn: 'isPriceStale',
@@ -119,19 +119,19 @@ export function OracleInfoViewer() {
                             <User className="h-4 w-4" />
                             <span>Contract Owner</span>
                         </h3>
-                            <div className="space-y-2">
-                                <div className="flex justify-between items-center">
-                                    <span className="text-sm text-gray-600 dark:text-gray-400">Owner Address:</span>
-                                    <span className="text-sm font-mono text-gray-900 dark:text-gray-100">
-                                        {ownerData ? formatAddress(ownerData.address()) : 'Loading...'}
-                                    </span>
-                                </div>
-                                {ownerData && (
-                                    <div className="text-xs text-gray-500 font-mono bg-gray-100 dark:bg-gray-800 p-2 rounded">
-                                        Full: {ownerData.address()}
-                                    </div>
-                                )}
+                        <div className="space-y-2">
+                            <div className="flex justify-between items-center">
+                                <span className="text-sm text-gray-600 dark:text-gray-400">Owner Address:</span>
+                                <span className="text-sm font-mono text-gray-900 dark:text-gray-100">
+                                    {ownerData ? formatAddress(ownerData) : 'Loading...'}
+                                </span>
                             </div>
+                            {ownerData && (
+                                <div className="text-xs text-gray-500 font-mono bg-gray-100 dark:bg-gray-800 p-2 rounded">
+                                    Full: {ownerData}
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     {/* Validation Configuration */}
