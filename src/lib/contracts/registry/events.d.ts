@@ -53,6 +53,89 @@ export interface ContractEvents<
    *
    *
    **/
+  RoleGranted: GenericContractEvent<
+    "RoleGranted",
+    {
+      /**
+       *
+       * @indexed: true
+       **/
+      role: SharedRole;
+      /**
+       *
+       * @indexed: true
+       **/
+      account: AccountId32;
+      /**
+       *
+       * @indexed: false
+       **/
+      grantedBy: AccountId32;
+    },
+    Type
+  >;
+
+  /**
+   *
+   *
+   **/
+  RoleRevoked: GenericContractEvent<
+    "RoleRevoked",
+    {
+      /**
+       *
+       * @indexed: true
+       **/
+      role: SharedRole;
+      /**
+       *
+       * @indexed: true
+       **/
+      account: AccountId32;
+      /**
+       *
+       * @indexed: false
+       **/
+      revokedBy: AccountId32;
+    },
+    Type
+  >;
+
+  /**
+   *
+   *
+   **/
+  TokenRemoved: GenericContractEvent<
+    "TokenRemoved",
+    {
+      /**
+       *
+       * @indexed: true
+       **/
+      tokenId: number;
+      /**
+       *
+       * @indexed: true
+       **/
+      tokenContract: AccountId32;
+      /**
+       *
+       * @indexed: false
+       **/
+      tier: SharedTier;
+      /**
+       *
+       * @indexed: false
+       **/
+      removedBy: AccountId32;
+    },
+    Type
+  >;
+
+  /**
+   *
+   *
+   **/
   TokenUpdated: GenericContractEvent<
     "TokenUpdated",
     {
@@ -94,29 +177,24 @@ export interface ContractEvents<
    *
    *
    **/
-  TokenRemoved: GenericContractEvent<
-    "TokenRemoved",
+  OperationFailed: GenericContractEvent<
+    "OperationFailed",
     {
       /**
        *
-       * @indexed: true
+       * @indexed: false
        **/
-      tokenId: number;
-      /**
-       *
-       * @indexed: true
-       **/
-      tokenContract: AccountId32;
+      operation: string;
       /**
        *
        * @indexed: false
        **/
-      tier: SharedTier;
+      error: SharedError;
       /**
        *
        * @indexed: false
        **/
-      removedBy: AccountId32;
+      caller: AccountId32;
     },
     Type
   >;
@@ -204,32 +282,6 @@ export interface ContractEvents<
        * @indexed: false
        **/
       totalTokens: number;
-    },
-    Type
-  >;
-
-  /**
-   *
-   *
-   **/
-  TierThresholdsUpdated: GenericContractEvent<
-    "TierThresholdsUpdated",
-    {
-      /**
-       *
-       * @indexed: false
-       **/
-      updatedBy: AccountId32;
-      /**
-       *
-       * @indexed: false
-       **/
-      timestamp: bigint;
-      /**
-       *
-       * @indexed: false
-       **/
-      newUsdRate: bigint;
     },
     Type
   >;
@@ -346,24 +398,24 @@ export interface ContractEvents<
    *
    *
    **/
-  RoleGranted: GenericContractEvent<
-    "RoleGranted",
+  TierThresholdsUpdated: GenericContractEvent<
+    "TierThresholdsUpdated",
     {
-      /**
-       *
-       * @indexed: true
-       **/
-      role: SharedRole;
-      /**
-       *
-       * @indexed: true
-       **/
-      account: AccountId32;
       /**
        *
        * @indexed: false
        **/
-      grantedBy: AccountId32;
+      updatedBy: AccountId32;
+      /**
+       *
+       * @indexed: false
+       **/
+      timestamp: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      newUsdRate: bigint;
     },
     Type
   >;
@@ -372,50 +424,19 @@ export interface ContractEvents<
    *
    *
    **/
-  RoleRevoked: GenericContractEvent<
-    "RoleRevoked",
+  TokenRemovedFromIndex: GenericContractEvent<
+    "TokenRemovedFromIndex",
     {
       /**
        *
        * @indexed: true
        **/
-      role: SharedRole;
-      /**
-       *
-       * @indexed: true
-       **/
-      account: AccountId32;
+      tokenId: number;
       /**
        *
        * @indexed: false
        **/
-      revokedBy: AccountId32;
-    },
-    Type
-  >;
-
-  /**
-   *
-   *
-   **/
-  OperationFailed: GenericContractEvent<
-    "OperationFailed",
-    {
-      /**
-       *
-       * @indexed: false
-       **/
-      operation: string;
-      /**
-       *
-       * @indexed: false
-       **/
-      error: SharedError;
-      /**
-       *
-       * @indexed: false
-       **/
-      caller: AccountId32;
+      timestamp: bigint;
     },
     Type
   >;

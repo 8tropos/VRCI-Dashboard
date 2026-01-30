@@ -854,4 +854,224 @@ export interface ContractQuery<
     >,
     Type
   >;
+
+  /**
+   * Set portfolio contract (owner only)
+   *
+   * @param {H160} portfolio
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x35760b89
+   **/
+  setPortfolioContract: GenericContractQueryCall<
+    ChainApi,
+    (
+      portfolio: H160,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Set staking contract (owner only)
+   *
+   * @param {H160} staking
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x00e16ab8
+   **/
+  setStakingContract: GenericContractQueryCall<
+    ChainApi,
+    (
+      staking: H160,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Get portfolio contract
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x677e4cf8
+   **/
+  getPortfolioContract: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<H160 | undefined, ContractCallResult<ChainApi>>
+    >,
+    Type
+  >;
+
+  /**
+   * Get staking contract
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x01b9cd68
+   **/
+  getStakingContract: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<H160 | undefined, ContractCallResult<ChainApi>>
+    >,
+    Type
+  >;
+
+  /**
+   * Check if monthly rebalancing is due
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x9c1b5c4c
+   **/
+  isRebalancingDue: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<boolean, ContractCallResult<ChainApi>>
+    >,
+    Type
+  >;
+
+  /**
+   * Trigger monthly rebalancing in Portfolio contract
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x29bac70c
+   **/
+  triggerMonthlyRebalancing: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Trigger weekly snapshot in Portfolio contract
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x6d9f90a6
+   **/
+  triggerWeeklySnapshot: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Trigger zombie stake cleanup in Staking contract
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0xb26132ec
+   **/
+  triggerZombieCleanup: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Execute full monthly maintenance cycle
+   * 1. Process grace periods
+   * 2. Trigger zombie cleanup
+   * 3. Trigger rebalancing
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x9ef3c9e2
+   **/
+  executeMonthlyMaintenance: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Set rebalancing interval (owner only)
+   *
+   * @param {bigint} intervalMs
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x8d52af0e
+   **/
+  setRebalancingInterval: GenericContractQueryCall<
+    ChainApi,
+    (
+      intervalMs: bigint,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Get last rebalancing trigger timestamp
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0xea0bd9be
+   **/
+  getLastRebalancingTrigger: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        bigint | undefined,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
 }

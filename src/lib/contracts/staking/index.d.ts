@@ -21,7 +21,7 @@ export * from "./types.js";
  * @contractName: staking
  * @contractVersion: 0.1.0
  * @authors: W3PI Team
- * @language: ink! 6.0.0-alpha.3
+ * @language: ink! 6.0.0-beta.1
  **/
 export interface StakingContractApi<
   Rv extends RpcVersion = RpcVersion,

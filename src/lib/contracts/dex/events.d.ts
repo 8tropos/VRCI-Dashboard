@@ -16,6 +16,42 @@ export interface ContractEvents<
    *
    *
    **/
+  PoolCreated: GenericContractEvent<
+    "PoolCreated",
+    {
+      /**
+       *
+       * @indexed: true
+       **/
+      tokenA: AccountId32;
+      /**
+       *
+       * @indexed: true
+       **/
+      tokenB: AccountId32;
+      /**
+       *
+       * @indexed: false
+       **/
+      initialReserveA: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      initialReserveB: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      feeBp: number;
+    },
+    Type
+  >;
+
+  /**
+   *
+   *
+   **/
   SwapExecuted: GenericContractEvent<
     "SwapExecuted",
     {
@@ -39,6 +75,129 @@ export interface ContractEvents<
        * @indexed: false
        **/
       amountOut: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      feeAmount: bigint;
+    },
+    Type
+  >;
+
+  /**
+   *
+   *
+   **/
+  LiquidityAdded: GenericContractEvent<
+    "LiquidityAdded",
+    {
+      /**
+       *
+       * @indexed: true
+       **/
+      provider: AccountId32;
+      /**
+       *
+       * @indexed: true
+       **/
+      tokenA: AccountId32;
+      /**
+       *
+       * @indexed: true
+       **/
+      tokenB: AccountId32;
+      /**
+       *
+       * @indexed: false
+       **/
+      amountA: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      amountB: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      lpTokensMinted: bigint;
+    },
+    Type
+  >;
+
+  /**
+   *
+   *
+   **/
+  LiquidityRemoved: GenericContractEvent<
+    "LiquidityRemoved",
+    {
+      /**
+       *
+       * @indexed: true
+       **/
+      provider: AccountId32;
+      /**
+       *
+       * @indexed: true
+       **/
+      tokenA: AccountId32;
+      /**
+       *
+       * @indexed: true
+       **/
+      tokenB: AccountId32;
+      /**
+       *
+       * @indexed: false
+       **/
+      amountA: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      amountB: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      lpTokensBurned: bigint;
+    },
+    Type
+  >;
+
+  /**
+   *
+   *
+   **/
+  SlippageExceeded: GenericContractEvent<
+    "SlippageExceeded",
+    {
+      /**
+       *
+       * @indexed: true
+       **/
+      from: AccountId32;
+      /**
+       *
+       * @indexed: true
+       **/
+      to: AccountId32;
+      /**
+       *
+       * @indexed: false
+       **/
+      amountIn: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      expectedOut: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      minOut: bigint;
     },
     Type
   >;

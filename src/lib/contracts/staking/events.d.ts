@@ -7,11 +7,54 @@ import type {
   GenericContractEvent,
   MetadataType,
 } from "dedot/contracts";
+import type { SharedTier } from "./types.js";
 
 export interface ContractEvents<
   ChainApi extends GenericSubstrateApi,
   Type extends MetadataType,
 > extends GenericContractEvents<ChainApi, Type> {
+  /**
+   * Event emitted when an obsolete stake is reallocated
+   *
+   *
+   **/
+  ObsoleteStakeReallocated: GenericContractEvent<
+    "ObsoleteStakeReallocated",
+    {
+      /**
+       *
+       * @indexed: true
+       **/
+      account: AccountId32;
+      /**
+       *
+       * @indexed: true
+       **/
+      obsoleteToken: AccountId32;
+      /**
+       *
+       * @indexed: false
+       **/
+      stakeAmount: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      usdcValue: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      redistributedToTokens: number;
+      /**
+       *
+       * @indexed: false
+       **/
+      timestamp: bigint;
+    },
+    Type
+  >;
+
   /**
    * Event emitted when tokens are staked
    *
@@ -35,6 +78,84 @@ export interface ContractEvents<
        * @indexed: false
        **/
       unstakingPeriod: bigint;
+    },
+    Type
+  >;
+
+  /**
+   * Event emitted when the contract is paused
+   *
+   *
+   **/
+  ContractPaused: GenericContractEvent<
+    "ContractPaused",
+    {
+      /**
+       *
+       * @indexed: true
+       **/
+      by: AccountId32;
+    },
+    Type
+  >;
+
+  /**
+   * Event emitted when rewards are claimed
+   *
+   *
+   **/
+  RewardsClaimed: GenericContractEvent<
+    "RewardsClaimed",
+    {
+      /**
+       *
+       * @indexed: true
+       **/
+      account: AccountId32;
+      /**
+       *
+       * @indexed: false
+       **/
+      amount: bigint;
+    },
+    Type
+  >;
+
+  /**
+   * Event emitted when unstaked tokens are claimed
+   *
+   *
+   **/
+  UnstakedClaimed: GenericContractEvent<
+    "UnstakedClaimed",
+    {
+      /**
+       *
+       * @indexed: true
+       **/
+      account: AccountId32;
+      /**
+       *
+       * @indexed: false
+       **/
+      amount: bigint;
+    },
+    Type
+  >;
+
+  /**
+   * Event emitted when the contract is unpaused
+   *
+   *
+   **/
+  ContractUnpaused: GenericContractEvent<
+    "ContractUnpaused",
+    {
+      /**
+       *
+       * @indexed: true
+       **/
+      by: AccountId32;
     },
     Type
   >;
@@ -67,79 +188,124 @@ export interface ContractEvents<
   >;
 
   /**
-   * Event emitted when unstaked tokens are claimed
+   * Event emitted when rewards pool is funded
    *
    *
    **/
-  UnstakedClaimed: GenericContractEvent<
-    "UnstakedClaimed",
+  RewardsPoolFunded: GenericContractEvent<
+    "RewardsPoolFunded",
     {
       /**
        *
        * @indexed: true
        **/
-      account: AccountId32;
+      funder: AccountId32;
       /**
        *
        * @indexed: false
        **/
       amount: bigint;
-    },
-    Type
-  >;
-
-  /**
-   * Event emitted when rewards are claimed
-   *
-   *
-   **/
-  RewardsClaimed: GenericContractEvent<
-    "RewardsClaimed",
-    {
-      /**
-       *
-       * @indexed: true
-       **/
-      account: AccountId32;
       /**
        *
        * @indexed: false
        **/
-      amount: bigint;
+      newBalance: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      timestamp: bigint;
     },
     Type
   >;
 
   /**
-   * Event emitted when the contract is paused
+   * Event emitted when tier change is received from Registry
    *
    *
    **/
-  ContractPaused: GenericContractEvent<
-    "ContractPaused",
+  TierChangeReceived: GenericContractEvent<
+    "TierChangeReceived",
     {
       /**
        *
-       * @indexed: true
+       * @indexed: false
        **/
-      by: AccountId32;
+      oldTier: SharedTier;
+      /**
+       *
+       * @indexed: false
+       **/
+      newTier: SharedTier;
+      /**
+       *
+       * @indexed: false
+       **/
+      timestamp: bigint;
     },
     Type
   >;
 
   /**
-   * Event emitted when the contract is unpaused
+   * Event emitted when obsolete stakes are detected
    *
    *
    **/
-  ContractUnpaused: GenericContractEvent<
-    "ContractUnpaused",
+  ZombieStakesDetected: GenericContractEvent<
+    "ZombieStakesDetected",
+    {
+      /**
+       *
+       * @indexed: false
+       **/
+      totalZombieStakes: number;
+      /**
+       *
+       * @indexed: false
+       **/
+      totalZombieValue: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      timestamp: bigint;
+    },
+    Type
+  >;
+
+  /**
+   * Event emitted when mass unstaking is detected and contract is auto-paused
+   *
+   *
+   **/
+  MassUnstakingDetected: GenericContractEvent<
+    "MassUnstakingDetected",
     {
       /**
        *
        * @indexed: true
        **/
-      by: AccountId32;
+      triggeredBy: AccountId32;
+      /**
+       *
+       * @indexed: false
+       **/
+      unstakingVolume: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      threshold: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      totalStaked: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      timestamp: bigint;
     },
     Type
   >;
@@ -162,6 +328,38 @@ export interface ContractEvents<
        * @indexed: false
        **/
       feeAmount: bigint;
+    },
+    Type
+  >;
+
+  /**
+   * Event emitted when zombie cleanup is completed
+   *
+   *
+   **/
+  ZombieCleanupCompleted: GenericContractEvent<
+    "ZombieCleanupCompleted",
+    {
+      /**
+       *
+       * @indexed: false
+       **/
+      stakesProcessed: number;
+      /**
+       *
+       * @indexed: false
+       **/
+      totalValueReallocated: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      tokensRedistributed: number;
+      /**
+       *
+       * @indexed: false
+       **/
+      timestamp: bigint;
     },
     Type
   >;

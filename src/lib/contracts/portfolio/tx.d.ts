@@ -60,9 +60,9 @@ export interface ContractTx<
    * @param {string} reason
    * @param {ContractTxOptions} options
    *
-   * @selector 0xd777a238
+   * @selector 0xdacb444b
    **/
-  resumeOperations: GenericContractTxCall<
+  emergencyResume: GenericContractTxCall<
     ChainApi,
     (
       reason: string,
@@ -178,6 +178,24 @@ export interface ContractTx<
   >;
 
   /**
+   * Remove a token holding from the portfolio (can be called by owner or Registry)
+   * This is called when a token becomes Tier::None after grace period
+   *
+   * @param {number} tokenId
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0x8499ff26
+   **/
+  removeTokenHolding: GenericContractTxCall<
+    ChainApi,
+    (
+      tokenId: number,
+      options?: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
    * Update an existing token holding (owner only)
    *
    * @param {number} tokenId
@@ -193,23 +211,6 @@ export interface ContractTx<
       tokenId: number,
       newAmount: bigint,
       newTargetWeightBp: number,
-      options?: ContractTxOptions,
-    ) => ContractSubmittableExtrinsic<ChainApi>,
-    Type
-  >;
-
-  /**
-   * Remove a token holding from the portfolio (owner only)
-   *
-   * @param {number} tokenId
-   * @param {ContractTxOptions} options
-   *
-   * @selector 0x8499ff26
-   **/
-  removeTokenHolding: GenericContractTxCall<
-    ChainApi,
-    (
-      tokenId: number,
       options?: ContractTxOptions,
     ) => ContractSubmittableExtrinsic<ChainApi>,
     Type
@@ -324,6 +325,91 @@ export interface ContractTx<
   >;
 
   /**
+   * Set index base value (owner only)
+   *
+   * @param {bigint} newValue
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0x8b4a4890
+   **/
+  setIndexBaseValue: GenericContractTxCall<
+    ChainApi,
+    (
+      newValue: bigint,
+      options?: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
+   * Set liquidity buffer (owner only)
+   *
+   * @param {bigint} newValue
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0xd7460457
+   **/
+  setLiquidityBuffer: GenericContractTxCall<
+    ChainApi,
+    (
+      newValue: bigint,
+      options?: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
+   * Set max single position (owner only)
+   *
+   * @param {number} newValue
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0xc861a01c
+   **/
+  setMaxSinglePosition: GenericContractTxCall<
+    ChainApi,
+    (
+      newValue: number,
+      options?: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
+   * Set max slippage (owner only)
+   *
+   * @param {number} newValue
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0x6cc09ca6
+   **/
+  setMaxSlippage: GenericContractTxCall<
+    ChainApi,
+    (
+      newValue: number,
+      options?: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
+   * Set rebalance threshold (owner only)
+   *
+   * @param {number} newValue
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0xeba65fa0
+   **/
+  setRebalanceThreshold: GenericContractTxCall<
+    ChainApi,
+    (
+      newValue: number,
+      options?: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
    * Emergency reset index base value (owner only - use with extreme caution)
    *
    * @param {string} reason
@@ -335,6 +421,258 @@ export interface ContractTx<
     ChainApi,
     (
       reason: string,
+      options?: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
+   * Enable the 4-week moving average system (owner only)
+   *
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0x3f1075e6
+   **/
+  enableMovingAverageSystem: GenericContractTxCall<
+    ChainApi,
+    (options?: ContractTxOptions) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
+   * Disable the 4-week moving average system (owner only)
+   *
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0x8361254b
+   **/
+  disableMovingAverageSystem: GenericContractTxCall<
+    ChainApi,
+    (options?: ContractTxOptions) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
+   * Take weekly snapshot for all held tokens (owner or automated)
+   *
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0xcadf5ac0
+   **/
+  takeWeeklySnapshot: GenericContractTxCall<
+    ChainApi,
+    (options?: ContractTxOptions) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
+   * Enable the monthly rebalancing system (owner only)
+   *
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0xfb477e2c
+   **/
+  enableRebalancing: GenericContractTxCall<
+    ChainApi,
+    (options?: ContractTxOptions) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
+   * Disable the monthly rebalancing system (owner only)
+   *
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0x85debd84
+   **/
+  disableRebalancing: GenericContractTxCall<
+    ChainApi,
+    (options?: ContractTxOptions) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
+   * Execute monthly rebalancing with 20% max shift cap
+   *
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0xce20575e
+   **/
+  executeMonthlyRebalance: GenericContractTxCall<
+    ChainApi,
+    (options?: ContractTxOptions) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
+   * Set max monthly shift (owner only)
+   *
+   * @param {number} maxShiftBp
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0x9a9ccf5b
+   **/
+  setMaxMonthlyShift: GenericContractTxCall<
+    ChainApi,
+    (
+      maxShiftBp: number,
+      options?: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
+   * Set USDC contract address (owner only)
+   *
+   * @param {H160} usdc
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0x46e77b11
+   **/
+  setUsdcContract: GenericContractTxCall<
+    ChainApi,
+    (
+      usdc: H160,
+      options?: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
+   * Set Staking contract address (owner only)
+   *
+   * @param {H160} staking
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0x00e16ab8
+   **/
+  setStakingContract: GenericContractTxCall<
+    ChainApi,
+    (
+      staking: H160,
+      options?: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
+   * Execute a manual swap (owner only, for emergency or manual operations)
+   *
+   * @param {H160} tokenIn
+   * @param {H160} tokenOut
+   * @param {bigint} amountIn
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0xf8a09e9c
+   **/
+  executeSwap: GenericContractTxCall<
+    ChainApi,
+    (
+      tokenIn: H160,
+      tokenOut: H160,
+      amountIn: bigint,
+      options?: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
+   * Set fee treasury address (owner only)
+   *
+   * @param {H160} treasury
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0x5667983d
+   **/
+  setFeeTreasury: GenericContractTxCall<
+    ChainApi,
+    (
+      treasury: H160,
+      options?: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
+   * Collect streaming fee (anyone can call, but fees go to treasury)
+   *
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0x0f716a8a
+   **/
+  collectStreamingFee: GenericContractTxCall<
+    ChainApi,
+    (options?: ContractTxOptions) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
+   * Set streaming fee collection interval (owner only)
+   *
+   * @param {bigint} intervalMs
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0xc058dfca
+   **/
+  setStreamingFeeInterval: GenericContractTxCall<
+    ChainApi,
+    (
+      intervalMs: bigint,
+      options?: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
+   * Buy W3PI tokens by depositing USDC
+   * Flow: User sends USDC → deduct 0.55% fee → swap to basket tokens → mint W3PI
+   *
+   * @param {bigint} usdcAmount
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0x58015b4d
+   **/
+  buyW3pi: GenericContractTxCall<
+    ChainApi,
+    (
+      usdcAmount: bigint,
+      options?: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
+   * Sell W3PI tokens and receive USDC
+   * Flow: User sends W3PI → burn W3PI → swap basket tokens to USDC → deduct 0.95% fee → return USDC
+   *
+   * @param {bigint} w3piAmount
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0x8cb25829
+   **/
+  sellW3pi: GenericContractTxCall<
+    ChainApi,
+    (
+      w3piAmount: bigint,
+      options?: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
+   * Receive reallocation from Staking contract (zombie stake cleanup)
+   * This function receives USDC value from liquidated zombie stakes
+   * and redistributes it proportionally to active holdings
+   *
+   * @param {bigint} usdcAmount
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0x42ef969b
+   **/
+  receiveReallocation: GenericContractTxCall<
+    ChainApi,
+    (
+      usdcAmount: bigint,
       options?: ContractTxOptions,
     ) => ContractSubmittableExtrinsic<ChainApi>,
     Type

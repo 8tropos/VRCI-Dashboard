@@ -5,28 +5,48 @@
 import { ReactNode } from 'react';
 import { TypinkProvider as BaseTypinkProvider } from 'typink';
 
+// Determine environment
+const isDevelopment = process.env.NODE_ENV === 'development';
+
+// RPC URL based on environment (static keys for Next.js build-time replacement)
+const RPC_URL = isDevelopment
+  ? (process.env.NEXT_PUBLIC_RPC_URL_DEV || process.env.NEXT_PUBLIC_RPC_URL || '')
+  : (process.env.NEXT_PUBLIC_RPC_URL || '');
+
 // Passet Hub Testnet Configuration (supports ink! v6 contracts)
 const PASSET_HUB_NETWORK = {
   id: "passet_hub_testnet",
   name: "Passet Hub Testnet",
-  rpc: "wss://passet-hub-paseo.ibp.network",
+  rpc: RPC_URL,
   chainId: 420420422,
   decimals: 10,
   symbol: "PAS",
   logo: "https://parachains.info/images/parachains/1688559044_assethub.svg",
   pjsUrl: "https://blockscout-passet-hub.parity-testnet.parity.io",
   faucetUrl: "https://faucet.passet-hub.parity-testnet.parity.io",
-  providers: ["wss://passet-hub-paseo.ibp.network"]
+  providers: [RPC_URL]
 };
 
 // Contract addresses on Passet Hub Testnet (actual deployed addresses)
 const CONTRACT_ADDRESSES = {
-  TOKEN: '0xf830b0c05889cbd05b13bf87bee1ca52755aafe8', // Your deployed token contract
-  ORACLE: '0xa7cc4e6f7459f6a120c7907e525c7f565daaf8ac', // To be deployed
-  REGISTRY: '0xa85587de037304d67fa88f5d23c1d4b820e0d4bf', // To be deployed
-  PORTFOLIO: '0xc9e68f98cb0dc6d3065fe89622026ea062dc7513', // To be deployed
-  STAKING: '0x02a76f98f814455a7d5c89f86f23c557c27de89c', // To be deployed
-  DEX: '0x5e0631f14dd2920bb582dd0ba6daf92f76ec4894' // To be deployed
+  TOKEN: isDevelopment
+    ? (process.env.NEXT_PUBLIC_TOKEN_ADDRESS_DEV || process.env.NEXT_PUBLIC_TOKEN_ADDRESS || '')
+    : (process.env.NEXT_PUBLIC_TOKEN_ADDRESS || ''),
+  ORACLE: isDevelopment
+    ? (process.env.NEXT_PUBLIC_ORACLE_ADDRESS_DEV || process.env.NEXT_PUBLIC_ORACLE_ADDRESS || '')
+    : (process.env.NEXT_PUBLIC_ORACLE_ADDRESS || ''),
+  REGISTRY: isDevelopment
+    ? (process.env.NEXT_PUBLIC_REGISTRY_ADDRESS_DEV || process.env.NEXT_PUBLIC_REGISTRY_ADDRESS || '')
+    : (process.env.NEXT_PUBLIC_REGISTRY_ADDRESS || ''),
+  PORTFOLIO: isDevelopment
+    ? (process.env.NEXT_PUBLIC_PORTFOLIO_ADDRESS_DEV || process.env.NEXT_PUBLIC_PORTFOLIO_ADDRESS || '')
+    : (process.env.NEXT_PUBLIC_PORTFOLIO_ADDRESS || ''),
+  STAKING: isDevelopment
+    ? (process.env.NEXT_PUBLIC_STAKING_ADDRESS_DEV || process.env.NEXT_PUBLIC_STAKING_ADDRESS || '')
+    : (process.env.NEXT_PUBLIC_STAKING_ADDRESS || ''),
+  DEX: isDevelopment
+    ? (process.env.NEXT_PUBLIC_DEX_ADDRESS_DEV || process.env.NEXT_PUBLIC_DEX_ADDRESS || '')
+    : (process.env.NEXT_PUBLIC_DEX_ADDRESS || '')
 };
 
 // Import contract metadata for TypinkProvider
@@ -36,14 +56,6 @@ import registryMetadata from '@/contracts/metadata/registry.json';
 import portfolioMetadata from '@/contracts/metadata/portfolio.json';
 import stakingMetadata from '@/contracts/metadata/staking.json';
 import dexMetadata from '@/contracts/metadata/dex.json';
-
-// Import new Typink-generated contract APIs for type safety
-import type { TokenContractApi } from '@/lib/contracts/token';
-import type { OracleContractApi } from '@/lib/contracts/oracle';
-import type { RegistryContractApi } from '@/lib/contracts/registry';
-import type { PortfolioContractApi } from '@/lib/contracts/portfolio';
-import type { StakingContractApi } from '@/lib/contracts/staking';
-import type { DexContractApi } from '@/lib/contracts/dex';
 
 // Contract deployments configuration using new Typink system
 const deployments = [
@@ -55,7 +67,7 @@ const deployments = [
   },
   {
     id: 'oracle',
-    network: 'passet_hub_testnet', 
+    network: 'passet_hub_testnet',
     address: CONTRACT_ADDRESSES.ORACLE,
     metadata: oracleMetadata
   },
@@ -93,13 +105,13 @@ interface TypinkProviderProps {
 
 export function TypinkProvider({ children }: TypinkProviderProps) {
   return (
-            <BaseTypinkProvider
-              appName="W3PI - Web3 Portfolio Intelligence"
-              deployments={deployments}
-              defaultNetworkId="passet_hub_testnet"
-              supportedNetworks={supportedNetworks}
-              defaultCaller="5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY" // Alice for testing
-            >
+    <BaseTypinkProvider
+      appName="W3PI - Web3 Portfolio Intelligence"
+      deployments={deployments}
+      defaultNetworkId="passet_hub_testnet"
+      supportedNetworks={supportedNetworks}
+      defaultCaller="5FAAUGRrj9AFCYKFKZjS3fUMh4ntZFVrRvDTX2NjcQRr15da" // My account for testing
+    >
       {children}
     </BaseTypinkProvider>
   );

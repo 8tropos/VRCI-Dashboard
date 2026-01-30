@@ -40,6 +40,17 @@ export type StakingW3piStaking = {
   reentrancyGuard: SharedUtilsReentrancyGuard;
   feeWallet: H160;
   totalCollectedFees: bigint;
+  portfolioContract?: H160 | undefined;
+  dexContract?: H160 | undefined;
+  usdcContract?: H160 | undefined;
+  stakerAddresses: Array<H160>;
+  lastZombieCleanup: bigint;
+  zombieCleanupInterval: bigint;
+  rewardsPoolBalance: bigint;
+  totalRewardsDistributed: bigint;
+  unstakingVolumeCurrentPeriod: bigint;
+  unstakingPeriodStart: bigint;
+  unstakingPeriodDuration: bigint;
 };
 
 export type SharedUtilsReentrancyGuard = { executing: boolean };
@@ -62,3 +73,9 @@ export type SharedError =
   | "CrossContractCallFailed"
   | "TransferFailed"
   | "InvalidParameters";
+
+export type StakingCleanupResult = {
+  stakesProcessed: number;
+  totalValueReallocated: bigint;
+  tokensRedistributed: number;
+};

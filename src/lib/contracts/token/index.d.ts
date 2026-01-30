@@ -21,7 +21,7 @@ export * from "./types.js";
  * @contractName: token
  * @contractVersion: 0.1.0
  * @authors: 3dln <ashcan@3dln.com>
- * @language: ink! 6.0.0-alpha.3
+ * @language: ink! 6.0.0-beta.1
  **/
 export interface TokenContractApi<
   Rv extends RpcVersion = RpcVersion,

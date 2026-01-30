@@ -9,7 +9,7 @@ import type {
   ContractSubmittableExtrinsic,
   MetadataType,
 } from "dedot/contracts";
-import type { OracleValidationConfig } from "./types.js";
+import type { OracleValidationConfig, OracleTokenPriceData } from "./types.js";
 
 export interface ContractTx<
   ChainApi extends GenericSubstrateApi,
@@ -261,6 +261,25 @@ export interface ContractTx<
       token: AccountId32Like,
       marketCap: bigint,
       volume: bigint,
+      options?: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
+   * Update token data
+   *
+   * @param {AccountId32Like} token
+   * @param {OracleTokenPriceData} newData
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0x11cfb589
+   **/
+  setTokenData: GenericContractTxCall<
+    ChainApi,
+    (
+      token: AccountId32Like,
+      newData: OracleTokenPriceData,
       options?: ContractTxOptions,
     ) => ContractSubmittableExtrinsic<ChainApi>,
     Type

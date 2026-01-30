@@ -17,6 +17,9 @@ import type {
   SharedError,
   PortfolioTokenHolding,
   PortfolioPortfolioComposition,
+  PortfolioTokenSnapshotHistory,
+  PortfolioRebalanceOrder,
+  PortfolioRebalanceResult,
 } from "./types.js";
 
 export interface ContractQuery<
@@ -164,6 +167,26 @@ export interface ContractQuery<
   >;
 
   /**
+   * Get Portfolio State
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x9116c86c
+   **/
+  getPortfolioState: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        PortfolioPortfolioState,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
    * Set portfolio state (owner only)
    *
    * @param {PortfolioPortfolioState} newState
@@ -215,9 +238,9 @@ export interface ContractQuery<
    * @param {string} reason
    * @param {ContractCallOptions} options
    *
-   * @selector 0xd777a238
+   * @selector 0xdacb444b
    **/
-  resumeOperations: GenericContractQueryCall<
+  emergencyResume: GenericContractQueryCall<
     ChainApi,
     (
       reason: string,
@@ -433,6 +456,29 @@ export interface ContractQuery<
   >;
 
   /**
+   * Remove a token holding from the portfolio (can be called by owner or Registry)
+   * This is called when a token becomes Tier::None after grace period
+   *
+   * @param {number} tokenId
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x8499ff26
+   **/
+  removeTokenHolding: GenericContractQueryCall<
+    ChainApi,
+    (
+      tokenId: number,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
    * Update an existing token holding (owner only)
    *
    * @param {number} tokenId
@@ -448,28 +494,6 @@ export interface ContractQuery<
       tokenId: number,
       newAmount: bigint,
       newTargetWeightBp: number,
-      options?: ContractCallOptions,
-    ) => Promise<
-      GenericContractCallResult<
-        Result<[], SharedError>,
-        ContractCallResult<ChainApi>
-      >
-    >,
-    Type
-  >;
-
-  /**
-   * Remove a token holding from the portfolio (owner only)
-   *
-   * @param {number} tokenId
-   * @param {ContractCallOptions} options
-   *
-   * @selector 0x8499ff26
-   **/
-  removeTokenHolding: GenericContractQueryCall<
-    ChainApi,
-    (
-      tokenId: number,
       options?: ContractCallOptions,
     ) => Promise<
       GenericContractCallResult<
@@ -1089,6 +1113,116 @@ export interface ContractQuery<
   >;
 
   /**
+   * Set index base value (owner only)
+   *
+   * @param {bigint} newValue
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x8b4a4890
+   **/
+  setIndexBaseValue: GenericContractQueryCall<
+    ChainApi,
+    (
+      newValue: bigint,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Set liquidity buffer (owner only)
+   *
+   * @param {bigint} newValue
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0xd7460457
+   **/
+  setLiquidityBuffer: GenericContractQueryCall<
+    ChainApi,
+    (
+      newValue: bigint,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Set max single position (owner only)
+   *
+   * @param {number} newValue
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0xc861a01c
+   **/
+  setMaxSinglePosition: GenericContractQueryCall<
+    ChainApi,
+    (
+      newValue: number,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Set max slippage (owner only)
+   *
+   * @param {number} newValue
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x6cc09ca6
+   **/
+  setMaxSlippage: GenericContractQueryCall<
+    ChainApi,
+    (
+      newValue: number,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Set rebalance threshold (owner only)
+   *
+   * @param {number} newValue
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0xeba65fa0
+   **/
+  setRebalanceThreshold: GenericContractQueryCall<
+    ChainApi,
+    (
+      newValue: number,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
    * Check if index tracking is enabled
    *
    * @param {ContractCallOptions} options
@@ -1274,6 +1408,7 @@ export interface ContractQuery<
   >;
 
   /**
+   * Calculate portfolio value with fallback mechanisms
    * Get detailed portfolio valuation breakdown
    *
    * @param {ContractCallOptions} options
@@ -1307,6 +1442,916 @@ export interface ContractQuery<
     ) => Promise<
       GenericContractCallResult<
         Result<[boolean, number], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Enable the 4-week moving average system (owner only)
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x3f1075e6
+   **/
+  enableMovingAverageSystem: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Disable the 4-week moving average system (owner only)
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x8361254b
+   **/
+  disableMovingAverageSystem: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Check if moving average system is enabled
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x672ffade
+   **/
+  isMovingAverageEnabled: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<boolean, ContractCallResult<ChainApi>>
+    >,
+    Type
+  >;
+
+  /**
+   * Take weekly snapshot for all held tokens (owner or automated)
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0xcadf5ac0
+   **/
+  takeWeeklySnapshot: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<number, SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Calculate 4-week moving average market cap for a token
+   *
+   * @param {number} tokenId
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x4bb50785
+   **/
+  getFourWeekAverageMarketCap: GenericContractQueryCall<
+    ChainApi,
+    (
+      tokenId: number,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<bigint, SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Calculate target weights based on 4-week average market caps
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x39bbed7e
+   **/
+  calculateTargetWeightsFromMovingAverage: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<Array<[number, number]>, SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Get snapshot history for a token
+   *
+   * @param {number} tokenId
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0xd35c182b
+   **/
+  getTokenSnapshotHistory: GenericContractQueryCall<
+    ChainApi,
+    (
+      tokenId: number,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        PortfolioTokenSnapshotHistory | undefined,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Check if token has enough snapshots for averaging (4 weeks)
+   *
+   * @param {number} tokenId
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0xb132e072
+   **/
+  hasSufficientSnapshots: GenericContractQueryCall<
+    ChainApi,
+    (
+      tokenId: number,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<boolean, ContractCallResult<ChainApi>>
+    >,
+    Type
+  >;
+
+  /**
+   * Get last snapshot timestamp
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x0f419932
+   **/
+  getLastSnapshotTimestamp: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<bigint, ContractCallResult<ChainApi>>
+    >,
+    Type
+  >;
+
+  /**
+   * Check if snapshot is due
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0xdf4fe542
+   **/
+  isSnapshotDue: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<boolean, ContractCallResult<ChainApi>>
+    >,
+    Type
+  >;
+
+  /**
+   * Enable the monthly rebalancing system (owner only)
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0xfb477e2c
+   **/
+  enableRebalancing: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Disable the monthly rebalancing system (owner only)
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x85debd84
+   **/
+  disableRebalancing: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Check if rebalancing is enabled
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x4e1537d8
+   **/
+  isRebalancingEnabled: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<boolean, ContractCallResult<ChainApi>>
+    >,
+    Type
+  >;
+
+  /**
+   * Check if monthly rebalance is due
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x6725cf90
+   **/
+  isRebalanceDue: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<boolean, ContractCallResult<ChainApi>>
+    >,
+    Type
+  >;
+
+  /**
+   * Get days since last rebalance
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x42782bc4
+   **/
+  getDaysSinceRebalance: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<bigint, ContractCallResult<ChainApi>>
+    >,
+    Type
+  >;
+
+  /**
+   * Calculate rebalancing orders based on 4-week moving average
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x887cc4e3
+   **/
+  calculateRebalanceOrders: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<Array<PortfolioRebalanceOrder>, SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Execute monthly rebalancing with 20% max shift cap
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0xce20575e
+   **/
+  executeMonthlyRebalance: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<PortfolioRebalanceResult, SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Get current month's weight shift (for monitoring 20% cap)
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x61594cef
+   **/
+  getCurrentMonthShift: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<number, ContractCallResult<ChainApi>>
+    >,
+    Type
+  >;
+
+  /**
+   * Get remaining weight shift capacity this month
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x1eaf3b61
+   **/
+  getRemainingShiftCapacity: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<number, ContractCallResult<ChainApi>>
+    >,
+    Type
+  >;
+
+  /**
+   * Set max monthly shift (owner only)
+   *
+   * @param {number} maxShiftBp
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x9a9ccf5b
+   **/
+  setMaxMonthlyShift: GenericContractQueryCall<
+    ChainApi,
+    (
+      maxShiftBp: number,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Set USDC contract address (owner only)
+   *
+   * @param {H160} usdc
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x46e77b11
+   **/
+  setUsdcContract: GenericContractQueryCall<
+    ChainApi,
+    (
+      usdc: H160,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Get USDC contract address
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x7e02b7b2
+   **/
+  getUsdcContract: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<H160 | undefined, ContractCallResult<ChainApi>>
+    >,
+    Type
+  >;
+
+  /**
+   * Set Staking contract address (owner only)
+   *
+   * @param {H160} staking
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x00e16ab8
+   **/
+  setStakingContract: GenericContractQueryCall<
+    ChainApi,
+    (
+      staking: H160,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Get Staking contract address
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x01b9cd68
+   **/
+  getStakingContract: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<H160 | undefined, ContractCallResult<ChainApi>>
+    >,
+    Type
+  >;
+
+  /**
+   * Execute a manual swap (owner only, for emergency or manual operations)
+   *
+   * @param {H160} tokenIn
+   * @param {H160} tokenOut
+   * @param {bigint} amountIn
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0xf8a09e9c
+   **/
+  executeSwap: GenericContractQueryCall<
+    ChainApi,
+    (
+      tokenIn: H160,
+      tokenOut: H160,
+      amountIn: bigint,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<bigint, SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Set fee treasury address (owner only)
+   *
+   * @param {H160} treasury
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x5667983d
+   **/
+  setFeeTreasury: GenericContractQueryCall<
+    ChainApi,
+    (
+      treasury: H160,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Get fee treasury address
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x8ff9f51b
+   **/
+  getFeeTreasury: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<H160 | undefined, ContractCallResult<ChainApi>>
+    >,
+    Type
+  >;
+
+  /**
+   * Calculate accrued streaming fee since last collection
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x83a0a4d2
+   **/
+  calculateAccruedStreamingFee: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<bigint, SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Get days since last fee collection
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x878367b8
+   **/
+  getDaysSinceFeeCollection: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<bigint, ContractCallResult<ChainApi>>
+    >,
+    Type
+  >;
+
+  /**
+   * Check if streaming fee collection is due
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0xacf8b13e
+   **/
+  isFeeCollectionDue: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<boolean, ContractCallResult<ChainApi>>
+    >,
+    Type
+  >;
+
+  /**
+   * Collect streaming fee (anyone can call, but fees go to treasury)
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x0f716a8a
+   **/
+  collectStreamingFee: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<bigint, SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Get total streaming fees collected
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x7f655aae
+   **/
+  getTotalStreamingFeesCollected: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<bigint, ContractCallResult<ChainApi>>
+    >,
+    Type
+  >;
+
+  /**
+   * Get last streaming fee collection timestamp
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x33dd2f5e
+   **/
+  getLastStreamingFeeCollection: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<bigint, ContractCallResult<ChainApi>>
+    >,
+    Type
+  >;
+
+  /**
+   * Set streaming fee collection interval (owner only)
+   *
+   * @param {bigint} intervalMs
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0xc058dfca
+   **/
+  setStreamingFeeInterval: GenericContractQueryCall<
+    ChainApi,
+    (
+      intervalMs: bigint,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Get projected annual fee for current portfolio
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0xb9649c8c
+   **/
+  getProjectedAnnualFee: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<bigint, SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Get all rebalancing configuration
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0xda23715e
+   **/
+  getRebalancingConfig: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        [boolean, bigint, number, number, bigint],
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Get all moving average configuration
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x753571aa
+   **/
+  getMovingAverageConfig: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        [boolean, bigint, bigint],
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Get all streaming fee configuration
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x735e9c96
+   **/
+  getStreamingFeeConfig: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        [bigint, bigint, bigint, H160 | undefined],
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Buy W3PI tokens by depositing USDC
+   * Flow: User sends USDC → deduct 0.55% fee → swap to basket tokens → mint W3PI
+   *
+   * @param {bigint} usdcAmount
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x58015b4d
+   **/
+  buyW3pi: GenericContractQueryCall<
+    ChainApi,
+    (
+      usdcAmount: bigint,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<bigint, SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Sell W3PI tokens and receive USDC
+   * Flow: User sends W3PI → burn W3PI → swap basket tokens to USDC → deduct 0.95% fee → return USDC
+   *
+   * @param {bigint} w3piAmount
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x8cb25829
+   **/
+  sellW3pi: GenericContractQueryCall<
+    ChainApi,
+    (
+      w3piAmount: bigint,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<bigint, SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Get current W3PI price in USDC
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0xce774ca5
+   **/
+  getW3piPrice: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<bigint, SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Get quote for buying W3PI
+   *
+   * @param {bigint} usdcAmount
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x01e532a5
+   **/
+  getBuyQuote: GenericContractQueryCall<
+    ChainApi,
+    (
+      usdcAmount: bigint,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[bigint, bigint, bigint], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Get quote for selling W3PI
+   *
+   * @param {bigint} w3piAmount
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x536444b6
+   **/
+  getSellQuote: GenericContractQueryCall<
+    ChainApi,
+    (
+      w3piAmount: bigint,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[bigint, bigint, bigint], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Get user's W3PI balance
+   *
+   * @param {H160} user
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0xb6144d23
+   **/
+  getUserW3piBalance: GenericContractQueryCall<
+    ChainApi,
+    (
+      user: H160,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<bigint, SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Get total W3PI supply
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0xb290b7a1
+   **/
+  getTotalW3piSupply: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<bigint, SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Receive reallocation from Staking contract (zombie stake cleanup)
+   * This function receives USDC value from liquidated zombie stakes
+   * and redistributes it proportionally to active holdings
+   *
+   * @param {bigint} usdcAmount
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x42ef969b
+   **/
+  receiveReallocation: GenericContractQueryCall<
+    ChainApi,
+    (
+      usdcAmount: bigint,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
         ContractCallResult<ChainApi>
       >
     >,

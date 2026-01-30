@@ -15,6 +15,8 @@ import type {
   InkPrimitivesLangError,
   StakingStakeInfo,
   StakingUnstakingRequest,
+  StakingCleanupResult,
+  SharedTier,
 } from "./types.js";
 
 export interface ContractQuery<
@@ -296,6 +298,372 @@ export interface ContractQuery<
     ChainApi,
     (
       newRegistry: H160,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Set portfolio contract (owner only)
+   *
+   * @param {H160} portfolio
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x35760b89
+   **/
+  setPortfolioContract: GenericContractQueryCall<
+    ChainApi,
+    (
+      portfolio: H160,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Set DEX contract (owner only)
+   *
+   * @param {H160} dex
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0xb53ae601
+   **/
+  setDexContract: GenericContractQueryCall<
+    ChainApi,
+    (
+      dex: H160,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Set USDC contract (owner only)
+   *
+   * @param {H160} usdc
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x46e77b11
+   **/
+  setUsdcContract: GenericContractQueryCall<
+    ChainApi,
+    (
+      usdc: H160,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Check if zombie cleanup is due
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0xcb6348ac
+   **/
+  isZombieCleanupDue: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<boolean, ContractCallResult<ChainApi>>
+    >,
+    Type
+  >;
+
+  /**
+   * Get last zombie cleanup timestamp
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x71729510
+   **/
+  getLastZombieCleanup: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<bigint, ContractCallResult<ChainApi>>
+    >,
+    Type
+  >;
+
+  /**
+   * Detect zombie stakes (stakes in obsolete tokens)
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0xeb7749cc
+   **/
+  detectZombieStakes: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[number, bigint], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Cleanup zombie stakes - auto unstake obsolete positions
+   * This should be called during monthly rebalancing
+   * Flow: Remove stake → Swap W3PI to USDC via DEX → Transfer USDC to Portfolio → Portfolio redistributes
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x32efb9ca
+   **/
+  cleanupZombieStakes: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<StakingCleanupResult, SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Force unstake an obsolete position for a specific account (owner only)
+   *
+   * @param {H160} account
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0xb9541bf0
+   **/
+  forceUnstakeObsolete: GenericContractQueryCall<
+    ChainApi,
+    (
+      account: H160,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<bigint, SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Get current unstaking rate and threshold status
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x1db58201
+   **/
+  getUnstakingRateInfo: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        [bigint, bigint, bigint, boolean],
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Reset unstaking detection period (owner only - emergency use)
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x731722fc
+   **/
+  resetUnstakingDetection: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Get zombie stake statistics
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0xa13b3575
+   **/
+  getZombieStats: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        [number, bigint, bigint],
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Set zombie cleanup interval (owner only)
+   *
+   * @param {bigint} interval
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0xcf3759d6
+   **/
+  setZombieCleanupInterval: GenericContractQueryCall<
+    ChainApi,
+    (
+      interval: bigint,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Handle tier change notification from Registry
+   * This updates unstaking periods for existing stakes
+   *
+   * @param {SharedTier} oldTier
+   * @param {SharedTier} newTier
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0xa5982f5f
+   **/
+  onTierChange: GenericContractQueryCall<
+    ChainApi,
+    (
+      oldTier: SharedTier,
+      newTier: SharedTier,
+      options?: ContractCallOptions,
+    ) => Promise<GenericContractCallResult<[], ContractCallResult<ChainApi>>>,
+    Type
+  >;
+
+  /**
+   * Fund the rewards pool with W3PI tokens (owner or authorized)
+   * Requires prior approval of tokens to this contract
+   *
+   * @param {bigint} amount
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0xbd39b69c
+   **/
+  fundRewardsPool: GenericContractQueryCall<
+    ChainApi,
+    (
+      amount: bigint,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Get current rewards pool balance
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x3a32f624
+   **/
+  getRewardsPoolBalance: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<bigint, ContractCallResult<ChainApi>>
+    >,
+    Type
+  >;
+
+  /**
+   * Get total rewards distributed (lifetime)
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0xe83b98a7
+   **/
+  getTotalRewardsDistributed: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<bigint, ContractCallResult<ChainApi>>
+    >,
+    Type
+  >;
+
+  /**
+   * Check if rewards pool has sufficient funds for estimated rewards
+   *
+   * @param {bigint} estimatedRewards
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0xb85910de
+   **/
+  hasSufficientRewards: GenericContractQueryCall<
+    ChainApi,
+    (
+      estimatedRewards: bigint,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<boolean, ContractCallResult<ChainApi>>
+    >,
+    Type
+  >;
+
+  /**
+   * Withdraw excess rewards from pool (owner only, for emergency)
+   *
+   * @param {bigint} amount
+   * @param {H160} to
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x3dbc47f0
+   **/
+  withdrawRewardsPool: GenericContractQueryCall<
+    ChainApi,
+    (
+      amount: bigint,
+      to: H160,
       options?: ContractCallOptions,
     ) => Promise<
       GenericContractCallResult<

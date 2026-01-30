@@ -283,4 +283,110 @@ export interface ContractTx<
     ) => ContractSubmittableExtrinsic<ChainApi>,
     Type
   >;
+
+  /**
+   * Set portfolio contract (owner only)
+   *
+   * @param {H160} portfolio
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0x35760b89
+   **/
+  setPortfolioContract: GenericContractTxCall<
+    ChainApi,
+    (
+      portfolio: H160,
+      options?: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
+   * Set staking contract (owner only)
+   *
+   * @param {H160} staking
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0x00e16ab8
+   **/
+  setStakingContract: GenericContractTxCall<
+    ChainApi,
+    (
+      staking: H160,
+      options?: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
+   * Trigger monthly rebalancing in Portfolio contract
+   *
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0x29bac70c
+   **/
+  triggerMonthlyRebalancing: GenericContractTxCall<
+    ChainApi,
+    (options?: ContractTxOptions) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
+   * Trigger weekly snapshot in Portfolio contract
+   *
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0x6d9f90a6
+   **/
+  triggerWeeklySnapshot: GenericContractTxCall<
+    ChainApi,
+    (options?: ContractTxOptions) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
+   * Trigger zombie stake cleanup in Staking contract
+   *
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0xb26132ec
+   **/
+  triggerZombieCleanup: GenericContractTxCall<
+    ChainApi,
+    (options?: ContractTxOptions) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
+   * Execute full monthly maintenance cycle
+   * 1. Process grace periods
+   * 2. Trigger zombie cleanup
+   * 3. Trigger rebalancing
+   *
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0x9ef3c9e2
+   **/
+  executeMonthlyMaintenance: GenericContractTxCall<
+    ChainApi,
+    (options?: ContractTxOptions) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
+   * Set rebalancing interval (owner only)
+   *
+   * @param {bigint} intervalMs
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0x8d52af0e
+   **/
+  setRebalancingInterval: GenericContractTxCall<
+    ChainApi,
+    (
+      intervalMs: bigint,
+      options?: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
 }

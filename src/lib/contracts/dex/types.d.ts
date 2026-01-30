@@ -9,6 +9,8 @@ export type DexPool = {
   tokenB: H160;
   reserveA: bigint;
   reserveB: bigint;
+  totalLpTokens: bigint;
+  feeBp: number;
 };
 
 export type InkStorageTraitsImplsResolverKey = {};
@@ -17,11 +19,22 @@ export type InkStorageTraitsImplsAutoKey = {};
 
 export type InkStorageTraitsImplsManualKey = {};
 
+export type DexLpPosition = {
+  lpTokens: bigint;
+  initialDepositA: bigint;
+  initialDepositB: bigint;
+  timestamp: bigint;
+};
+
 export type DexHydraDxDex = {
   pools: { get(arg: [H160, H160]): Promise<DexPool | undefined> };
+  lpPositions: {
+    get(arg: [[H160, H160], H160]): Promise<DexLpPosition | undefined>;
+  };
   owner: H160;
   reentrancyGuard: SharedUtilsReentrancyGuard;
   poolKeys: Array<[H160, H160]>;
+  defaultFeeBp: number;
 };
 
 export type SharedUtilsReentrancyGuard = { executing: boolean };

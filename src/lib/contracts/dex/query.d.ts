@@ -10,7 +10,12 @@ import type {
   ContractCallResult,
   MetadataType,
 } from "dedot/contracts";
-import type { SharedError, InkPrimitivesLangError } from "./types.js";
+import type {
+  SharedError,
+  InkPrimitivesLangError,
+  DexPool,
+  DexLpPosition,
+} from "./types.js";
 
 export interface ContractQuery<
   ChainApi extends GenericSubstrateApi,
@@ -45,7 +50,58 @@ export interface ContractQuery<
   >;
 
   /**
-   * Swap tokens from one to another
+   * Set default fee for new pools (owner only)
+   *
+   * @param {number} feeBp
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0xcb642a2e
+   **/
+  setDefaultFee: GenericContractQueryCall<
+    ChainApi,
+    (
+      feeBp: number,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Swap tokens with slippage protection
+   * Returns error if output is less than min_amount_out
+   *
+   * @param {H160} from
+   * @param {H160} to
+   * @param {bigint} amountIn
+   * @param {bigint} minAmountOut
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x36afaae2
+   **/
+  swapWithSlippage: GenericContractQueryCall<
+    ChainApi,
+    (
+      from: H160,
+      to: H160,
+      amountIn: bigint,
+      minAmountOut: bigint,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<bigint, SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Original swap function (backward compatible)
    *
    * @param {H160} from
    * @param {H160} to
@@ -73,7 +129,84 @@ export interface ContractQuery<
   >;
 
   /**
-   * Get token price
+   * Add liquidity to a pool
+   * Returns LP tokens minted
+   *
+   * @param {H160} tokenA
+   * @param {H160} tokenB
+   * @param {bigint} amountA
+   * @param {bigint} amountB
+   * @param {bigint} minLpTokens
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x264cd04b
+   **/
+  addLiquidity: GenericContractQueryCall<
+    ChainApi,
+    (
+      tokenA: H160,
+      tokenB: H160,
+      amountA: bigint,
+      amountB: bigint,
+      minLpTokens: bigint,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<bigint, SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Remove liquidity from a pool
+   * Returns (amount_a, amount_b) withdrawn
+   *
+   * @param {H160} tokenA
+   * @param {H160} tokenB
+   * @param {bigint} lpTokens
+   * @param {bigint} minAmountA
+   * @param {bigint} minAmountB
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0xbdd16bfa
+   **/
+  removeLiquidity: GenericContractQueryCall<
+    ChainApi,
+    (
+      tokenA: H160,
+      tokenB: H160,
+      lpTokens: bigint,
+      minAmountA: bigint,
+      minAmountB: bigint,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<[bigint, bigint], SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Get the owner of the contract
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x07fcd0b1
+   **/
+  getOwner: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<GenericContractCallResult<H160, ContractCallResult<ChainApi>>>,
+    Type
+  >;
+
+  /**
+   * Get token price (reserve ratio)
    *
    * @param {H160} token
    * @param {ContractCallOptions} options
@@ -88,6 +221,128 @@ export interface ContractQuery<
     ) => Promise<
       GenericContractCallResult<
         Result<bigint, SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Get pool info
+   *
+   * @param {H160} tokenA
+   * @param {H160} tokenB
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x1a8beae4
+   **/
+  getPool: GenericContractQueryCall<
+    ChainApi,
+    (
+      tokenA: H160,
+      tokenB: H160,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        DexPool | undefined,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Get user's LP position
+   *
+   * @param {H160} tokenA
+   * @param {H160} tokenB
+   * @param {H160} user
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x54f8bccc
+   **/
+  getLpPosition: GenericContractQueryCall<
+    ChainApi,
+    (
+      tokenA: H160,
+      tokenB: H160,
+      user: H160,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        DexLpPosition | undefined,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Get expected output for a swap (with fee)
+   *
+   * @param {H160} from
+   * @param {H160} to
+   * @param {bigint} amountIn
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0xa9a1e1f8
+   **/
+  getSwapQuote: GenericContractQueryCall<
+    ChainApi,
+    (
+      from: H160,
+      to: H160,
+      amountIn: bigint,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<bigint, SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Calculate price impact of a trade
+   *
+   * @param {H160} from
+   * @param {H160} to
+   * @param {bigint} amountIn
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x2053a944
+   **/
+  getPriceImpact: GenericContractQueryCall<
+    ChainApi,
+    (
+      from: H160,
+      to: H160,
+      amountIn: bigint,
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Result<number, SharedError>,
+        ContractCallResult<ChainApi>
+      >
+    >,
+    Type
+  >;
+
+  /**
+   * Get all pool keys
+   *
+   * @param {ContractCallOptions} options
+   *
+   * @selector 0x3fb8550d
+   **/
+  getAllPools: GenericContractQueryCall<
+    ChainApi,
+    (
+      options?: ContractCallOptions,
+    ) => Promise<
+      GenericContractCallResult<
+        Array<[H160, H160]>,
         ContractCallResult<ChainApi>
       >
     >,

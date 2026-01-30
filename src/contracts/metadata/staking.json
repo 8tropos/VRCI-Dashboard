@@ -1,12 +1,12 @@
 {
   "source": {
-    "hash": "0xa0f9a66dc974772d36b63ca1e5b27b19459861295a996836b18bec4bd4b8c73d",
-    "language": "ink! 6.0.0-alpha.3",
-    "compiler": "rustc 1.89.0",
+    "hash": "0xae32d34f787209e71c89ca30fbd5f722a7a93f86a37704c118da3fc5da37092e",
+    "language": "ink! 6.0.0-beta.1",
+    "compiler": "rustc 1.91.1",
     "build_info": {
-      "rust_toolchain": "stable-x86_64-apple-darwin",
-      "cargo_contract_version": "6.0.0-alpha.3",
-      "build_mode": "Debug"
+      "build_mode": "Release",
+      "cargo_contract_version": "6.0.0-beta.1",
+      "rust_toolchain": "stable-x86_64-unknown-linux-gnu"
     }
   },
   "contract": {
@@ -17,15 +17,1782 @@
     ]
   },
   "image": null,
-  "version": 6,
+  "spec": {
+    "constructors": [
+      {
+        "args": [
+          {
+            "label": "w3pi_token",
+            "type": {
+              "displayName": [
+                "Address"
+              ],
+              "type": 0
+            }
+          },
+          {
+            "label": "registry",
+            "type": {
+              "displayName": [
+                "Address"
+              ],
+              "type": 0
+            }
+          },
+          {
+            "label": "fee_wallet",
+            "type": {
+              "displayName": [
+                "Address"
+              ],
+              "type": 0
+            }
+          }
+        ],
+        "default": false,
+        "docs": [
+          "Constructor that initializes the staking contract"
+        ],
+        "label": "new",
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink_primitives",
+            "ConstructorResult"
+          ],
+          "type": 22
+        },
+        "selector": "0x9bae9d5e"
+      }
+    ],
+    "docs": [],
+    "environment": {
+      "accountId": {
+        "displayName": [
+          "AccountId"
+        ],
+        "type": 46
+      },
+      "balance": {
+        "displayName": [
+          "Balance"
+        ],
+        "type": 4
+      },
+      "blockNumber": {
+        "displayName": [
+          "BlockNumber"
+        ],
+        "type": 36
+      },
+      "hash": {
+        "displayName": [
+          "Hash"
+        ],
+        "type": 48
+      },
+      "nativeToEthRatio": 100000000,
+      "poolAssetsPrecompileIndex": 800,
+      "staticBufferSize": 16384,
+      "timestamp": {
+        "displayName": [
+          "Timestamp"
+        ],
+        "type": 5
+      },
+      "trustBackedAssetsPrecompileIndex": 288
+    },
+    "events": [
+      {
+        "args": [
+          {
+            "docs": [],
+            "indexed": true,
+            "label": "account",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 46
+            }
+          },
+          {
+            "docs": [],
+            "indexed": true,
+            "label": "obsolete_token",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 46
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "stake_amount",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "usdc_value",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "redistributed_to_tokens",
+            "type": {
+              "displayName": [
+                "u32"
+              ],
+              "type": 36
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "timestamp",
+            "type": {
+              "displayName": [
+                "u64"
+              ],
+              "type": 5
+            }
+          }
+        ],
+        "docs": [
+          "Event emitted when an obsolete stake is reallocated"
+        ],
+        "label": "ObsoleteStakeReallocated",
+        "module_path": "staking::staking",
+        "signature_topic": "0xdb513a54d4b45ba1d45556d084cd9abbd7b064d424c891018b31ef5be5adbe5b"
+      },
+      {
+        "args": [
+          {
+            "docs": [],
+            "indexed": true,
+            "label": "account",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 46
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "amount",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "unstaking_period",
+            "type": {
+              "displayName": [
+                "u64"
+              ],
+              "type": 5
+            }
+          }
+        ],
+        "docs": [
+          "Event emitted when tokens are staked"
+        ],
+        "label": "Staked",
+        "module_path": "staking::staking",
+        "signature_topic": "0x7551af92a2911bf2cb2460372612780c412d39c6c007a04b039005822f5f7c9d"
+      },
+      {
+        "args": [
+          {
+            "docs": [],
+            "indexed": true,
+            "label": "by",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 46
+            }
+          }
+        ],
+        "docs": [
+          "Event emitted when the contract is paused"
+        ],
+        "label": "ContractPaused",
+        "module_path": "staking::staking",
+        "signature_topic": "0x6700f57b90d65b5dba547a0341d86b7f766de7b7723491433818c26f2822928e"
+      },
+      {
+        "args": [
+          {
+            "docs": [],
+            "indexed": true,
+            "label": "account",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 46
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "amount",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          }
+        ],
+        "docs": [
+          "Event emitted when rewards are claimed"
+        ],
+        "label": "RewardsClaimed",
+        "module_path": "staking::staking",
+        "signature_topic": "0x9e763d57fa8a985aa55a5fb16e3a4fa48d7897b027e3323d7d159ba9e217da9a"
+      },
+      {
+        "args": [
+          {
+            "docs": [],
+            "indexed": true,
+            "label": "account",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 46
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "amount",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          }
+        ],
+        "docs": [
+          "Event emitted when unstaked tokens are claimed"
+        ],
+        "label": "UnstakedClaimed",
+        "module_path": "staking::staking",
+        "signature_topic": "0xc47dbe97eb57064cbffe38613598d2fb5cbc36945712670fe6de78df720d475e"
+      },
+      {
+        "args": [
+          {
+            "docs": [],
+            "indexed": true,
+            "label": "by",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 46
+            }
+          }
+        ],
+        "docs": [
+          "Event emitted when the contract is unpaused"
+        ],
+        "label": "ContractUnpaused",
+        "module_path": "staking::staking",
+        "signature_topic": "0xd2eeebdfbfc5b97383c0c55dd37a0de83fbe0d45eadb480191138f42b6476aff"
+      },
+      {
+        "args": [
+          {
+            "docs": [],
+            "indexed": true,
+            "label": "account",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 46
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "amount",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "available_at",
+            "type": {
+              "displayName": [
+                "u64"
+              ],
+              "type": 5
+            }
+          }
+        ],
+        "docs": [
+          "Event emitted when an unstaking request is created"
+        ],
+        "label": "UnstakeRequested",
+        "module_path": "staking::staking",
+        "signature_topic": "0x9552fb80393f451b45b670cb1bc3692cc3d8cbeba2e98bf22bf1776ad431c425"
+      },
+      {
+        "args": [
+          {
+            "docs": [],
+            "indexed": true,
+            "label": "funder",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 46
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "amount",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "new_balance",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "timestamp",
+            "type": {
+              "displayName": [
+                "u64"
+              ],
+              "type": 5
+            }
+          }
+        ],
+        "docs": [
+          "Event emitted when rewards pool is funded"
+        ],
+        "label": "RewardsPoolFunded",
+        "module_path": "staking::staking",
+        "signature_topic": "0x640013d9399c14f0214e50ff535fa79938559bfabc597dbf6aedd861e0f09bb3"
+      },
+      {
+        "args": [
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "old_tier",
+            "type": {
+              "displayName": [
+                "Tier"
+              ],
+              "type": 8
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "new_tier",
+            "type": {
+              "displayName": [
+                "Tier"
+              ],
+              "type": 8
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "timestamp",
+            "type": {
+              "displayName": [
+                "u64"
+              ],
+              "type": 5
+            }
+          }
+        ],
+        "docs": [
+          "Event emitted when tier change is received from Registry"
+        ],
+        "label": "TierChangeReceived",
+        "module_path": "staking::staking",
+        "signature_topic": "0x3533a78ea37d119d5ee9f04b2be70d4ff889eb221eacb170c406a29fa22f83d1"
+      },
+      {
+        "args": [
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "total_zombie_stakes",
+            "type": {
+              "displayName": [
+                "u32"
+              ],
+              "type": 36
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "total_zombie_value",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "timestamp",
+            "type": {
+              "displayName": [
+                "u64"
+              ],
+              "type": 5
+            }
+          }
+        ],
+        "docs": [
+          "Event emitted when obsolete stakes are detected"
+        ],
+        "label": "ZombieStakesDetected",
+        "module_path": "staking::staking",
+        "signature_topic": "0x671220865ca1d053270b325d4300503c59a4308b032c52475ef7151a9249b4d2"
+      },
+      {
+        "args": [
+          {
+            "docs": [],
+            "indexed": true,
+            "label": "triggered_by",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 46
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "unstaking_volume",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "threshold",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "total_staked",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "timestamp",
+            "type": {
+              "displayName": [
+                "u64"
+              ],
+              "type": 5
+            }
+          }
+        ],
+        "docs": [
+          "Event emitted when mass unstaking is detected and contract is auto-paused"
+        ],
+        "label": "MassUnstakingDetected",
+        "module_path": "staking::staking",
+        "signature_topic": "0x6b01cf94bac5686021b69eca7dae2e4555764fa7891a60fb283357bbc3843846"
+      },
+      {
+        "args": [
+          {
+            "docs": [],
+            "indexed": true,
+            "label": "account",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 46
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "fee_amount",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          }
+        ],
+        "docs": [
+          "Event emitted when performance fees are claimed"
+        ],
+        "label": "PerformanceFeeClaimed",
+        "module_path": "staking::staking",
+        "signature_topic": "0x8fad5448d30e6dc40e5a92df4c2ccacc2312bdcd34dea0455bdb2a42873bd29e"
+      },
+      {
+        "args": [
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "stakes_processed",
+            "type": {
+              "displayName": [
+                "u32"
+              ],
+              "type": 36
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "total_value_reallocated",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "tokens_redistributed",
+            "type": {
+              "displayName": [
+                "u32"
+              ],
+              "type": 36
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "timestamp",
+            "type": {
+              "displayName": [
+                "u64"
+              ],
+              "type": 5
+            }
+          }
+        ],
+        "docs": [
+          "Event emitted when zombie cleanup is completed"
+        ],
+        "label": "ZombieCleanupCompleted",
+        "module_path": "staking::staking",
+        "signature_topic": "0x82cfed356e8ce17ab4a8c381fd58ae417b8f6508d4967e453b9c68351ee39e02"
+      }
+    ],
+    "lang_error": {
+      "displayName": [
+        "ink",
+        "LangError"
+      ],
+      "type": 23
+    },
+    "messages": [
+      {
+        "args": [
+          {
+            "label": "amount",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          }
+        ],
+        "default": false,
+        "docs": [
+          " Stake W3PI tokens"
+        ],
+        "label": "stake",
+        "mutates": true,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 24
+        },
+        "selector": "0x5adb38de"
+      },
+      {
+        "args": [
+          {
+            "label": "amount",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          }
+        ],
+        "default": false,
+        "docs": [
+          " Request to unstake tokens"
+        ],
+        "label": "request_unstake",
+        "mutates": true,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 24
+        },
+        "selector": "0xfd83c46b"
+      },
+      {
+        "args": [],
+        "default": false,
+        "docs": [
+          " Claim unstaked tokens that have completed the unstaking period"
+        ],
+        "label": "claim_unstaked",
+        "mutates": true,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 24
+        },
+        "selector": "0x67c2988d"
+      },
+      {
+        "args": [],
+        "default": false,
+        "docs": [
+          " Claim staking rewards without unstaking"
+        ],
+        "label": "claim_rewards",
+        "mutates": true,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 24
+        },
+        "selector": "0x8027650c"
+      },
+      {
+        "args": [
+          {
+            "label": "account",
+            "type": {
+              "displayName": [
+                "Address"
+              ],
+              "type": 0
+            }
+          }
+        ],
+        "default": false,
+        "docs": [
+          " View function to get claimable rewards"
+        ],
+        "label": "get_claimable_rewards",
+        "mutates": false,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 27
+        },
+        "selector": "0x2015e04b"
+      },
+      {
+        "args": [],
+        "default": false,
+        "docs": [],
+        "label": "get_total_collected_fees",
+        "mutates": false,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 27
+        },
+        "selector": "0xe2597c6d"
+      },
+      {
+        "args": [
+          {
+            "label": "new_fee_wallet",
+            "type": {
+              "displayName": [
+                "Address"
+              ],
+              "type": 0
+            }
+          }
+        ],
+        "default": false,
+        "docs": [],
+        "label": "set_fee_wallet",
+        "mutates": true,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 24
+        },
+        "selector": "0x3a3baac1"
+      },
+      {
+        "args": [
+          {
+            "label": "account",
+            "type": {
+              "displayName": [
+                "Address"
+              ],
+              "type": 0
+            }
+          }
+        ],
+        "default": false,
+        "docs": [
+          " View function to get account stake info"
+        ],
+        "label": "get_stake_info",
+        "mutates": false,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 28
+        },
+        "selector": "0x19617e8c"
+      },
+      {
+        "args": [
+          {
+            "label": "account",
+            "type": {
+              "displayName": [
+                "Address"
+              ],
+              "type": 0
+            }
+          }
+        ],
+        "default": false,
+        "docs": [
+          " View function to get unstaking requests"
+        ],
+        "label": "get_unstaking_requests",
+        "mutates": false,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 30
+        },
+        "selector": "0x01777c09"
+      },
+      {
+        "args": [],
+        "default": false,
+        "docs": [
+          " View function to get total staked amount"
+        ],
+        "label": "get_total_staked",
+        "mutates": false,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 27
+        },
+        "selector": "0x02c779a5"
+      },
+      {
+        "args": [],
+        "default": false,
+        "docs": [
+          " Pause the contract (owner only)"
+        ],
+        "label": "pause",
+        "mutates": true,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 24
+        },
+        "selector": "0x81e0c604"
+      },
+      {
+        "args": [],
+        "default": false,
+        "docs": [
+          " Unpause the contract (owner only)"
+        ],
+        "label": "unpause",
+        "mutates": true,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 24
+        },
+        "selector": "0x67616649"
+      },
+      {
+        "args": [
+          {
+            "label": "new_token",
+            "type": {
+              "displayName": [
+                "Address"
+              ],
+              "type": 0
+            }
+          }
+        ],
+        "default": false,
+        "docs": [
+          " Update the W3PI token address (owner only)"
+        ],
+        "label": "set_w3pi_token",
+        "mutates": true,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 24
+        },
+        "selector": "0x1ca306e1"
+      },
+      {
+        "args": [
+          {
+            "label": "new_registry",
+            "type": {
+              "displayName": [
+                "Address"
+              ],
+              "type": 0
+            }
+          }
+        ],
+        "default": false,
+        "docs": [
+          " Update the registry address (owner only)"
+        ],
+        "label": "set_registry",
+        "mutates": true,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 24
+        },
+        "selector": "0xa55c4b84"
+      },
+      {
+        "args": [
+          {
+            "label": "portfolio",
+            "type": {
+              "displayName": [
+                "Address"
+              ],
+              "type": 0
+            }
+          }
+        ],
+        "default": false,
+        "docs": [
+          " Set portfolio contract (owner only)"
+        ],
+        "label": "set_portfolio_contract",
+        "mutates": true,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 24
+        },
+        "selector": "0x35760b89"
+      },
+      {
+        "args": [
+          {
+            "label": "dex",
+            "type": {
+              "displayName": [
+                "Address"
+              ],
+              "type": 0
+            }
+          }
+        ],
+        "default": false,
+        "docs": [
+          " Set DEX contract (owner only)"
+        ],
+        "label": "set_dex_contract",
+        "mutates": true,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 24
+        },
+        "selector": "0xb53ae601"
+      },
+      {
+        "args": [
+          {
+            "label": "usdc",
+            "type": {
+              "displayName": [
+                "Address"
+              ],
+              "type": 0
+            }
+          }
+        ],
+        "default": false,
+        "docs": [
+          " Set USDC contract (owner only)"
+        ],
+        "label": "set_usdc_contract",
+        "mutates": true,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 24
+        },
+        "selector": "0x46e77b11"
+      },
+      {
+        "args": [],
+        "default": false,
+        "docs": [
+          " Check if zombie cleanup is due"
+        ],
+        "label": "is_zombie_cleanup_due",
+        "mutates": false,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 31
+        },
+        "selector": "0xcb6348ac"
+      },
+      {
+        "args": [],
+        "default": false,
+        "docs": [
+          " Get last zombie cleanup timestamp"
+        ],
+        "label": "get_last_zombie_cleanup",
+        "mutates": false,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 32
+        },
+        "selector": "0x71729510"
+      },
+      {
+        "args": [],
+        "default": false,
+        "docs": [
+          " Detect zombie stakes (stakes in obsolete tokens)"
+        ],
+        "label": "detect_zombie_stakes",
+        "mutates": false,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 33
+        },
+        "selector": "0xeb7749cc"
+      },
+      {
+        "args": [],
+        "default": false,
+        "docs": [
+          " Cleanup zombie stakes - auto unstake obsolete positions",
+          " This should be called during monthly rebalancing",
+          " Flow: Remove stake → Swap W3PI to USDC via DEX → Transfer USDC to Portfolio → Portfolio redistributes"
+        ],
+        "label": "cleanup_zombie_stakes",
+        "mutates": true,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 37
+        },
+        "selector": "0x32efb9ca"
+      },
+      {
+        "args": [
+          {
+            "label": "account",
+            "type": {
+              "displayName": [
+                "Address"
+              ],
+              "type": 0
+            }
+          }
+        ],
+        "default": false,
+        "docs": [
+          " Force unstake an obsolete position for a specific account (owner only)"
+        ],
+        "label": "force_unstake_obsolete",
+        "mutates": true,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 40
+        },
+        "selector": "0xb9541bf0"
+      },
+      {
+        "args": [],
+        "default": false,
+        "docs": [
+          " Get current unstaking rate and threshold status"
+        ],
+        "label": "get_unstaking_rate_info",
+        "mutates": false,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 42
+        },
+        "selector": "0x1db58201"
+      },
+      {
+        "args": [],
+        "default": false,
+        "docs": [
+          " Reset unstaking detection period (owner only - emergency use)"
+        ],
+        "label": "reset_unstaking_detection",
+        "mutates": true,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 24
+        },
+        "selector": "0x731722fc"
+      },
+      {
+        "args": [],
+        "default": false,
+        "docs": [
+          " Get zombie stake statistics"
+        ],
+        "label": "get_zombie_stats",
+        "mutates": false,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 44
+        },
+        "selector": "0xa13b3575"
+      },
+      {
+        "args": [
+          {
+            "label": "interval",
+            "type": {
+              "displayName": [
+                "u64"
+              ],
+              "type": 5
+            }
+          }
+        ],
+        "default": false,
+        "docs": [
+          " Set zombie cleanup interval (owner only)"
+        ],
+        "label": "set_zombie_cleanup_interval",
+        "mutates": true,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 24
+        },
+        "selector": "0xcf3759d6"
+      },
+      {
+        "args": [
+          {
+            "label": "_old_tier",
+            "type": {
+              "displayName": [
+                "Tier"
+              ],
+              "type": 8
+            }
+          },
+          {
+            "label": "new_tier",
+            "type": {
+              "displayName": [
+                "Tier"
+              ],
+              "type": 8
+            }
+          }
+        ],
+        "default": false,
+        "docs": [
+          " Handle tier change notification from Registry",
+          " This updates unstaking periods for existing stakes"
+        ],
+        "label": "on_tier_change",
+        "mutates": true,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 22
+        },
+        "selector": "0xa5982f5f"
+      },
+      {
+        "args": [
+          {
+            "label": "amount",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          }
+        ],
+        "default": false,
+        "docs": [
+          " Fund the rewards pool with W3PI tokens (owner or authorized)",
+          " Requires prior approval of tokens to this contract"
+        ],
+        "label": "fund_rewards_pool",
+        "mutates": true,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 24
+        },
+        "selector": "0xbd39b69c"
+      },
+      {
+        "args": [],
+        "default": false,
+        "docs": [
+          " Get current rewards pool balance"
+        ],
+        "label": "get_rewards_pool_balance",
+        "mutates": false,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 27
+        },
+        "selector": "0x3a32f624"
+      },
+      {
+        "args": [],
+        "default": false,
+        "docs": [
+          " Get total rewards distributed (lifetime)"
+        ],
+        "label": "get_total_rewards_distributed",
+        "mutates": false,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 27
+        },
+        "selector": "0xe83b98a7"
+      },
+      {
+        "args": [
+          {
+            "label": "estimated_rewards",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          }
+        ],
+        "default": false,
+        "docs": [
+          " Check if rewards pool has sufficient funds for estimated rewards"
+        ],
+        "label": "has_sufficient_rewards",
+        "mutates": false,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 31
+        },
+        "selector": "0xb85910de"
+      },
+      {
+        "args": [
+          {
+            "label": "amount",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 4
+            }
+          },
+          {
+            "label": "to",
+            "type": {
+              "displayName": [
+                "Address"
+              ],
+              "type": 0
+            }
+          }
+        ],
+        "default": false,
+        "docs": [
+          " Withdraw excess rewards from pool (owner only, for emergency)"
+        ],
+        "label": "withdraw_rewards_pool",
+        "mutates": true,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 24
+        },
+        "selector": "0x3dbc47f0"
+      }
+    ]
+  },
+  "storage": {
+    "root": {
+      "layout": {
+        "struct": {
+          "fields": [
+            {
+              "layout": {
+                "leaf": {
+                  "key": "0x00000000",
+                  "ty": 0
+                }
+              },
+              "name": "w3pi_token"
+            },
+            {
+              "layout": {
+                "leaf": {
+                  "key": "0x00000000",
+                  "ty": 0
+                }
+              },
+              "name": "registry"
+            },
+            {
+              "layout": {
+                "leaf": {
+                  "key": "0x00000000",
+                  "ty": 0
+                }
+              },
+              "name": "owner"
+            },
+            {
+              "layout": {
+                "leaf": {
+                  "key": "0x00000000",
+                  "ty": 3
+                }
+              },
+              "name": "paused"
+            },
+            {
+              "layout": {
+                "root": {
+                  "layout": {
+                    "struct": {
+                      "fields": [
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0xd89ba775",
+                              "ty": 4
+                            }
+                          },
+                          "name": "amount"
+                        },
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0xd89ba775",
+                              "ty": 5
+                            }
+                          },
+                          "name": "staked_at"
+                        },
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0xd89ba775",
+                              "ty": 5
+                            }
+                          },
+                          "name": "last_claim"
+                        },
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0xd89ba775",
+                              "ty": 5
+                            }
+                          },
+                          "name": "unstaking_period"
+                        },
+                        {
+                          "layout": {
+                            "enum": {
+                              "dispatchKey": "0xd89ba775",
+                              "name": "Tier",
+                              "variants": {
+                                "0": {
+                                  "fields": [],
+                                  "name": "None"
+                                },
+                                "1": {
+                                  "fields": [],
+                                  "name": "Tier1"
+                                },
+                                "2": {
+                                  "fields": [],
+                                  "name": "Tier2"
+                                },
+                                "3": {
+                                  "fields": [],
+                                  "name": "Tier3"
+                                },
+                                "4": {
+                                  "fields": [],
+                                  "name": "Tier4"
+                                }
+                              }
+                            }
+                          },
+                          "name": "tier_at_stake"
+                        }
+                      ],
+                      "name": "StakeInfo"
+                    }
+                  },
+                  "root_key": "0xd89ba775",
+                  "ty": 6
+                }
+              },
+              "name": "stakes"
+            },
+            {
+              "layout": {
+                "leaf": {
+                  "key": "0x00000000",
+                  "ty": 4
+                }
+              },
+              "name": "total_staked"
+            },
+            {
+              "layout": {
+                "root": {
+                  "layout": {
+                    "leaf": {
+                      "key": "0x852ed101",
+                      "ty": 13
+                    }
+                  },
+                  "root_key": "0x852ed101",
+                  "ty": 15
+                }
+              },
+              "name": "unstaking_requests"
+            },
+            {
+              "layout": {
+                "struct": {
+                  "fields": [
+                    {
+                      "layout": {
+                        "leaf": {
+                          "key": "0x00000000",
+                          "ty": 3
+                        }
+                      },
+                      "name": "executing"
+                    }
+                  ],
+                  "name": "ReentrancyGuard"
+                }
+              },
+              "name": "reentrancy_guard"
+            },
+            {
+              "layout": {
+                "leaf": {
+                  "key": "0x00000000",
+                  "ty": 0
+                }
+              },
+              "name": "fee_wallet"
+            },
+            {
+              "layout": {
+                "leaf": {
+                  "key": "0x00000000",
+                  "ty": 4
+                }
+              },
+              "name": "total_collected_fees"
+            },
+            {
+              "layout": {
+                "enum": {
+                  "dispatchKey": "0x00000000",
+                  "name": "Option",
+                  "variants": {
+                    "0": {
+                      "fields": [],
+                      "name": "None"
+                    },
+                    "1": {
+                      "fields": [
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x00000000",
+                              "ty": 0
+                            }
+                          },
+                          "name": "0"
+                        }
+                      ],
+                      "name": "Some"
+                    }
+                  }
+                }
+              },
+              "name": "portfolio_contract"
+            },
+            {
+              "layout": {
+                "enum": {
+                  "dispatchKey": "0x00000000",
+                  "name": "Option",
+                  "variants": {
+                    "0": {
+                      "fields": [],
+                      "name": "None"
+                    },
+                    "1": {
+                      "fields": [
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x00000000",
+                              "ty": 0
+                            }
+                          },
+                          "name": "0"
+                        }
+                      ],
+                      "name": "Some"
+                    }
+                  }
+                }
+              },
+              "name": "dex_contract"
+            },
+            {
+              "layout": {
+                "enum": {
+                  "dispatchKey": "0x00000000",
+                  "name": "Option",
+                  "variants": {
+                    "0": {
+                      "fields": [],
+                      "name": "None"
+                    },
+                    "1": {
+                      "fields": [
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x00000000",
+                              "ty": 0
+                            }
+                          },
+                          "name": "0"
+                        }
+                      ],
+                      "name": "Some"
+                    }
+                  }
+                }
+              },
+              "name": "usdc_contract"
+            },
+            {
+              "layout": {
+                "leaf": {
+                  "key": "0x00000000",
+                  "ty": 18
+                }
+              },
+              "name": "staker_addresses"
+            },
+            {
+              "layout": {
+                "leaf": {
+                  "key": "0x00000000",
+                  "ty": 5
+                }
+              },
+              "name": "last_zombie_cleanup"
+            },
+            {
+              "layout": {
+                "leaf": {
+                  "key": "0x00000000",
+                  "ty": 5
+                }
+              },
+              "name": "zombie_cleanup_interval"
+            },
+            {
+              "layout": {
+                "leaf": {
+                  "key": "0x00000000",
+                  "ty": 4
+                }
+              },
+              "name": "rewards_pool_balance"
+            },
+            {
+              "layout": {
+                "leaf": {
+                  "key": "0x00000000",
+                  "ty": 4
+                }
+              },
+              "name": "total_rewards_distributed"
+            },
+            {
+              "layout": {
+                "leaf": {
+                  "key": "0x00000000",
+                  "ty": 4
+                }
+              },
+              "name": "unstaking_volume_current_period"
+            },
+            {
+              "layout": {
+                "leaf": {
+                  "key": "0x00000000",
+                  "ty": 5
+                }
+              },
+              "name": "unstaking_period_start"
+            },
+            {
+              "layout": {
+                "leaf": {
+                  "key": "0x00000000",
+                  "ty": 5
+                }
+              },
+              "name": "unstaking_period_duration"
+            }
+          ],
+          "name": "W3piStaking"
+        }
+      },
+      "root_key": "0x00000000",
+      "ty": 19
+    }
+  },
   "types": [
     {
       "id": 0,
       "type": {
-        "path": [
-          "primitive_types",
-          "H160"
-        ],
         "def": {
           "composite": {
             "fields": [
@@ -35,7 +1802,11 @@
               }
             ]
           }
-        }
+        },
+        "path": [
+          "primitive_types",
+          "H160"
+        ]
       }
     },
     {
@@ -84,12 +1855,9 @@
     {
       "id": 6,
       "type": {
-        "path": [
-          "ink_storage",
-          "lazy",
-          "mapping",
-          "Mapping"
-        ],
+        "def": {
+          "composite": {}
+        },
         "params": [
           {
             "name": "K",
@@ -104,19 +1872,17 @@
             "type": 9
           }
         ],
-        "def": {
-          "composite": {}
-        }
+        "path": [
+          "ink_storage",
+          "lazy",
+          "mapping",
+          "Mapping"
+        ]
       }
     },
     {
       "id": 7,
       "type": {
-        "path": [
-          "staking",
-          "staking",
-          "StakeInfo"
-        ],
         "def": {
           "composite": {
             "fields": [
@@ -147,52 +1913,55 @@
               }
             ]
           }
-        }
+        },
+        "path": [
+          "staking",
+          "staking",
+          "StakeInfo"
+        ]
       }
     },
     {
       "id": 8,
       "type": {
-        "path": [
-          "shared",
-          "Tier"
-        ],
         "def": {
           "variant": {
             "variants": [
               {
-                "name": "None",
-                "index": 0
+                "index": 0,
+                "name": "None"
               },
               {
-                "name": "Tier1",
-                "index": 1
+                "index": 1,
+                "name": "Tier1"
               },
               {
-                "name": "Tier2",
-                "index": 2
+                "index": 2,
+                "name": "Tier2"
               },
               {
-                "name": "Tier3",
-                "index": 3
+                "index": 3,
+                "name": "Tier3"
               },
               {
-                "name": "Tier4",
-                "index": 4
+                "index": 4,
+                "name": "Tier4"
               }
             ]
           }
-        }
+        },
+        "path": [
+          "shared",
+          "Tier"
+        ]
       }
     },
     {
       "id": 9,
       "type": {
-        "path": [
-          "ink_storage_traits",
-          "impls",
-          "ResolverKey"
-        ],
+        "def": {
+          "composite": {}
+        },
         "params": [
           {
             "name": "L",
@@ -203,41 +1972,43 @@
             "type": 11
           }
         ],
-        "def": {
-          "composite": {}
-        }
+        "path": [
+          "ink_storage_traits",
+          "impls",
+          "ResolverKey"
+        ]
       }
     },
     {
       "id": 10,
       "type": {
+        "def": {
+          "composite": {}
+        },
         "path": [
           "ink_storage_traits",
           "impls",
           "AutoKey"
-        ],
-        "def": {
-          "composite": {}
-        }
+        ]
       }
     },
     {
       "id": 11,
       "type": {
-        "path": [
-          "ink_storage_traits",
-          "impls",
-          "ManualKey"
-        ],
+        "def": {
+          "composite": {}
+        },
         "params": [
           {
             "name": "ParentKey",
             "type": 12
           }
         ],
-        "def": {
-          "composite": {}
-        }
+        "path": [
+          "ink_storage_traits",
+          "impls",
+          "ManualKey"
+        ]
       }
     },
     {
@@ -261,11 +2032,6 @@
     {
       "id": 14,
       "type": {
-        "path": [
-          "staking",
-          "unstaking_request",
-          "UnstakingRequest"
-        ],
         "def": {
           "composite": {
             "fields": [
@@ -291,18 +2057,20 @@
               }
             ]
           }
-        }
+        },
+        "path": [
+          "staking",
+          "unstaking_request",
+          "UnstakingRequest"
+        ]
       }
     },
     {
       "id": 15,
       "type": {
-        "path": [
-          "ink_storage",
-          "lazy",
-          "mapping",
-          "Mapping"
-        ],
+        "def": {
+          "composite": {}
+        },
         "params": [
           {
             "name": "K",
@@ -317,19 +2085,20 @@
             "type": 16
           }
         ],
-        "def": {
-          "composite": {}
-        }
+        "path": [
+          "ink_storage",
+          "lazy",
+          "mapping",
+          "Mapping"
+        ]
       }
     },
     {
       "id": 16,
       "type": {
-        "path": [
-          "ink_storage_traits",
-          "impls",
-          "ResolverKey"
-        ],
+        "def": {
+          "composite": {}
+        },
         "params": [
           {
             "name": "L",
@@ -340,38 +2109,45 @@
             "type": 17
           }
         ],
-        "def": {
-          "composite": {}
-        }
+        "path": [
+          "ink_storage_traits",
+          "impls",
+          "ResolverKey"
+        ]
       }
     },
     {
       "id": 17,
       "type": {
-        "path": [
-          "ink_storage_traits",
-          "impls",
-          "ManualKey"
-        ],
+        "def": {
+          "composite": {}
+        },
         "params": [
           {
             "name": "ParentKey",
             "type": 12
           }
         ],
-        "def": {
-          "composite": {}
-        }
+        "path": [
+          "ink_storage_traits",
+          "impls",
+          "ManualKey"
+        ]
       }
     },
     {
       "id": 18,
       "type": {
-        "path": [
-          "staking",
-          "staking",
-          "W3piStaking"
-        ],
+        "def": {
+          "sequence": {
+            "type": 0
+          }
+        }
+      }
+    },
+    {
+      "id": 19,
+      "type": {
         "def": {
           "composite": {
             "fields": [
@@ -412,7 +2188,7 @@
               },
               {
                 "name": "reentrancy_guard",
-                "type": 19,
+                "type": 20,
                 "typeName": "<ReentrancyGuard as::ink::storage::traits::AutoStorableHint<::ink\n::storage::traits::ManualKey<466698213u32, ()>,>>::Type"
               },
               {
@@ -424,20 +2200,75 @@
                 "name": "total_collected_fees",
                 "type": 4,
                 "typeName": "<u128 as::ink::storage::traits::AutoStorableHint<::ink::storage\n::traits::ManualKey<2647970956u32, ()>,>>::Type"
+              },
+              {
+                "name": "portfolio_contract",
+                "type": 21,
+                "typeName": "<Option<Address> as::ink::storage::traits::AutoStorableHint<::\nink::storage::traits::ManualKey<4197900652u32, ()>,>>::Type"
+              },
+              {
+                "name": "dex_contract",
+                "type": 21,
+                "typeName": "<Option<Address> as::ink::storage::traits::AutoStorableHint<::\nink::storage::traits::ManualKey<1303026859u32, ()>,>>::Type"
+              },
+              {
+                "name": "usdc_contract",
+                "type": 21,
+                "typeName": "<Option<Address> as::ink::storage::traits::AutoStorableHint<::\nink::storage::traits::ManualKey<1576687738u32, ()>,>>::Type"
+              },
+              {
+                "name": "staker_addresses",
+                "type": 18,
+                "typeName": "<Vec<Address> as::ink::storage::traits::AutoStorableHint<::ink\n::storage::traits::ManualKey<3889373136u32, ()>,>>::Type"
+              },
+              {
+                "name": "last_zombie_cleanup",
+                "type": 5,
+                "typeName": "<u64 as::ink::storage::traits::AutoStorableHint<::ink::storage\n::traits::ManualKey<2228873985u32, ()>,>>::Type"
+              },
+              {
+                "name": "zombie_cleanup_interval",
+                "type": 5,
+                "typeName": "<u64 as::ink::storage::traits::AutoStorableHint<::ink::storage\n::traits::ManualKey<3654793098u32, ()>,>>::Type"
+              },
+              {
+                "name": "rewards_pool_balance",
+                "type": 4,
+                "typeName": "<u128 as::ink::storage::traits::AutoStorableHint<::ink::storage\n::traits::ManualKey<1338998798u32, ()>,>>::Type"
+              },
+              {
+                "name": "total_rewards_distributed",
+                "type": 4,
+                "typeName": "<u128 as::ink::storage::traits::AutoStorableHint<::ink::storage\n::traits::ManualKey<3060083725u32, ()>,>>::Type"
+              },
+              {
+                "name": "unstaking_volume_current_period",
+                "type": 4,
+                "typeName": "<u128 as::ink::storage::traits::AutoStorableHint<::ink::storage\n::traits::ManualKey<3370653029u32, ()>,>>::Type"
+              },
+              {
+                "name": "unstaking_period_start",
+                "type": 5,
+                "typeName": "<u64 as::ink::storage::traits::AutoStorableHint<::ink::storage\n::traits::ManualKey<2408011137u32, ()>,>>::Type"
+              },
+              {
+                "name": "unstaking_period_duration",
+                "type": 5,
+                "typeName": "<u64 as::ink::storage::traits::AutoStorableHint<::ink::storage\n::traits::ManualKey<3779636921u32, ()>,>>::Type"
               }
             ]
           }
-        }
+        },
+        "path": [
+          "staking",
+          "staking",
+          "W3piStaking"
+        ]
       }
     },
     {
-      "id": 19,
+      "id": 20,
       "type": {
-        "path": [
-          "shared",
-          "utils",
-          "ReentrancyGuard"
-        ],
         "def": {
           "composite": {
             "fields": [
@@ -448,118 +2279,74 @@
               }
             ]
           }
-        }
-      }
-    },
-    {
-      "id": 20,
-      "type": {
+        },
         "path": [
-          "Result"
-        ],
-        "params": [
-          {
-            "name": "T",
-            "type": 12
-          },
-          {
-            "name": "E",
-            "type": 21
-          }
-        ],
-        "def": {
-          "variant": {
-            "variants": [
-              {
-                "name": "Ok",
-                "fields": [
-                  {
-                    "type": 12
-                  }
-                ],
-                "index": 0
-              },
-              {
-                "name": "Err",
-                "fields": [
-                  {
-                    "type": 21
-                  }
-                ],
-                "index": 1
-              }
-            ]
-          }
-        }
+          "shared",
+          "utils",
+          "ReentrancyGuard"
+        ]
       }
     },
     {
       "id": 21,
       "type": {
-        "path": [
-          "ink_primitives",
-          "LangError"
-        ],
         "def": {
           "variant": {
             "variants": [
               {
-                "name": "CouldNotReadInput",
-                "index": 1
+                "index": 0,
+                "name": "None"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 0
+                  }
+                ],
+                "index": 1,
+                "name": "Some"
               }
             ]
           }
-        }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 0
+          }
+        ],
+        "path": [
+          "Option"
+        ]
       }
     },
     {
       "id": 22,
       "type": {
-        "path": [
-          "Result"
-        ],
-        "params": [
-          {
-            "name": "T",
-            "type": 23
-          },
-          {
-            "name": "E",
-            "type": 21
-          }
-        ],
         "def": {
           "variant": {
             "variants": [
               {
-                "name": "Ok",
+                "fields": [
+                  {
+                    "type": 12
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
                 "fields": [
                   {
                     "type": 23
                   }
                 ],
-                "index": 0
-              },
-              {
-                "name": "Err",
-                "fields": [
-                  {
-                    "type": 21
-                  }
-                ],
-                "index": 1
+                "index": 1,
+                "name": "Err"
               }
             ]
           }
-        }
-      }
-    },
-    {
-      "id": 23,
-      "type": {
-        "path": [
-          "Result"
-        ],
+        },
         "params": [
           {
             "name": "T",
@@ -567,116 +2354,219 @@
           },
           {
             "name": "E",
-            "type": 24
+            "type": 23
           }
         ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 23,
+      "type": {
         "def": {
           "variant": {
             "variants": [
               {
-                "name": "Ok",
-                "fields": [
-                  {
-                    "type": 12
-                  }
-                ],
-                "index": 0
-              },
-              {
-                "name": "Err",
-                "fields": [
-                  {
-                    "type": 24
-                  }
-                ],
-                "index": 1
+                "index": 1,
+                "name": "CouldNotReadInput"
               }
             ]
           }
-        }
+        },
+        "path": [
+          "ink_primitives",
+          "LangError"
+        ]
       }
     },
     {
       "id": 24,
       "type": {
-        "path": [
-          "shared",
-          "Error"
-        ],
         "def": {
           "variant": {
             "variants": [
               {
-                "name": "Unauthorized",
-                "index": 0
+                "fields": [
+                  {
+                    "type": 25
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
               },
               {
-                "name": "UnauthorizedRole",
-                "index": 1
-              },
-              {
-                "name": "TokenNotFound",
-                "index": 2
-              },
-              {
-                "name": "TokenAlreadyExists",
-                "index": 3
-              },
-              {
-                "name": "InvalidTokenContract",
-                "index": 4
-              },
-              {
-                "name": "ZeroAddress",
-                "index": 5
-              },
-              {
-                "name": "InvalidWeight",
-                "index": 6
-              },
-              {
-                "name": "InvalidTier",
-                "index": 7
-              },
-              {
-                "name": "InvalidParameter",
-                "index": 8
-              },
-              {
-                "name": "OracleCallFailed",
-                "index": 9
-              },
-              {
-                "name": "InsufficientBalance",
-                "index": 10
-              },
-              {
-                "name": "ContractPaused",
-                "index": 11
-              },
-              {
-                "name": "CrossContractCallFailed",
-                "index": 12
-              },
-              {
-                "name": "TransferFailed",
-                "index": 13
-              },
-              {
-                "name": "InvalidParameters",
-                "index": 14
+                "fields": [
+                  {
+                    "type": 23
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
               }
             ]
           }
-        }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 25
+          },
+          {
+            "name": "E",
+            "type": 23
+          }
+        ],
+        "path": [
+          "Result"
+        ]
       }
     },
     {
       "id": 25,
       "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 12
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 26
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 12
+          },
+          {
+            "name": "E",
+            "type": 26
+          }
+        ],
         "path": [
           "Result"
-        ],
+        ]
+      }
+    },
+    {
+      "id": 26,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "index": 0,
+                "name": "Unauthorized"
+              },
+              {
+                "index": 1,
+                "name": "UnauthorizedRole"
+              },
+              {
+                "index": 2,
+                "name": "TokenNotFound"
+              },
+              {
+                "index": 3,
+                "name": "TokenAlreadyExists"
+              },
+              {
+                "index": 4,
+                "name": "InvalidTokenContract"
+              },
+              {
+                "index": 5,
+                "name": "ZeroAddress"
+              },
+              {
+                "index": 6,
+                "name": "InvalidWeight"
+              },
+              {
+                "index": 7,
+                "name": "InvalidTier"
+              },
+              {
+                "index": 8,
+                "name": "InvalidParameter"
+              },
+              {
+                "index": 9,
+                "name": "OracleCallFailed"
+              },
+              {
+                "index": 10,
+                "name": "InsufficientBalance"
+              },
+              {
+                "index": 11,
+                "name": "ContractPaused"
+              },
+              {
+                "index": 12,
+                "name": "CrossContractCallFailed"
+              },
+              {
+                "index": 13,
+                "name": "TransferFailed"
+              },
+              {
+                "index": 14,
+                "name": "InvalidParameters"
+              }
+            ]
+          }
+        },
+        "path": [
+          "shared",
+          "Error"
+        ]
+      }
+    },
+    {
+      "id": 27,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 4
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 23
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
         "params": [
           {
             "name": "T",
@@ -684,116 +2574,116 @@
           },
           {
             "name": "E",
-            "type": 21
+            "type": 23
           }
         ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 28,
+      "type": {
         "def": {
           "variant": {
             "variants": [
               {
-                "name": "Ok",
                 "fields": [
                   {
-                    "type": 4
+                    "type": 29
                   }
                 ],
-                "index": 0
+                "index": 0,
+                "name": "Ok"
               },
               {
-                "name": "Err",
                 "fields": [
                   {
-                    "type": 21
+                    "type": 23
                   }
                 ],
-                "index": 1
+                "index": 1,
+                "name": "Err"
               }
             ]
           }
-        }
-      }
-    },
-    {
-      "id": 26,
-      "type": {
-        "path": [
-          "Result"
-        ],
+        },
         "params": [
           {
             "name": "T",
-            "type": 27
+            "type": 29
           },
           {
             "name": "E",
-            "type": 21
+            "type": 23
           }
         ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 29,
+      "type": {
         "def": {
           "variant": {
             "variants": [
               {
-                "name": "Ok",
-                "fields": [
-                  {
-                    "type": 27
-                  }
-                ],
-                "index": 0
+                "index": 0,
+                "name": "None"
               },
               {
-                "name": "Err",
                 "fields": [
                   {
-                    "type": 21
+                    "type": 7
                   }
                 ],
-                "index": 1
+                "index": 1,
+                "name": "Some"
               }
             ]
           }
-        }
-      }
-    },
-    {
-      "id": 27,
-      "type": {
-        "path": [
-          "Option"
-        ],
+        },
         "params": [
           {
             "name": "T",
             "type": 7
           }
         ],
+        "path": [
+          "Option"
+        ]
+      }
+    },
+    {
+      "id": 30,
+      "type": {
         "def": {
           "variant": {
             "variants": [
               {
-                "name": "None",
-                "index": 0
-              },
-              {
-                "name": "Some",
                 "fields": [
                   {
-                    "type": 7
+                    "type": 13
                   }
                 ],
-                "index": 1
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 23
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
               }
             ]
           }
-        }
-      }
-    },
-    {
-      "id": 28,
-      "type": {
-        "path": [
-          "Result"
-        ],
+        },
         "params": [
           {
             "name": "T",
@@ -801,57 +2691,531 @@
           },
           {
             "name": "E",
-            "type": 21
+            "type": 23
           }
         ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 31,
+      "type": {
         "def": {
           "variant": {
             "variants": [
               {
-                "name": "Ok",
                 "fields": [
                   {
-                    "type": 13
+                    "type": 3
                   }
                 ],
-                "index": 0
+                "index": 0,
+                "name": "Ok"
               },
               {
-                "name": "Err",
                 "fields": [
                   {
-                    "type": 21
+                    "type": 23
                   }
                 ],
-                "index": 1
+                "index": 1,
+                "name": "Err"
               }
             ]
           }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 3
+          },
+          {
+            "name": "E",
+            "type": 23
+          }
+        ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 32,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 5
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 23
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 5
+          },
+          {
+            "name": "E",
+            "type": 23
+          }
+        ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 33,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 34
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 23
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 34
+          },
+          {
+            "name": "E",
+            "type": 23
+          }
+        ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 34,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 35
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 26
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 35
+          },
+          {
+            "name": "E",
+            "type": 26
+          }
+        ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 35,
+      "type": {
+        "def": {
+          "tuple": [
+            36,
+            4
+          ]
         }
       }
     },
     {
-      "id": 29,
+      "id": 36,
       "type": {
-        "path": [
-          "ink_primitives",
-          "types",
-          "AccountId"
+        "def": {
+          "primitive": "u32"
+        }
+      }
+    },
+    {
+      "id": 37,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 38
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 23
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 38
+          },
+          {
+            "name": "E",
+            "type": 23
+          }
         ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 38,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 39
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 26
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 39
+          },
+          {
+            "name": "E",
+            "type": 26
+          }
+        ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 39,
+      "type": {
         "def": {
           "composite": {
             "fields": [
               {
-                "type": 30,
-                "typeName": "[u8; 32]"
+                "name": "stakes_processed",
+                "type": 36,
+                "typeName": "u32"
+              },
+              {
+                "name": "total_value_reallocated",
+                "type": 4,
+                "typeName": "u128"
+              },
+              {
+                "name": "tokens_redistributed",
+                "type": 36,
+                "typeName": "u32"
               }
             ]
           }
+        },
+        "path": [
+          "staking",
+          "staking",
+          "CleanupResult"
+        ]
+      }
+    },
+    {
+      "id": 40,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 41
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 23
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 41
+          },
+          {
+            "name": "E",
+            "type": 23
+          }
+        ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 41,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 4
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 26
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 4
+          },
+          {
+            "name": "E",
+            "type": 26
+          }
+        ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 42,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 43
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 23
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 43
+          },
+          {
+            "name": "E",
+            "type": 23
+          }
+        ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 43,
+      "type": {
+        "def": {
+          "tuple": [
+            4,
+            4,
+            5,
+            3
+          ]
         }
       }
     },
     {
-      "id": 30,
+      "id": 44,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 45
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 23
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 45
+          },
+          {
+            "name": "E",
+            "type": 23
+          }
+        ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 45,
+      "type": {
+        "def": {
+          "tuple": [
+            36,
+            4,
+            5
+          ]
+        }
+      }
+    },
+    {
+      "id": 46,
+      "type": {
+        "def": {
+          "composite": {
+            "fields": [
+              {
+                "type": 47,
+                "typeName": "[u8; 32]"
+              }
+            ]
+          }
+        },
+        "path": [
+          "ink_primitives",
+          "types",
+          "AccountId"
+        ]
+      }
+    },
+    {
+      "id": 47,
       "type": {
         "def": {
           "array": {
@@ -862,872 +3226,25 @@
       }
     },
     {
-      "id": 31,
+      "id": 48,
       "type": {
-        "path": [
-          "ink_primitives",
-          "types",
-          "Hash"
-        ],
         "def": {
           "composite": {
             "fields": [
               {
-                "type": 30,
+                "type": 47,
                 "typeName": "[u8; 32]"
               }
             ]
           }
-        }
-      }
-    },
-    {
-      "id": 32,
-      "type": {
-        "def": {
-          "primitive": "u32"
-        }
+        },
+        "path": [
+          "ink_primitives",
+          "types",
+          "Hash"
+        ]
       }
     }
   ],
-  "storage": {
-    "root": {
-      "root_key": "0x00000000",
-      "layout": {
-        "struct": {
-          "name": "W3piStaking",
-          "fields": [
-            {
-              "name": "w3pi_token",
-              "layout": {
-                "leaf": {
-                  "key": "0x00000000",
-                  "ty": 0
-                }
-              }
-            },
-            {
-              "name": "registry",
-              "layout": {
-                "leaf": {
-                  "key": "0x00000000",
-                  "ty": 0
-                }
-              }
-            },
-            {
-              "name": "owner",
-              "layout": {
-                "leaf": {
-                  "key": "0x00000000",
-                  "ty": 0
-                }
-              }
-            },
-            {
-              "name": "paused",
-              "layout": {
-                "leaf": {
-                  "key": "0x00000000",
-                  "ty": 3
-                }
-              }
-            },
-            {
-              "name": "stakes",
-              "layout": {
-                "root": {
-                  "root_key": "0xd89ba775",
-                  "layout": {
-                    "struct": {
-                      "name": "StakeInfo",
-                      "fields": [
-                        {
-                          "name": "amount",
-                          "layout": {
-                            "leaf": {
-                              "key": "0xd89ba775",
-                              "ty": 4
-                            }
-                          }
-                        },
-                        {
-                          "name": "staked_at",
-                          "layout": {
-                            "leaf": {
-                              "key": "0xd89ba775",
-                              "ty": 5
-                            }
-                          }
-                        },
-                        {
-                          "name": "last_claim",
-                          "layout": {
-                            "leaf": {
-                              "key": "0xd89ba775",
-                              "ty": 5
-                            }
-                          }
-                        },
-                        {
-                          "name": "unstaking_period",
-                          "layout": {
-                            "leaf": {
-                              "key": "0xd89ba775",
-                              "ty": 5
-                            }
-                          }
-                        },
-                        {
-                          "name": "tier_at_stake",
-                          "layout": {
-                            "enum": {
-                              "name": "Tier",
-                              "dispatchKey": "0xd89ba775",
-                              "variants": {
-                                "0": {
-                                  "name": "None",
-                                  "fields": []
-                                },
-                                "1": {
-                                  "name": "Tier1",
-                                  "fields": []
-                                },
-                                "2": {
-                                  "name": "Tier2",
-                                  "fields": []
-                                },
-                                "3": {
-                                  "name": "Tier3",
-                                  "fields": []
-                                },
-                                "4": {
-                                  "name": "Tier4",
-                                  "fields": []
-                                }
-                              }
-                            }
-                          }
-                        }
-                      ]
-                    }
-                  },
-                  "ty": 6
-                }
-              }
-            },
-            {
-              "name": "total_staked",
-              "layout": {
-                "leaf": {
-                  "key": "0x00000000",
-                  "ty": 4
-                }
-              }
-            },
-            {
-              "name": "unstaking_requests",
-              "layout": {
-                "root": {
-                  "root_key": "0x852ed101",
-                  "layout": {
-                    "leaf": {
-                      "key": "0x852ed101",
-                      "ty": 13
-                    }
-                  },
-                  "ty": 15
-                }
-              }
-            },
-            {
-              "name": "reentrancy_guard",
-              "layout": {
-                "struct": {
-                  "name": "ReentrancyGuard",
-                  "fields": [
-                    {
-                      "name": "executing",
-                      "layout": {
-                        "leaf": {
-                          "key": "0x00000000",
-                          "ty": 3
-                        }
-                      }
-                    }
-                  ]
-                }
-              }
-            },
-            {
-              "name": "fee_wallet",
-              "layout": {
-                "leaf": {
-                  "key": "0x00000000",
-                  "ty": 0
-                }
-              }
-            },
-            {
-              "name": "total_collected_fees",
-              "layout": {
-                "leaf": {
-                  "key": "0x00000000",
-                  "ty": 4
-                }
-              }
-            }
-          ]
-        }
-      },
-      "ty": 18
-    }
-  },
-  "spec": {
-    "constructors": [
-      {
-        "label": "new",
-        "selector": "0x9bae9d5e",
-        "payable": false,
-        "args": [
-          {
-            "label": "w3pi_token",
-            "type": {
-              "type": 0,
-              "displayName": [
-                "Address"
-              ]
-            }
-          },
-          {
-            "label": "registry",
-            "type": {
-              "type": 0,
-              "displayName": [
-                "Address"
-              ]
-            }
-          },
-          {
-            "label": "fee_wallet",
-            "type": {
-              "type": 0,
-              "displayName": [
-                "Address"
-              ]
-            }
-          }
-        ],
-        "returnType": {
-          "type": 20,
-          "displayName": [
-            "ink_primitives",
-            "ConstructorResult"
-          ]
-        },
-        "docs": [
-          "Constructor that initializes the staking contract"
-        ],
-        "default": false
-      }
-    ],
-    "messages": [
-      {
-        "label": "stake",
-        "selector": "0x5adb38de",
-        "mutates": true,
-        "payable": false,
-        "args": [
-          {
-            "label": "amount",
-            "type": {
-              "type": 4,
-              "displayName": [
-                "u128"
-              ]
-            }
-          }
-        ],
-        "returnType": {
-          "type": 22,
-          "displayName": [
-            "ink",
-            "MessageResult"
-          ]
-        },
-        "docs": [
-          " Stake W3PI tokens"
-        ],
-        "default": false
-      },
-      {
-        "label": "request_unstake",
-        "selector": "0xfd83c46b",
-        "mutates": true,
-        "payable": false,
-        "args": [
-          {
-            "label": "amount",
-            "type": {
-              "type": 4,
-              "displayName": [
-                "u128"
-              ]
-            }
-          }
-        ],
-        "returnType": {
-          "type": 22,
-          "displayName": [
-            "ink",
-            "MessageResult"
-          ]
-        },
-        "docs": [
-          " Request to unstake tokens"
-        ],
-        "default": false
-      },
-      {
-        "label": "claim_unstaked",
-        "selector": "0x67c2988d",
-        "mutates": true,
-        "payable": false,
-        "args": [],
-        "returnType": {
-          "type": 22,
-          "displayName": [
-            "ink",
-            "MessageResult"
-          ]
-        },
-        "docs": [
-          " Claim unstaked tokens that have completed the unstaking period"
-        ],
-        "default": false
-      },
-      {
-        "label": "claim_rewards",
-        "selector": "0x8027650c",
-        "mutates": true,
-        "payable": false,
-        "args": [],
-        "returnType": {
-          "type": 22,
-          "displayName": [
-            "ink",
-            "MessageResult"
-          ]
-        },
-        "docs": [
-          " Claim staking rewards without unstaking"
-        ],
-        "default": false
-      },
-      {
-        "label": "get_claimable_rewards",
-        "selector": "0x2015e04b",
-        "mutates": false,
-        "payable": false,
-        "args": [
-          {
-            "label": "account",
-            "type": {
-              "type": 0,
-              "displayName": [
-                "Address"
-              ]
-            }
-          }
-        ],
-        "returnType": {
-          "type": 25,
-          "displayName": [
-            "ink",
-            "MessageResult"
-          ]
-        },
-        "docs": [
-          " View function to get claimable rewards"
-        ],
-        "default": false
-      },
-      {
-        "label": "get_total_collected_fees",
-        "selector": "0xe2597c6d",
-        "mutates": false,
-        "payable": false,
-        "args": [],
-        "returnType": {
-          "type": 25,
-          "displayName": [
-            "ink",
-            "MessageResult"
-          ]
-        },
-        "docs": [],
-        "default": false
-      },
-      {
-        "label": "set_fee_wallet",
-        "selector": "0x3a3baac1",
-        "mutates": true,
-        "payable": false,
-        "args": [
-          {
-            "label": "new_fee_wallet",
-            "type": {
-              "type": 0,
-              "displayName": [
-                "Address"
-              ]
-            }
-          }
-        ],
-        "returnType": {
-          "type": 22,
-          "displayName": [
-            "ink",
-            "MessageResult"
-          ]
-        },
-        "docs": [],
-        "default": false
-      },
-      {
-        "label": "get_stake_info",
-        "selector": "0x19617e8c",
-        "mutates": false,
-        "payable": false,
-        "args": [
-          {
-            "label": "account",
-            "type": {
-              "type": 0,
-              "displayName": [
-                "Address"
-              ]
-            }
-          }
-        ],
-        "returnType": {
-          "type": 26,
-          "displayName": [
-            "ink",
-            "MessageResult"
-          ]
-        },
-        "docs": [
-          " View function to get account stake info"
-        ],
-        "default": false
-      },
-      {
-        "label": "get_unstaking_requests",
-        "selector": "0x01777c09",
-        "mutates": false,
-        "payable": false,
-        "args": [
-          {
-            "label": "account",
-            "type": {
-              "type": 0,
-              "displayName": [
-                "Address"
-              ]
-            }
-          }
-        ],
-        "returnType": {
-          "type": 28,
-          "displayName": [
-            "ink",
-            "MessageResult"
-          ]
-        },
-        "docs": [
-          " View function to get unstaking requests"
-        ],
-        "default": false
-      },
-      {
-        "label": "get_total_staked",
-        "selector": "0x02c779a5",
-        "mutates": false,
-        "payable": false,
-        "args": [],
-        "returnType": {
-          "type": 25,
-          "displayName": [
-            "ink",
-            "MessageResult"
-          ]
-        },
-        "docs": [
-          " View function to get total staked amount"
-        ],
-        "default": false
-      },
-      {
-        "label": "pause",
-        "selector": "0x81e0c604",
-        "mutates": true,
-        "payable": false,
-        "args": [],
-        "returnType": {
-          "type": 22,
-          "displayName": [
-            "ink",
-            "MessageResult"
-          ]
-        },
-        "docs": [
-          " Pause the contract (owner only)"
-        ],
-        "default": false
-      },
-      {
-        "label": "unpause",
-        "selector": "0x67616649",
-        "mutates": true,
-        "payable": false,
-        "args": [],
-        "returnType": {
-          "type": 22,
-          "displayName": [
-            "ink",
-            "MessageResult"
-          ]
-        },
-        "docs": [
-          " Unpause the contract (owner only)"
-        ],
-        "default": false
-      },
-      {
-        "label": "set_w3pi_token",
-        "selector": "0x1ca306e1",
-        "mutates": true,
-        "payable": false,
-        "args": [
-          {
-            "label": "new_token",
-            "type": {
-              "type": 0,
-              "displayName": [
-                "Address"
-              ]
-            }
-          }
-        ],
-        "returnType": {
-          "type": 22,
-          "displayName": [
-            "ink",
-            "MessageResult"
-          ]
-        },
-        "docs": [
-          " Update the W3PI token address (owner only)"
-        ],
-        "default": false
-      },
-      {
-        "label": "set_registry",
-        "selector": "0xa55c4b84",
-        "mutates": true,
-        "payable": false,
-        "args": [
-          {
-            "label": "new_registry",
-            "type": {
-              "type": 0,
-              "displayName": [
-                "Address"
-              ]
-            }
-          }
-        ],
-        "returnType": {
-          "type": 22,
-          "displayName": [
-            "ink",
-            "MessageResult"
-          ]
-        },
-        "docs": [
-          " Update the registry address (owner only)"
-        ],
-        "default": false
-      }
-    ],
-    "events": [
-      {
-        "label": "Staked",
-        "module_path": "staking::staking",
-        "signature_topic": "0x7551af92a2911bf2cb2460372612780c412d39c6c007a04b039005822f5f7c9d",
-        "args": [
-          {
-            "label": "account",
-            "indexed": true,
-            "type": {
-              "type": 29,
-              "displayName": [
-                "AccountId"
-              ]
-            },
-            "docs": []
-          },
-          {
-            "label": "amount",
-            "indexed": false,
-            "type": {
-              "type": 4,
-              "displayName": [
-                "u128"
-              ]
-            },
-            "docs": []
-          },
-          {
-            "label": "unstaking_period",
-            "indexed": false,
-            "type": {
-              "type": 5,
-              "displayName": [
-                "u64"
-              ]
-            },
-            "docs": []
-          }
-        ],
-        "docs": [
-          "Event emitted when tokens are staked"
-        ]
-      },
-      {
-        "label": "UnstakeRequested",
-        "module_path": "staking::staking",
-        "signature_topic": "0x9552fb80393f451b45b670cb1bc3692cc3d8cbeba2e98bf22bf1776ad431c425",
-        "args": [
-          {
-            "label": "account",
-            "indexed": true,
-            "type": {
-              "type": 29,
-              "displayName": [
-                "AccountId"
-              ]
-            },
-            "docs": []
-          },
-          {
-            "label": "amount",
-            "indexed": false,
-            "type": {
-              "type": 4,
-              "displayName": [
-                "u128"
-              ]
-            },
-            "docs": []
-          },
-          {
-            "label": "available_at",
-            "indexed": false,
-            "type": {
-              "type": 5,
-              "displayName": [
-                "u64"
-              ]
-            },
-            "docs": []
-          }
-        ],
-        "docs": [
-          "Event emitted when an unstaking request is created"
-        ]
-      },
-      {
-        "label": "UnstakedClaimed",
-        "module_path": "staking::staking",
-        "signature_topic": "0xc47dbe97eb57064cbffe38613598d2fb5cbc36945712670fe6de78df720d475e",
-        "args": [
-          {
-            "label": "account",
-            "indexed": true,
-            "type": {
-              "type": 29,
-              "displayName": [
-                "AccountId"
-              ]
-            },
-            "docs": []
-          },
-          {
-            "label": "amount",
-            "indexed": false,
-            "type": {
-              "type": 4,
-              "displayName": [
-                "u128"
-              ]
-            },
-            "docs": []
-          }
-        ],
-        "docs": [
-          "Event emitted when unstaked tokens are claimed"
-        ]
-      },
-      {
-        "label": "RewardsClaimed",
-        "module_path": "staking::staking",
-        "signature_topic": "0x9e763d57fa8a985aa55a5fb16e3a4fa48d7897b027e3323d7d159ba9e217da9a",
-        "args": [
-          {
-            "label": "account",
-            "indexed": true,
-            "type": {
-              "type": 29,
-              "displayName": [
-                "AccountId"
-              ]
-            },
-            "docs": []
-          },
-          {
-            "label": "amount",
-            "indexed": false,
-            "type": {
-              "type": 4,
-              "displayName": [
-                "u128"
-              ]
-            },
-            "docs": []
-          }
-        ],
-        "docs": [
-          "Event emitted when rewards are claimed"
-        ]
-      },
-      {
-        "label": "ContractPaused",
-        "module_path": "staking::staking",
-        "signature_topic": "0x6700f57b90d65b5dba547a0341d86b7f766de7b7723491433818c26f2822928e",
-        "args": [
-          {
-            "label": "by",
-            "indexed": true,
-            "type": {
-              "type": 29,
-              "displayName": [
-                "AccountId"
-              ]
-            },
-            "docs": []
-          }
-        ],
-        "docs": [
-          "Event emitted when the contract is paused"
-        ]
-      },
-      {
-        "label": "ContractUnpaused",
-        "module_path": "staking::staking",
-        "signature_topic": "0xd2eeebdfbfc5b97383c0c55dd37a0de83fbe0d45eadb480191138f42b6476aff",
-        "args": [
-          {
-            "label": "by",
-            "indexed": true,
-            "type": {
-              "type": 29,
-              "displayName": [
-                "AccountId"
-              ]
-            },
-            "docs": []
-          }
-        ],
-        "docs": [
-          "Event emitted when the contract is unpaused"
-        ]
-      },
-      {
-        "label": "PerformanceFeeClaimed",
-        "module_path": "staking::staking",
-        "signature_topic": "0x8fad5448d30e6dc40e5a92df4c2ccacc2312bdcd34dea0455bdb2a42873bd29e",
-        "args": [
-          {
-            "label": "account",
-            "indexed": true,
-            "type": {
-              "type": 29,
-              "displayName": [
-                "AccountId"
-              ]
-            },
-            "docs": []
-          },
-          {
-            "label": "fee_amount",
-            "indexed": false,
-            "type": {
-              "type": 4,
-              "displayName": [
-                "u128"
-              ]
-            },
-            "docs": []
-          }
-        ],
-        "docs": [
-          "Event emitted when performance fees are claimed"
-        ]
-      }
-    ],
-    "docs": [],
-    "lang_error": {
-      "type": 21,
-      "displayName": [
-        "ink",
-        "LangError"
-      ]
-    },
-    "environment": {
-      "accountId": {
-        "type": 29,
-        "displayName": [
-          "AccountId"
-        ]
-      },
-      "balance": {
-        "type": 4,
-        "displayName": [
-          "Balance"
-        ]
-      },
-      "hash": {
-        "type": 31,
-        "displayName": [
-          "Hash"
-        ]
-      },
-      "timestamp": {
-        "type": 5,
-        "displayName": [
-          "Timestamp"
-        ]
-      },
-      "blockNumber": {
-        "type": 32,
-        "displayName": [
-          "BlockNumber"
-        ]
-      },
-      "nativeToEthRatio": 100000000,
-      "staticBufferSize": 16384
-    }
-  }
+  "version": 6
 }

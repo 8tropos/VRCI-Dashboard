@@ -1,12 +1,12 @@
 {
   "source": {
-    "hash": "0xe6ea6fc69ba55b77fb43063bf8e85d4b93491a91423ee58524ea3210b84e1196",
-    "language": "ink! 6.0.0-alpha.3",
-    "compiler": "rustc 1.89.0",
+    "hash": "0x0747a64b1eb5b6e00d48ef50e2f65eb3c00b42002fc6e68c3e85e647eb219f94",
+    "language": "ink! 6.0.0-beta.1",
+    "compiler": "rustc 1.91.1",
     "build_info": {
-      "rust_toolchain": "stable-x86_64-apple-darwin",
-      "cargo_contract_version": "6.0.0-alpha.3",
-      "build_mode": "Debug"
+      "build_mode": "Release",
+      "cargo_contract_version": "6.0.0-beta.1",
+      "rust_toolchain": "stable-x86_64-unknown-linux-gnu"
     }
   },
   "contract": {
@@ -17,15 +17,1158 @@
     ]
   },
   "image": null,
-  "version": 6,
+  "spec": {
+    "constructors": [
+      {
+        "args": [],
+        "default": false,
+        "docs": [],
+        "label": "new",
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink_primitives",
+            "ConstructorResult"
+          ],
+          "type": 22
+        },
+        "selector": "0x9bae9d5e"
+      }
+    ],
+    "docs": [],
+    "environment": {
+      "accountId": {
+        "displayName": [
+          "AccountId"
+        ],
+        "type": 41
+      },
+      "balance": {
+        "displayName": [
+          "Balance"
+        ],
+        "type": 3
+      },
+      "blockNumber": {
+        "displayName": [
+          "BlockNumber"
+        ],
+        "type": 4
+      },
+      "hash": {
+        "displayName": [
+          "Hash"
+        ],
+        "type": 43
+      },
+      "nativeToEthRatio": 100000000,
+      "poolAssetsPrecompileIndex": 800,
+      "staticBufferSize": 16384,
+      "timestamp": {
+        "displayName": [
+          "Timestamp"
+        ],
+        "type": 12
+      },
+      "trustBackedAssetsPrecompileIndex": 288
+    },
+    "events": [
+      {
+        "args": [
+          {
+            "docs": [],
+            "indexed": true,
+            "label": "token_a",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 41
+            }
+          },
+          {
+            "docs": [],
+            "indexed": true,
+            "label": "token_b",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 41
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "initial_reserve_a",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 3
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "initial_reserve_b",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 3
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "fee_bp",
+            "type": {
+              "displayName": [
+                "u32"
+              ],
+              "type": 4
+            }
+          }
+        ],
+        "docs": [],
+        "label": "PoolCreated",
+        "module_path": "dex::dex",
+        "signature_topic": "0x83c934320128307cd0cceb6c30ff06bd4f313de1e12b4613a5a13af99ccfda2e"
+      },
+      {
+        "args": [
+          {
+            "docs": [],
+            "indexed": true,
+            "label": "from",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 41
+            }
+          },
+          {
+            "docs": [],
+            "indexed": true,
+            "label": "to",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 41
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "amount_in",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 3
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "amount_out",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 3
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "fee_amount",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 3
+            }
+          }
+        ],
+        "docs": [],
+        "label": "SwapExecuted",
+        "module_path": "dex::dex",
+        "signature_topic": "0x861c9c36222e142500cfad08efa94446b24418b7a543eea913b8399b98ed99e3"
+      },
+      {
+        "args": [
+          {
+            "docs": [],
+            "indexed": true,
+            "label": "provider",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 41
+            }
+          },
+          {
+            "docs": [],
+            "indexed": true,
+            "label": "token_a",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 41
+            }
+          },
+          {
+            "docs": [],
+            "indexed": true,
+            "label": "token_b",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 41
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "amount_a",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 3
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "amount_b",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 3
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "lp_tokens_minted",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 3
+            }
+          }
+        ],
+        "docs": [],
+        "label": "LiquidityAdded",
+        "module_path": "dex::dex",
+        "signature_topic": "0xc4d4b1578bbd5f9e774c23091488f1246da6dc3d599681ac4af50ae2d525bbdd"
+      },
+      {
+        "args": [
+          {
+            "docs": [],
+            "indexed": true,
+            "label": "provider",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 41
+            }
+          },
+          {
+            "docs": [],
+            "indexed": true,
+            "label": "token_a",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 41
+            }
+          },
+          {
+            "docs": [],
+            "indexed": true,
+            "label": "token_b",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 41
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "amount_a",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 3
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "amount_b",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 3
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "lp_tokens_burned",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 3
+            }
+          }
+        ],
+        "docs": [],
+        "label": "LiquidityRemoved",
+        "module_path": "dex::dex",
+        "signature_topic": "0xb42da55982158c70dbd7d21fb8dbfa42d18bafdd7ba7e474fec1d354e5e9ca07"
+      },
+      {
+        "args": [
+          {
+            "docs": [],
+            "indexed": true,
+            "label": "from",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 41
+            }
+          },
+          {
+            "docs": [],
+            "indexed": true,
+            "label": "to",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 41
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "amount_in",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 3
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "expected_out",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 3
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "min_out",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 3
+            }
+          }
+        ],
+        "docs": [],
+        "label": "SlippageExceeded",
+        "module_path": "dex::dex",
+        "signature_topic": "0x01070f9d677e70656e746965803036a962ace02747e142876cd68fb0ca858ed4"
+      }
+    ],
+    "lang_error": {
+      "displayName": [
+        "ink",
+        "LangError"
+      ],
+      "type": 23
+    },
+    "messages": [
+      {
+        "args": [
+          {
+            "label": "token_a",
+            "type": {
+              "displayName": [
+                "Address"
+              ],
+              "type": 0
+            }
+          },
+          {
+            "label": "token_b",
+            "type": {
+              "displayName": [
+                "Address"
+              ],
+              "type": 0
+            }
+          },
+          {
+            "label": "reserve_a",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 3
+            }
+          },
+          {
+            "label": "reserve_b",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 3
+            }
+          }
+        ],
+        "default": false,
+        "docs": [
+          " Admin: Add or update a pool (for demo/testing)"
+        ],
+        "label": "set_pool",
+        "mutates": true,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 24
+        },
+        "selector": "0xd9942f7b"
+      },
+      {
+        "args": [
+          {
+            "label": "fee_bp",
+            "type": {
+              "displayName": [
+                "u32"
+              ],
+              "type": 4
+            }
+          }
+        ],
+        "default": false,
+        "docs": [
+          " Set default fee for new pools (owner only)"
+        ],
+        "label": "set_default_fee",
+        "mutates": true,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 24
+        },
+        "selector": "0xcb642a2e"
+      },
+      {
+        "args": [
+          {
+            "label": "from",
+            "type": {
+              "displayName": [
+                "Address"
+              ],
+              "type": 0
+            }
+          },
+          {
+            "label": "to",
+            "type": {
+              "displayName": [
+                "Address"
+              ],
+              "type": 0
+            }
+          },
+          {
+            "label": "amount_in",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 3
+            }
+          },
+          {
+            "label": "min_amount_out",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 3
+            }
+          }
+        ],
+        "default": false,
+        "docs": [
+          " Swap tokens with slippage protection",
+          " Returns error if output is less than min_amount_out"
+        ],
+        "label": "swap_with_slippage",
+        "mutates": true,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 27
+        },
+        "selector": "0x36afaae2"
+      },
+      {
+        "args": [
+          {
+            "label": "from",
+            "type": {
+              "displayName": [
+                "Address"
+              ],
+              "type": 0
+            }
+          },
+          {
+            "label": "to",
+            "type": {
+              "displayName": [
+                "Address"
+              ],
+              "type": 0
+            }
+          },
+          {
+            "label": "amount",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 3
+            }
+          },
+          {
+            "label": "path",
+            "type": {
+              "displayName": [
+                "Vec"
+              ],
+              "type": 29
+            }
+          }
+        ],
+        "default": false,
+        "docs": [
+          " Original swap function (backward compatible)"
+        ],
+        "label": "swap",
+        "mutates": true,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 27
+        },
+        "selector": "0x0d0e0f10"
+      },
+      {
+        "args": [
+          {
+            "label": "token_a",
+            "type": {
+              "displayName": [
+                "Address"
+              ],
+              "type": 0
+            }
+          },
+          {
+            "label": "token_b",
+            "type": {
+              "displayName": [
+                "Address"
+              ],
+              "type": 0
+            }
+          },
+          {
+            "label": "amount_a",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 3
+            }
+          },
+          {
+            "label": "amount_b",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 3
+            }
+          },
+          {
+            "label": "min_lp_tokens",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 3
+            }
+          }
+        ],
+        "default": false,
+        "docs": [
+          " Add liquidity to a pool",
+          " Returns LP tokens minted"
+        ],
+        "label": "add_liquidity",
+        "mutates": true,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 27
+        },
+        "selector": "0x264cd04b"
+      },
+      {
+        "args": [
+          {
+            "label": "token_a",
+            "type": {
+              "displayName": [
+                "Address"
+              ],
+              "type": 0
+            }
+          },
+          {
+            "label": "token_b",
+            "type": {
+              "displayName": [
+                "Address"
+              ],
+              "type": 0
+            }
+          },
+          {
+            "label": "lp_tokens",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 3
+            }
+          },
+          {
+            "label": "min_amount_a",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 3
+            }
+          },
+          {
+            "label": "min_amount_b",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 3
+            }
+          }
+        ],
+        "default": false,
+        "docs": [
+          " Remove liquidity from a pool",
+          " Returns (amount_a, amount_b) withdrawn"
+        ],
+        "label": "remove_liquidity",
+        "mutates": true,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 30
+        },
+        "selector": "0xbdd16bfa"
+      },
+      {
+        "args": [],
+        "default": false,
+        "docs": [
+          " Get the owner of the contract"
+        ],
+        "label": "get_owner",
+        "mutates": false,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 33
+        },
+        "selector": "0x07fcd0b1"
+      },
+      {
+        "args": [
+          {
+            "label": "token",
+            "type": {
+              "displayName": [
+                "Address"
+              ],
+              "type": 0
+            }
+          }
+        ],
+        "default": false,
+        "docs": [
+          " Get token price (reserve ratio)"
+        ],
+        "label": "get_token_price",
+        "mutates": false,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 27
+        },
+        "selector": "0x11121314"
+      },
+      {
+        "args": [
+          {
+            "label": "token_a",
+            "type": {
+              "displayName": [
+                "Address"
+              ],
+              "type": 0
+            }
+          },
+          {
+            "label": "token_b",
+            "type": {
+              "displayName": [
+                "Address"
+              ],
+              "type": 0
+            }
+          }
+        ],
+        "default": false,
+        "docs": [
+          " Get pool info"
+        ],
+        "label": "get_pool",
+        "mutates": false,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 34
+        },
+        "selector": "0x1a8beae4"
+      },
+      {
+        "args": [
+          {
+            "label": "token_a",
+            "type": {
+              "displayName": [
+                "Address"
+              ],
+              "type": 0
+            }
+          },
+          {
+            "label": "token_b",
+            "type": {
+              "displayName": [
+                "Address"
+              ],
+              "type": 0
+            }
+          },
+          {
+            "label": "user",
+            "type": {
+              "displayName": [
+                "Address"
+              ],
+              "type": 0
+            }
+          }
+        ],
+        "default": false,
+        "docs": [
+          " Get user's LP position"
+        ],
+        "label": "get_lp_position",
+        "mutates": false,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 36
+        },
+        "selector": "0x54f8bccc"
+      },
+      {
+        "args": [
+          {
+            "label": "from",
+            "type": {
+              "displayName": [
+                "Address"
+              ],
+              "type": 0
+            }
+          },
+          {
+            "label": "to",
+            "type": {
+              "displayName": [
+                "Address"
+              ],
+              "type": 0
+            }
+          },
+          {
+            "label": "amount_in",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 3
+            }
+          }
+        ],
+        "default": false,
+        "docs": [
+          " Get expected output for a swap (with fee)"
+        ],
+        "label": "get_swap_quote",
+        "mutates": false,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 27
+        },
+        "selector": "0xa9a1e1f8"
+      },
+      {
+        "args": [
+          {
+            "label": "from",
+            "type": {
+              "displayName": [
+                "Address"
+              ],
+              "type": 0
+            }
+          },
+          {
+            "label": "to",
+            "type": {
+              "displayName": [
+                "Address"
+              ],
+              "type": 0
+            }
+          },
+          {
+            "label": "amount_in",
+            "type": {
+              "displayName": [
+                "u128"
+              ],
+              "type": 3
+            }
+          }
+        ],
+        "default": false,
+        "docs": [
+          " Calculate price impact of a trade"
+        ],
+        "label": "get_price_impact",
+        "mutates": false,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 38
+        },
+        "selector": "0x2053a944"
+      },
+      {
+        "args": [],
+        "default": false,
+        "docs": [
+          " Get all pool keys"
+        ],
+        "label": "get_all_pools",
+        "mutates": false,
+        "payable": false,
+        "returnType": {
+          "displayName": [
+            "ink",
+            "MessageResult"
+          ],
+          "type": 40
+        },
+        "selector": "0x3fb8550d"
+      }
+    ]
+  },
+  "storage": {
+    "root": {
+      "layout": {
+        "struct": {
+          "fields": [
+            {
+              "layout": {
+                "root": {
+                  "layout": {
+                    "struct": {
+                      "fields": [
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x7f46a76d",
+                              "ty": 0
+                            }
+                          },
+                          "name": "token_a"
+                        },
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x7f46a76d",
+                              "ty": 0
+                            }
+                          },
+                          "name": "token_b"
+                        },
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x7f46a76d",
+                              "ty": 3
+                            }
+                          },
+                          "name": "reserve_a"
+                        },
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x7f46a76d",
+                              "ty": 3
+                            }
+                          },
+                          "name": "reserve_b"
+                        },
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x7f46a76d",
+                              "ty": 3
+                            }
+                          },
+                          "name": "total_lp_tokens"
+                        },
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x7f46a76d",
+                              "ty": 4
+                            }
+                          },
+                          "name": "fee_bp"
+                        }
+                      ],
+                      "name": "Pool"
+                    }
+                  },
+                  "root_key": "0x7f46a76d",
+                  "ty": 5
+                }
+              },
+              "name": "pools"
+            },
+            {
+              "layout": {
+                "root": {
+                  "layout": {
+                    "struct": {
+                      "fields": [
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x23cd1717",
+                              "ty": 3
+                            }
+                          },
+                          "name": "lp_tokens"
+                        },
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x23cd1717",
+                              "ty": 3
+                            }
+                          },
+                          "name": "initial_deposit_a"
+                        },
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x23cd1717",
+                              "ty": 3
+                            }
+                          },
+                          "name": "initial_deposit_b"
+                        },
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x23cd1717",
+                              "ty": 12
+                            }
+                          },
+                          "name": "timestamp"
+                        }
+                      ],
+                      "name": "LPPosition"
+                    }
+                  },
+                  "root_key": "0x23cd1717",
+                  "ty": 13
+                }
+              },
+              "name": "lp_positions"
+            },
+            {
+              "layout": {
+                "leaf": {
+                  "key": "0x00000000",
+                  "ty": 0
+                }
+              },
+              "name": "owner"
+            },
+            {
+              "layout": {
+                "struct": {
+                  "fields": [
+                    {
+                      "layout": {
+                        "leaf": {
+                          "key": "0x00000000",
+                          "ty": 18
+                        }
+                      },
+                      "name": "executing"
+                    }
+                  ],
+                  "name": "ReentrancyGuard"
+                }
+              },
+              "name": "reentrancy_guard"
+            },
+            {
+              "layout": {
+                "leaf": {
+                  "key": "0x00000000",
+                  "ty": 19
+                }
+              },
+              "name": "pool_keys"
+            },
+            {
+              "layout": {
+                "leaf": {
+                  "key": "0x00000000",
+                  "ty": 4
+                }
+              },
+              "name": "default_fee_bp"
+            }
+          ],
+          "name": "HydraDxDex"
+        }
+      },
+      "root_key": "0x00000000",
+      "ty": 20
+    }
+  },
   "types": [
     {
       "id": 0,
       "type": {
-        "path": [
-          "primitive_types",
-          "H160"
-        ],
         "def": {
           "composite": {
             "fields": [
@@ -35,7 +1178,11 @@
               }
             ]
           }
-        }
+        },
+        "path": [
+          "primitive_types",
+          "H160"
+        ]
       }
     },
     {
@@ -68,33 +1215,41 @@
     {
       "id": 4,
       "type": {
-        "path": [
-          "ink_storage",
-          "lazy",
-          "mapping",
-          "Mapping"
-        ],
-        "params": [
-          {
-            "name": "K",
-            "type": 5
-          },
-          {
-            "name": "V",
-            "type": 6
-          },
-          {
-            "name": "KeyType",
-            "type": 7
-          }
-        ],
         "def": {
-          "composite": {}
+          "primitive": "u32"
         }
       }
     },
     {
       "id": 5,
+      "type": {
+        "def": {
+          "composite": {}
+        },
+        "params": [
+          {
+            "name": "K",
+            "type": 6
+          },
+          {
+            "name": "V",
+            "type": 7
+          },
+          {
+            "name": "KeyType",
+            "type": 8
+          }
+        ],
+        "path": [
+          "ink_storage",
+          "lazy",
+          "mapping",
+          "Mapping"
+        ]
+      }
+    },
+    {
+      "id": 6,
       "type": {
         "def": {
           "tuple": [
@@ -105,13 +1260,8 @@
       }
     },
     {
-      "id": 6,
+      "id": 7,
       "type": {
-        "path": [
-          "dex",
-          "dex",
-          "Pool"
-        ],
         "def": {
           "composite": {
             "fields": [
@@ -134,69 +1284,84 @@
                 "name": "reserve_b",
                 "type": 3,
                 "typeName": "u128"
+              },
+              {
+                "name": "total_lp_tokens",
+                "type": 3,
+                "typeName": "u128"
+              },
+              {
+                "name": "fee_bp",
+                "type": 4,
+                "typeName": "u32"
               }
             ]
           }
-        }
-      }
-    },
-    {
-      "id": 7,
-      "type": {
+        },
         "path": [
-          "ink_storage_traits",
-          "impls",
-          "ResolverKey"
-        ],
-        "params": [
-          {
-            "name": "L",
-            "type": 8
-          },
-          {
-            "name": "R",
-            "type": 9
-          }
-        ],
-        "def": {
-          "composite": {}
-        }
+          "dex",
+          "dex",
+          "Pool"
+        ]
       }
     },
     {
       "id": 8,
       "type": {
+        "def": {
+          "composite": {}
+        },
+        "params": [
+          {
+            "name": "L",
+            "type": 9
+          },
+          {
+            "name": "R",
+            "type": 10
+          }
+        ],
         "path": [
           "ink_storage_traits",
           "impls",
-          "AutoKey"
-        ],
-        "def": {
-          "composite": {}
-        }
+          "ResolverKey"
+        ]
       }
     },
     {
       "id": 9,
       "type": {
+        "def": {
+          "composite": {}
+        },
         "path": [
           "ink_storage_traits",
           "impls",
-          "ManualKey"
-        ],
-        "params": [
-          {
-            "name": "ParentKey",
-            "type": 10
-          }
-        ],
-        "def": {
-          "composite": {}
-        }
+          "AutoKey"
+        ]
       }
     },
     {
       "id": 10,
+      "type": {
+        "def": {
+          "composite": {}
+        },
+        "params": [
+          {
+            "name": "ParentKey",
+            "type": 11
+          }
+        ],
+        "path": [
+          "ink_storage_traits",
+          "impls",
+          "ManualKey"
+        ]
+      }
+    },
+    {
+      "id": 11,
       "type": {
         "def": {
           "tuple": []
@@ -204,7 +1369,132 @@
       }
     },
     {
-      "id": 11,
+      "id": 12,
+      "type": {
+        "def": {
+          "primitive": "u64"
+        }
+      }
+    },
+    {
+      "id": 13,
+      "type": {
+        "def": {
+          "composite": {}
+        },
+        "params": [
+          {
+            "name": "K",
+            "type": 14
+          },
+          {
+            "name": "V",
+            "type": 15
+          },
+          {
+            "name": "KeyType",
+            "type": 16
+          }
+        ],
+        "path": [
+          "ink_storage",
+          "lazy",
+          "mapping",
+          "Mapping"
+        ]
+      }
+    },
+    {
+      "id": 14,
+      "type": {
+        "def": {
+          "tuple": [
+            6,
+            0
+          ]
+        }
+      }
+    },
+    {
+      "id": 15,
+      "type": {
+        "def": {
+          "composite": {
+            "fields": [
+              {
+                "name": "lp_tokens",
+                "type": 3,
+                "typeName": "u128"
+              },
+              {
+                "name": "initial_deposit_a",
+                "type": 3,
+                "typeName": "u128"
+              },
+              {
+                "name": "initial_deposit_b",
+                "type": 3,
+                "typeName": "u128"
+              },
+              {
+                "name": "timestamp",
+                "type": 12,
+                "typeName": "u64"
+              }
+            ]
+          }
+        },
+        "path": [
+          "dex",
+          "dex",
+          "LPPosition"
+        ]
+      }
+    },
+    {
+      "id": 16,
+      "type": {
+        "def": {
+          "composite": {}
+        },
+        "params": [
+          {
+            "name": "L",
+            "type": 9
+          },
+          {
+            "name": "R",
+            "type": 17
+          }
+        ],
+        "path": [
+          "ink_storage_traits",
+          "impls",
+          "ResolverKey"
+        ]
+      }
+    },
+    {
+      "id": 17,
+      "type": {
+        "def": {
+          "composite": {}
+        },
+        "params": [
+          {
+            "name": "ParentKey",
+            "type": 11
+          }
+        ],
+        "path": [
+          "ink_storage_traits",
+          "impls",
+          "ManualKey"
+        ]
+      }
+    },
+    {
+      "id": 18,
       "type": {
         "def": {
           "primitive": "bool"
@@ -212,30 +1502,30 @@
       }
     },
     {
-      "id": 12,
+      "id": 19,
       "type": {
         "def": {
           "sequence": {
-            "type": 5
+            "type": 6
           }
         }
       }
     },
     {
-      "id": 13,
+      "id": 20,
       "type": {
-        "path": [
-          "dex",
-          "dex",
-          "HydraDxDex"
-        ],
         "def": {
           "composite": {
             "fields": [
               {
                 "name": "pools",
-                "type": 4,
+                "type": 5,
                 "typeName": "<Mapping<(Address, Address), Pool> as::ink::storage::traits::\nAutoStorableHint<::ink::storage::traits::ManualKey<1839679103u32,\n()>,>>::Type"
+              },
+              {
+                "name": "lp_positions",
+                "type": 13,
+                "typeName": "<Mapping<((Address, Address), Address), LPPosition> as::ink::storage\n::traits::AutoStorableHint<::ink::storage::traits::ManualKey<\n387435811u32, ()>,>>::Type"
               },
               {
                 "name": "owner",
@@ -244,262 +1534,356 @@
               },
               {
                 "name": "reentrancy_guard",
-                "type": 14,
+                "type": 21,
                 "typeName": "<ReentrancyGuard as::ink::storage::traits::AutoStorableHint<::ink\n::storage::traits::ManualKey<576368930u32, ()>,>>::Type"
               },
               {
                 "name": "pool_keys",
-                "type": 12,
+                "type": 19,
                 "typeName": "<Vec<(Address, Address)> as::ink::storage::traits::\nAutoStorableHint<::ink::storage::traits::ManualKey<1830459337u32,\n()>,>>::Type"
+              },
+              {
+                "name": "default_fee_bp",
+                "type": 4,
+                "typeName": "<u32 as::ink::storage::traits::AutoStorableHint<::ink::storage\n::traits::ManualKey<3050876764u32, ()>,>>::Type"
               }
             ]
           }
-        }
+        },
+        "path": [
+          "dex",
+          "dex",
+          "HydraDxDex"
+        ]
       }
     },
     {
-      "id": 14,
+      "id": 21,
       "type": {
-        "path": [
-          "shared",
-          "utils",
-          "ReentrancyGuard"
-        ],
         "def": {
           "composite": {
             "fields": [
               {
                 "name": "executing",
-                "type": 11,
+                "type": 18,
                 "typeName": "bool"
               }
             ]
           }
-        }
+        },
+        "path": [
+          "shared",
+          "utils",
+          "ReentrancyGuard"
+        ]
       }
     },
     {
-      "id": 15,
+      "id": 22,
       "type": {
-        "path": [
-          "Result"
-        ],
-        "params": [
-          {
-            "name": "T",
-            "type": 10
-          },
-          {
-            "name": "E",
-            "type": 16
-          }
-        ],
         "def": {
           "variant": {
             "variants": [
               {
-                "name": "Ok",
                 "fields": [
                   {
-                    "type": 10
+                    "type": 11
                   }
                 ],
-                "index": 0
+                "index": 0,
+                "name": "Ok"
               },
               {
-                "name": "Err",
                 "fields": [
                   {
-                    "type": 16
+                    "type": 23
                   }
                 ],
-                "index": 1
+                "index": 1,
+                "name": "Err"
               }
             ]
           }
-        }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 11
+          },
+          {
+            "name": "E",
+            "type": 23
+          }
+        ],
+        "path": [
+          "Result"
+        ]
       }
     },
     {
-      "id": 16,
+      "id": 23,
       "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "index": 1,
+                "name": "CouldNotReadInput"
+              }
+            ]
+          }
+        },
         "path": [
           "ink_primitives",
           "LangError"
-        ],
+        ]
+      }
+    },
+    {
+      "id": 24,
+      "type": {
         "def": {
           "variant": {
             "variants": [
               {
-                "name": "CouldNotReadInput",
-                "index": 1
+                "fields": [
+                  {
+                    "type": 25
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 23
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
               }
             ]
           }
-        }
-      }
-    },
-    {
-      "id": 17,
-      "type": {
-        "path": [
-          "Result"
-        ],
+        },
         "params": [
           {
             "name": "T",
-            "type": 18
+            "type": 25
           },
           {
             "name": "E",
-            "type": 16
+            "type": 23
           }
         ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 25,
+      "type": {
         "def": {
           "variant": {
             "variants": [
               {
-                "name": "Ok",
                 "fields": [
                   {
-                    "type": 18
+                    "type": 11
                   }
                 ],
-                "index": 0
+                "index": 0,
+                "name": "Ok"
               },
               {
-                "name": "Err",
                 "fields": [
                   {
-                    "type": 16
+                    "type": 26
                   }
                 ],
-                "index": 1
+                "index": 1,
+                "name": "Err"
               }
             ]
           }
-        }
-      }
-    },
-    {
-      "id": 18,
-      "type": {
-        "path": [
-          "Result"
-        ],
+        },
         "params": [
           {
             "name": "T",
-            "type": 10
+            "type": 11
           },
           {
             "name": "E",
-            "type": 19
+            "type": 26
           }
         ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 26,
+      "type": {
         "def": {
           "variant": {
             "variants": [
               {
-                "name": "Ok",
-                "fields": [
-                  {
-                    "type": 10
-                  }
-                ],
-                "index": 0
+                "index": 0,
+                "name": "Unauthorized"
               },
               {
-                "name": "Err",
-                "fields": [
-                  {
-                    "type": 19
-                  }
-                ],
-                "index": 1
+                "index": 1,
+                "name": "UnauthorizedRole"
+              },
+              {
+                "index": 2,
+                "name": "TokenNotFound"
+              },
+              {
+                "index": 3,
+                "name": "TokenAlreadyExists"
+              },
+              {
+                "index": 4,
+                "name": "InvalidTokenContract"
+              },
+              {
+                "index": 5,
+                "name": "ZeroAddress"
+              },
+              {
+                "index": 6,
+                "name": "InvalidWeight"
+              },
+              {
+                "index": 7,
+                "name": "InvalidTier"
+              },
+              {
+                "index": 8,
+                "name": "InvalidParameter"
+              },
+              {
+                "index": 9,
+                "name": "OracleCallFailed"
+              },
+              {
+                "index": 10,
+                "name": "InsufficientBalance"
+              },
+              {
+                "index": 11,
+                "name": "ContractPaused"
+              },
+              {
+                "index": 12,
+                "name": "CrossContractCallFailed"
+              },
+              {
+                "index": 13,
+                "name": "TransferFailed"
+              },
+              {
+                "index": 14,
+                "name": "InvalidParameters"
               }
             ]
           }
-        }
-      }
-    },
-    {
-      "id": 19,
-      "type": {
+        },
         "path": [
           "shared",
           "Error"
-        ],
+        ]
+      }
+    },
+    {
+      "id": 27,
+      "type": {
         "def": {
           "variant": {
             "variants": [
               {
-                "name": "Unauthorized",
-                "index": 0
+                "fields": [
+                  {
+                    "type": 28
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
               },
               {
-                "name": "UnauthorizedRole",
-                "index": 1
-              },
-              {
-                "name": "TokenNotFound",
-                "index": 2
-              },
-              {
-                "name": "TokenAlreadyExists",
-                "index": 3
-              },
-              {
-                "name": "InvalidTokenContract",
-                "index": 4
-              },
-              {
-                "name": "ZeroAddress",
-                "index": 5
-              },
-              {
-                "name": "InvalidWeight",
-                "index": 6
-              },
-              {
-                "name": "InvalidTier",
-                "index": 7
-              },
-              {
-                "name": "InvalidParameter",
-                "index": 8
-              },
-              {
-                "name": "OracleCallFailed",
-                "index": 9
-              },
-              {
-                "name": "InsufficientBalance",
-                "index": 10
-              },
-              {
-                "name": "ContractPaused",
-                "index": 11
-              },
-              {
-                "name": "CrossContractCallFailed",
-                "index": 12
-              },
-              {
-                "name": "TransferFailed",
-                "index": 13
-              },
-              {
-                "name": "InvalidParameters",
-                "index": 14
+                "fields": [
+                  {
+                    "type": 23
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
               }
             ]
           }
-        }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 28
+          },
+          {
+            "name": "E",
+            "type": 23
+          }
+        ],
+        "path": [
+          "Result"
+        ]
       }
     },
     {
-      "id": 20,
+      "id": 28,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 3
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 26
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 3
+          },
+          {
+            "name": "E",
+            "type": 26
+          }
+        ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 29,
       "type": {
         "def": {
           "sequence": {
@@ -509,111 +1893,440 @@
       }
     },
     {
-      "id": 21,
+      "id": 30,
       "type": {
-        "path": [
-          "Result"
-        ],
-        "params": [
-          {
-            "name": "T",
-            "type": 22
-          },
-          {
-            "name": "E",
-            "type": 16
-          }
-        ],
         "def": {
           "variant": {
             "variants": [
               {
-                "name": "Ok",
                 "fields": [
                   {
-                    "type": 22
+                    "type": 31
                   }
                 ],
-                "index": 0
+                "index": 0,
+                "name": "Ok"
               },
               {
-                "name": "Err",
                 "fields": [
                   {
-                    "type": 16
+                    "type": 23
                   }
                 ],
-                "index": 1
+                "index": 1,
+                "name": "Err"
               }
             ]
           }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 31
+          },
+          {
+            "name": "E",
+            "type": 23
+          }
+        ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 31,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 32
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 26
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 32
+          },
+          {
+            "name": "E",
+            "type": 26
+          }
+        ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 32,
+      "type": {
+        "def": {
+          "tuple": [
+            3,
+            3
+          ]
         }
       }
     },
     {
-      "id": 22,
+      "id": 33,
       "type": {
-        "path": [
-          "Result"
-        ],
-        "params": [
-          {
-            "name": "T",
-            "type": 3
-          },
-          {
-            "name": "E",
-            "type": 19
-          }
-        ],
         "def": {
           "variant": {
             "variants": [
               {
-                "name": "Ok",
                 "fields": [
                   {
-                    "type": 3
+                    "type": 0
                   }
                 ],
-                "index": 0
+                "index": 0,
+                "name": "Ok"
               },
               {
-                "name": "Err",
+                "fields": [
+                  {
+                    "type": 23
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 0
+          },
+          {
+            "name": "E",
+            "type": 23
+          }
+        ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 34,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 35
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 23
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 35
+          },
+          {
+            "name": "E",
+            "type": 23
+          }
+        ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 35,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "index": 0,
+                "name": "None"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 7
+                  }
+                ],
+                "index": 1,
+                "name": "Some"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 7
+          }
+        ],
+        "path": [
+          "Option"
+        ]
+      }
+    },
+    {
+      "id": 36,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 37
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 23
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 37
+          },
+          {
+            "name": "E",
+            "type": 23
+          }
+        ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 37,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "index": 0,
+                "name": "None"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 15
+                  }
+                ],
+                "index": 1,
+                "name": "Some"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 15
+          }
+        ],
+        "path": [
+          "Option"
+        ]
+      }
+    },
+    {
+      "id": 38,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 39
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 23
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 39
+          },
+          {
+            "name": "E",
+            "type": 23
+          }
+        ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 39,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 4
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 26
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 4
+          },
+          {
+            "name": "E",
+            "type": 26
+          }
+        ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 40,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
                 "fields": [
                   {
                     "type": 19
                   }
                 ],
-                "index": 1
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 23
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
               }
             ]
           }
-        }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 19
+          },
+          {
+            "name": "E",
+            "type": 23
+          }
+        ],
+        "path": [
+          "Result"
+        ]
       }
     },
     {
-      "id": 23,
+      "id": 41,
       "type": {
-        "path": [
-          "ink_primitives",
-          "types",
-          "AccountId"
-        ],
         "def": {
           "composite": {
             "fields": [
               {
-                "type": 24,
+                "type": 42,
                 "typeName": "[u8; 32]"
               }
             ]
           }
-        }
+        },
+        "path": [
+          "ink_primitives",
+          "types",
+          "AccountId"
+        ]
       }
     },
     {
-      "id": 24,
+      "id": 42,
       "type": {
         "def": {
           "array": {
@@ -624,397 +2337,25 @@
       }
     },
     {
-      "id": 25,
+      "id": 43,
       "type": {
-        "path": [
-          "ink_primitives",
-          "types",
-          "Hash"
-        ],
         "def": {
           "composite": {
             "fields": [
               {
-                "type": 24,
+                "type": 42,
                 "typeName": "[u8; 32]"
               }
             ]
           }
-        }
-      }
-    },
-    {
-      "id": 26,
-      "type": {
-        "def": {
-          "primitive": "u64"
-        }
-      }
-    },
-    {
-      "id": 27,
-      "type": {
-        "def": {
-          "primitive": "u32"
-        }
+        },
+        "path": [
+          "ink_primitives",
+          "types",
+          "Hash"
+        ]
       }
     }
   ],
-  "storage": {
-    "root": {
-      "root_key": "0x00000000",
-      "layout": {
-        "struct": {
-          "name": "HydraDxDex",
-          "fields": [
-            {
-              "name": "pools",
-              "layout": {
-                "root": {
-                  "root_key": "0x7f46a76d",
-                  "layout": {
-                    "struct": {
-                      "name": "Pool",
-                      "fields": [
-                        {
-                          "name": "token_a",
-                          "layout": {
-                            "leaf": {
-                              "key": "0x7f46a76d",
-                              "ty": 0
-                            }
-                          }
-                        },
-                        {
-                          "name": "token_b",
-                          "layout": {
-                            "leaf": {
-                              "key": "0x7f46a76d",
-                              "ty": 0
-                            }
-                          }
-                        },
-                        {
-                          "name": "reserve_a",
-                          "layout": {
-                            "leaf": {
-                              "key": "0x7f46a76d",
-                              "ty": 3
-                            }
-                          }
-                        },
-                        {
-                          "name": "reserve_b",
-                          "layout": {
-                            "leaf": {
-                              "key": "0x7f46a76d",
-                              "ty": 3
-                            }
-                          }
-                        }
-                      ]
-                    }
-                  },
-                  "ty": 4
-                }
-              }
-            },
-            {
-              "name": "owner",
-              "layout": {
-                "leaf": {
-                  "key": "0x00000000",
-                  "ty": 0
-                }
-              }
-            },
-            {
-              "name": "reentrancy_guard",
-              "layout": {
-                "struct": {
-                  "name": "ReentrancyGuard",
-                  "fields": [
-                    {
-                      "name": "executing",
-                      "layout": {
-                        "leaf": {
-                          "key": "0x00000000",
-                          "ty": 11
-                        }
-                      }
-                    }
-                  ]
-                }
-              }
-            },
-            {
-              "name": "pool_keys",
-              "layout": {
-                "leaf": {
-                  "key": "0x00000000",
-                  "ty": 12
-                }
-              }
-            }
-          ]
-        }
-      },
-      "ty": 13
-    }
-  },
-  "spec": {
-    "constructors": [
-      {
-        "label": "new",
-        "selector": "0x9bae9d5e",
-        "payable": false,
-        "args": [],
-        "returnType": {
-          "type": 15,
-          "displayName": [
-            "ink_primitives",
-            "ConstructorResult"
-          ]
-        },
-        "docs": [],
-        "default": false
-      }
-    ],
-    "messages": [
-      {
-        "label": "set_pool",
-        "selector": "0xd9942f7b",
-        "mutates": true,
-        "payable": false,
-        "args": [
-          {
-            "label": "token_a",
-            "type": {
-              "type": 0,
-              "displayName": [
-                "Address"
-              ]
-            }
-          },
-          {
-            "label": "token_b",
-            "type": {
-              "type": 0,
-              "displayName": [
-                "Address"
-              ]
-            }
-          },
-          {
-            "label": "reserve_a",
-            "type": {
-              "type": 3,
-              "displayName": [
-                "u128"
-              ]
-            }
-          },
-          {
-            "label": "reserve_b",
-            "type": {
-              "type": 3,
-              "displayName": [
-                "u128"
-              ]
-            }
-          }
-        ],
-        "returnType": {
-          "type": 17,
-          "displayName": [
-            "ink",
-            "MessageResult"
-          ]
-        },
-        "docs": [
-          " Admin: Add or update a pool (for demo/testing)"
-        ],
-        "default": false
-      },
-      {
-        "label": "swap",
-        "selector": "0x0d0e0f10",
-        "mutates": true,
-        "payable": false,
-        "args": [
-          {
-            "label": "from",
-            "type": {
-              "type": 0,
-              "displayName": [
-                "Address"
-              ]
-            }
-          },
-          {
-            "label": "to",
-            "type": {
-              "type": 0,
-              "displayName": [
-                "Address"
-              ]
-            }
-          },
-          {
-            "label": "amount",
-            "type": {
-              "type": 3,
-              "displayName": [
-                "u128"
-              ]
-            }
-          },
-          {
-            "label": "path",
-            "type": {
-              "type": 20,
-              "displayName": [
-                "Vec"
-              ]
-            }
-          }
-        ],
-        "returnType": {
-          "type": 21,
-          "displayName": [
-            "ink",
-            "MessageResult"
-          ]
-        },
-        "docs": [
-          " Swap tokens from one to another"
-        ],
-        "default": false
-      },
-      {
-        "label": "get_token_price",
-        "selector": "0x11121314",
-        "mutates": false,
-        "payable": false,
-        "args": [
-          {
-            "label": "token",
-            "type": {
-              "type": 0,
-              "displayName": [
-                "Address"
-              ]
-            }
-          }
-        ],
-        "returnType": {
-          "type": 21,
-          "displayName": [
-            "ink",
-            "MessageResult"
-          ]
-        },
-        "docs": [
-          " Get token price"
-        ],
-        "default": false
-      }
-    ],
-    "events": [
-      {
-        "label": "SwapExecuted",
-        "module_path": "dex::dex",
-        "signature_topic": "0xf8cd84b9f8de61d3879082ee4127f08fc2aa3c8c19fc73c9bc8f9fac72334d95",
-        "args": [
-          {
-            "label": "from",
-            "indexed": true,
-            "type": {
-              "type": 23,
-              "displayName": [
-                "AccountId"
-              ]
-            },
-            "docs": []
-          },
-          {
-            "label": "to",
-            "indexed": true,
-            "type": {
-              "type": 23,
-              "displayName": [
-                "AccountId"
-              ]
-            },
-            "docs": []
-          },
-          {
-            "label": "amount_in",
-            "indexed": false,
-            "type": {
-              "type": 3,
-              "displayName": [
-                "u128"
-              ]
-            },
-            "docs": []
-          },
-          {
-            "label": "amount_out",
-            "indexed": false,
-            "type": {
-              "type": 3,
-              "displayName": [
-                "u128"
-              ]
-            },
-            "docs": []
-          }
-        ],
-        "docs": []
-      }
-    ],
-    "docs": [],
-    "lang_error": {
-      "type": 16,
-      "displayName": [
-        "ink",
-        "LangError"
-      ]
-    },
-    "environment": {
-      "accountId": {
-        "type": 23,
-        "displayName": [
-          "AccountId"
-        ]
-      },
-      "balance": {
-        "type": 3,
-        "displayName": [
-          "Balance"
-        ]
-      },
-      "hash": {
-        "type": 25,
-        "displayName": [
-          "Hash"
-        ]
-      },
-      "timestamp": {
-        "type": 26,
-        "displayName": [
-          "Timestamp"
-        ]
-      },
-      "blockNumber": {
-        "type": 27,
-        "displayName": [
-          "BlockNumber"
-        ]
-      },
-      "nativeToEthRatio": 100000000,
-      "staticBufferSize": 16384
-    }
-  }
+  "version": 6
 }

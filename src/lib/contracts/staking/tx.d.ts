@@ -9,6 +9,7 @@ import type {
   ContractSubmittableExtrinsic,
   MetadataType,
 } from "dedot/contracts";
+import type { SharedTier } from "./types.js";
 
 export interface ContractTx<
   ChainApi extends GenericSubstrateApi,
@@ -145,6 +146,176 @@ export interface ContractTx<
     ChainApi,
     (
       newRegistry: H160,
+      options?: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
+   * Set portfolio contract (owner only)
+   *
+   * @param {H160} portfolio
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0x35760b89
+   **/
+  setPortfolioContract: GenericContractTxCall<
+    ChainApi,
+    (
+      portfolio: H160,
+      options?: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
+   * Set DEX contract (owner only)
+   *
+   * @param {H160} dex
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0xb53ae601
+   **/
+  setDexContract: GenericContractTxCall<
+    ChainApi,
+    (
+      dex: H160,
+      options?: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
+   * Set USDC contract (owner only)
+   *
+   * @param {H160} usdc
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0x46e77b11
+   **/
+  setUsdcContract: GenericContractTxCall<
+    ChainApi,
+    (
+      usdc: H160,
+      options?: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
+   * Cleanup zombie stakes - auto unstake obsolete positions
+   * This should be called during monthly rebalancing
+   * Flow: Remove stake → Swap W3PI to USDC via DEX → Transfer USDC to Portfolio → Portfolio redistributes
+   *
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0x32efb9ca
+   **/
+  cleanupZombieStakes: GenericContractTxCall<
+    ChainApi,
+    (options?: ContractTxOptions) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
+   * Force unstake an obsolete position for a specific account (owner only)
+   *
+   * @param {H160} account
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0xb9541bf0
+   **/
+  forceUnstakeObsolete: GenericContractTxCall<
+    ChainApi,
+    (
+      account: H160,
+      options?: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
+   * Reset unstaking detection period (owner only - emergency use)
+   *
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0x731722fc
+   **/
+  resetUnstakingDetection: GenericContractTxCall<
+    ChainApi,
+    (options?: ContractTxOptions) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
+   * Set zombie cleanup interval (owner only)
+   *
+   * @param {bigint} interval
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0xcf3759d6
+   **/
+  setZombieCleanupInterval: GenericContractTxCall<
+    ChainApi,
+    (
+      interval: bigint,
+      options?: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
+   * Handle tier change notification from Registry
+   * This updates unstaking periods for existing stakes
+   *
+   * @param {SharedTier} oldTier
+   * @param {SharedTier} newTier
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0xa5982f5f
+   **/
+  onTierChange: GenericContractTxCall<
+    ChainApi,
+    (
+      oldTier: SharedTier,
+      newTier: SharedTier,
+      options?: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
+   * Fund the rewards pool with W3PI tokens (owner or authorized)
+   * Requires prior approval of tokens to this contract
+   *
+   * @param {bigint} amount
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0xbd39b69c
+   **/
+  fundRewardsPool: GenericContractTxCall<
+    ChainApi,
+    (
+      amount: bigint,
+      options?: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
+   * Withdraw excess rewards from pool (owner only, for emergency)
+   *
+   * @param {bigint} amount
+   * @param {H160} to
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0x3dbc47f0
+   **/
+  withdrawRewardsPool: GenericContractTxCall<
+    ChainApi,
+    (
+      amount: bigint,
+      to: H160,
       options?: ContractTxOptions,
     ) => ContractSubmittableExtrinsic<ChainApi>,
     Type

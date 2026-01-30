@@ -20,6 +20,120 @@ export interface ContractEvents<
    *
    *
    **/
+  PortfolioInitialized: GenericContractEvent<
+    "PortfolioInitialized",
+    {
+      /**
+       *
+       * @indexed: false
+       **/
+      owner: AccountId32;
+      /**
+       *
+       * @indexed: false
+       **/
+      deploymentTimestamp: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      indexBaseValue: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      initialState: PortfolioPortfolioState;
+    },
+    Type
+  >;
+
+  /**
+   *
+   *
+   **/
+  ReallocationReceived: GenericContractEvent<
+    "ReallocationReceived",
+    {
+      /**
+       *
+       * @indexed: false
+       **/
+      usdcAmount: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      timestamp: bigint;
+    },
+    Type
+  >;
+
+  /**
+   *
+   *
+   **/
+  BasePortfolioValueSet: GenericContractEvent<
+    "BasePortfolioValueSet",
+    {
+      /**
+       *
+       * @indexed: false
+       **/
+      baseValue: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      basePortfolioValue: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      deploymentTimestamp: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      setBy: AccountId32;
+    },
+    Type
+  >;
+
+  /**
+   *
+   *
+   **/
+  IndexBaseValueUpdated: GenericContractEvent<
+    "IndexBaseValueUpdated",
+    {
+      /**
+       *
+       * @indexed: false
+       **/
+      oldValue: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      newValue: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      updatedBy: AccountId32;
+      /**
+       *
+       * @indexed: false
+       **/
+      timestamp: bigint;
+    },
+    Type
+  >;
+
+  /**
+   *
+   *
+   **/
   PortfolioStateChanged: GenericContractEvent<
     "PortfolioStateChanged",
     {
@@ -56,29 +170,765 @@ export interface ContractEvents<
    *
    *
    **/
-  PortfolioInitialized: GenericContractEvent<
-    "PortfolioInitialized",
+  StreamingFeeCollected: GenericContractEvent<
+    "StreamingFeeCollected",
     {
       /**
        *
        * @indexed: false
        **/
-      owner: AccountId32;
+      feeAmount: bigint;
       /**
        *
        * @indexed: false
        **/
-      deploymentTimestamp: bigint;
+      portfolioValue: bigint;
       /**
        *
        * @indexed: false
        **/
-      indexBaseValue: bigint;
+      daysAccrued: bigint;
       /**
        *
        * @indexed: false
        **/
-      initialState: PortfolioPortfolioState;
+      feeRateBp: number;
+      /**
+       *
+       * @indexed: false
+       **/
+      collectedBy: AccountId32;
+      /**
+       *
+       * @indexed: false
+       **/
+      timestamp: bigint;
+    },
+    Type
+  >;
+
+  /**
+   *
+   *
+   **/
+  TokenTransferExecuted: GenericContractEvent<
+    "TokenTransferExecuted",
+    {
+      /**
+       *
+       * @indexed: true
+       **/
+      token: AccountId32;
+      /**
+       *
+       * @indexed: false
+       **/
+      from: AccountId32;
+      /**
+       *
+       * @indexed: false
+       **/
+      to: AccountId32;
+      /**
+       *
+       * @indexed: false
+       **/
+      amount: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      timestamp: bigint;
+    },
+    Type
+  >;
+
+  /**
+   *
+   *
+   **/
+  LiquidityBufferUpdated: GenericContractEvent<
+    "LiquidityBufferUpdated",
+    {
+      /**
+       *
+       * @indexed: false
+       **/
+      oldValue: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      newValue: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      updatedBy: AccountId32;
+      /**
+       *
+       * @indexed: false
+       **/
+      timestamp: bigint;
+    },
+    Type
+  >;
+
+  /**
+   *
+   *
+   **/
+  RebalanceOrderExecuted: GenericContractEvent<
+    "RebalanceOrderExecuted",
+    {
+      /**
+       *
+       * @indexed: true
+       **/
+      tokenId: number;
+      /**
+       *
+       * @indexed: false
+       **/
+      tokenContract: AccountId32;
+      /**
+       *
+       * @indexed: false
+       **/
+      isBuy: boolean;
+      /**
+       *
+       * @indexed: false
+       **/
+      amount: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      weightBeforeBp: number;
+      /**
+       *
+       * @indexed: false
+       **/
+      weightAfterBp: number;
+      /**
+       *
+       * @indexed: false
+       **/
+      timestamp: bigint;
+    },
+    Type
+  >;
+
+  /**
+   *
+   *
+   **/
+  FeeConfigurationUpdated: GenericContractEvent<
+    "FeeConfigurationUpdated",
+    {
+      /**
+       *
+       * @indexed: false
+       **/
+      oldConfig: PortfolioFeeConfiguration;
+      /**
+       *
+       * @indexed: false
+       **/
+      newConfig: PortfolioFeeConfiguration;
+      /**
+       *
+       * @indexed: false
+       **/
+      updatedBy: AccountId32;
+      /**
+       *
+       * @indexed: false
+       **/
+      timestamp: bigint;
+    },
+    Type
+  >;
+
+  /**
+   *
+   *
+   **/
+  MonthlyRebalanceStarted: GenericContractEvent<
+    "MonthlyRebalanceStarted",
+    {
+      /**
+       *
+       * @indexed: false
+       **/
+      totalTokens: number;
+      /**
+       *
+       * @indexed: false
+       **/
+      portfolioValue: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      timestamp: bigint;
+    },
+    Type
+  >;
+
+  /**
+   *
+   *
+   **/
+  MovingAverageCalculated: GenericContractEvent<
+    "MovingAverageCalculated",
+    {
+      /**
+       *
+       * @indexed: true
+       **/
+      tokenId: number;
+      /**
+       *
+       * @indexed: false
+       **/
+      fourWeekAvgMarketCap: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      currentWeightBp: number;
+      /**
+       *
+       * @indexed: false
+       **/
+      calculatedTargetWeightBp: number;
+      /**
+       *
+       * @indexed: false
+       **/
+      timestamp: bigint;
+    },
+    Type
+  >;
+
+  /**
+   *
+   *
+   **/
+  StreamingFeeDistributed: GenericContractEvent<
+    "StreamingFeeDistributed",
+    {
+      /**
+       *
+       * @indexed: false
+       **/
+      treasury: AccountId32;
+      /**
+       *
+       * @indexed: false
+       **/
+      amount: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      timestamp: bigint;
+    },
+    Type
+  >;
+
+  /**
+   *
+   *
+   **/
+  ContractReferenceUpdated: GenericContractEvent<
+    "ContractReferenceUpdated",
+    {
+      /**
+       *
+       * @indexed: false
+       **/
+      contractType: string;
+      /**
+       *
+       * @indexed: false
+       **/
+      oldAddress: AccountId32 | undefined;
+      /**
+       *
+       * @indexed: false
+       **/
+      newAddress: AccountId32;
+      /**
+       *
+       * @indexed: false
+       **/
+      updatedBy: AccountId32;
+      /**
+       *
+       * @indexed: false
+       **/
+      timestamp: bigint;
+    },
+    Type
+  >;
+
+  /**
+   *
+   *
+   **/
+  MaxSinglePositionUpdated: GenericContractEvent<
+    "MaxSinglePositionUpdated",
+    {
+      /**
+       *
+       * @indexed: false
+       **/
+      oldValue: number;
+      /**
+       *
+       * @indexed: false
+       **/
+      newValue: number;
+      /**
+       *
+       * @indexed: false
+       **/
+      updatedBy: AccountId32;
+      /**
+       *
+       * @indexed: false
+       **/
+      timestamp: bigint;
+    },
+    Type
+  >;
+
+  /**
+   *
+   *
+   **/
+  MonthlyRebalanceCompleted: GenericContractEvent<
+    "MonthlyRebalanceCompleted",
+    {
+      /**
+       *
+       * @indexed: false
+       **/
+      totalOrders: number;
+      /**
+       *
+       * @indexed: false
+       **/
+      executedOrders: number;
+      /**
+       *
+       * @indexed: false
+       **/
+      totalWeightShiftedBp: number;
+      /**
+       *
+       * @indexed: false
+       **/
+      valueBefore: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      valueAfter: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      timestamp: bigint;
+    },
+    Type
+  >;
+
+  /**
+   *
+   *
+   **/
+  RebalanceThresholdUpdated: GenericContractEvent<
+    "RebalanceThresholdUpdated",
+    {
+      /**
+       *
+       * @indexed: false
+       **/
+      oldValue: number;
+      /**
+       *
+       * @indexed: false
+       **/
+      newValue: number;
+      /**
+       *
+       * @indexed: false
+       **/
+      updatedBy: AccountId32;
+      /**
+       *
+       * @indexed: false
+       **/
+      timestamp: bigint;
+    },
+    Type
+  >;
+
+  /**
+   *
+   *
+   **/
+  W3piSold: GenericContractEvent<
+    "W3piSold",
+    {
+      /**
+       *
+       * @indexed: true
+       **/
+      seller: AccountId32;
+      /**
+       *
+       * @indexed: false
+       **/
+      w3piBurned: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      usdcReturned: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      feeAmount: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      feeRateBp: number;
+      /**
+       *
+       * @indexed: false
+       **/
+      indexPrice: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      timestamp: bigint;
+    },
+    Type
+  >;
+
+  /**
+   *
+   *
+   **/
+  SwapFailed: GenericContractEvent<
+    "SwapFailed",
+    {
+      /**
+       *
+       * @indexed: true
+       **/
+      tokenIn: AccountId32;
+      /**
+       *
+       * @indexed: true
+       **/
+      tokenOut: AccountId32;
+      /**
+       *
+       * @indexed: false
+       **/
+      amountIn: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      reason: string;
+      /**
+       *
+       * @indexed: false
+       **/
+      timestamp: bigint;
+    },
+    Type
+  >;
+
+  /**
+   *
+   *
+   **/
+  W3piBought: GenericContractEvent<
+    "W3piBought",
+    {
+      /**
+       *
+       * @indexed: true
+       **/
+      buyer: AccountId32;
+      /**
+       *
+       * @indexed: false
+       **/
+      usdcAmount: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      w3piMinted: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      feeAmount: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      feeRateBp: number;
+      /**
+       *
+       * @indexed: false
+       **/
+      indexPrice: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      timestamp: bigint;
+    },
+    Type
+  >;
+
+  /**
+   *
+   *
+   **/
+  SwapExecuted: GenericContractEvent<
+    "SwapExecuted",
+    {
+      /**
+       *
+       * @indexed: true
+       **/
+      tokenIn: AccountId32;
+      /**
+       *
+       * @indexed: true
+       **/
+      tokenOut: AccountId32;
+      /**
+       *
+       * @indexed: false
+       **/
+      amountIn: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      amountOut: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      slippageBp: number;
+      /**
+       *
+       * @indexed: false
+       **/
+      timestamp: bigint;
+    },
+    Type
+  >;
+
+  /**
+   *
+   *
+   **/
+  EmergencyPause: GenericContractEvent<
+    "EmergencyPause",
+    {
+      /**
+       *
+       * @indexed: false
+       **/
+      paused: boolean;
+      /**
+       *
+       * @indexed: false
+       **/
+      pausedBy: AccountId32;
+      /**
+       *
+       * @indexed: false
+       **/
+      timestamp: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      reason: string;
+    },
+    Type
+  >;
+
+  /**
+   *
+   *
+   **/
+  BuyFeeCollected: GenericContractEvent<
+    "BuyFeeCollected",
+    {
+      /**
+       *
+       * @indexed: false
+       **/
+      buyer: AccountId32;
+      /**
+       *
+       * @indexed: false
+       **/
+      feeAmount: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      feeRateBp: number;
+      /**
+       *
+       * @indexed: false
+       **/
+      timestamp: bigint;
+    },
+    Type
+  >;
+
+  /**
+   *
+   *
+   **/
+  OperationFailed: GenericContractEvent<
+    "OperationFailed",
+    {
+      /**
+       *
+       * @indexed: false
+       **/
+      operation: string;
+      /**
+       *
+       * @indexed: false
+       **/
+      error: string;
+      /**
+       *
+       * @indexed: false
+       **/
+      caller: AccountId32;
+      /**
+       *
+       * @indexed: false
+       **/
+      timestamp: bigint;
+    },
+    Type
+  >;
+
+  /**
+   *
+   *
+   **/
+  RebalanceSkipped: GenericContractEvent<
+    "RebalanceSkipped",
+    {
+      /**
+       *
+       * @indexed: false
+       **/
+      reason: string;
+      /**
+       *
+       * @indexed: false
+       **/
+      daysSinceLast: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      timestamp: bigint;
+    },
+    Type
+  >;
+
+  /**
+   *
+   *
+   **/
+  SellFeeCollected: GenericContractEvent<
+    "SellFeeCollected",
+    {
+      /**
+       *
+       * @indexed: false
+       **/
+      seller: AccountId32;
+      /**
+       *
+       * @indexed: false
+       **/
+      feeAmount: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      feeRateBp: number;
+      /**
+       *
+       * @indexed: false
+       **/
+      timestamp: bigint;
+    },
+    Type
+  >;
+
+  /**
+   *
+   *
+   **/
+  IndexValueUpdated: GenericContractEvent<
+    "IndexValueUpdated",
+    {
+      /**
+       *
+       * @indexed: false
+       **/
+      oldValue: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      newValue: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      performanceBp: number;
+      /**
+       *
+       * @indexed: false
+       **/
+      totalPortfolioValue: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      timestamp: bigint;
     },
     Type
   >;
@@ -115,6 +965,73 @@ export interface ContractEvents<
        * @indexed: false
        **/
       timestamp: bigint;
+    },
+    Type
+  >;
+
+  /**
+   *
+   *
+   **/
+  MaxSlippageUpdated: GenericContractEvent<
+    "MaxSlippageUpdated",
+    {
+      /**
+       *
+       * @indexed: false
+       **/
+      oldValue: number;
+      /**
+       *
+       * @indexed: false
+       **/
+      newValue: number;
+      /**
+       *
+       * @indexed: false
+       **/
+      updatedBy: AccountId32;
+      /**
+       *
+       * @indexed: false
+       **/
+      timestamp: bigint;
+    },
+    Type
+  >;
+
+  /**
+   *
+   *
+   **/
+  TokenHoldingRemoved: GenericContractEvent<
+    "TokenHoldingRemoved",
+    {
+      /**
+       *
+       * @indexed: true
+       **/
+      tokenId: number;
+      /**
+       *
+       * @indexed: false
+       **/
+      finalAmount: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      removedBy: AccountId32;
+      /**
+       *
+       * @indexed: false
+       **/
+      timestamp: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      reason: string;
     },
     Type
   >;
@@ -169,8 +1086,8 @@ export interface ContractEvents<
    *
    *
    **/
-  TokenHoldingRemoved: GenericContractEvent<
-    "TokenHoldingRemoved",
+  WeeklySnapshotTaken: GenericContractEvent<
+    "WeeklySnapshotTaken",
     {
       /**
        *
@@ -181,208 +1098,17 @@ export interface ContractEvents<
        *
        * @indexed: false
        **/
-      finalAmount: bigint;
+      marketCap: bigint;
       /**
        *
        * @indexed: false
        **/
-      removedBy: AccountId32;
+      price: bigint;
       /**
        *
        * @indexed: false
        **/
-      timestamp: bigint;
-    },
-    Type
-  >;
-
-  /**
-   *
-   *
-   **/
-  IndexValueUpdated: GenericContractEvent<
-    "IndexValueUpdated",
-    {
-      /**
-       *
-       * @indexed: false
-       **/
-      oldValue: bigint;
-      /**
-       *
-       * @indexed: false
-       **/
-      newValue: bigint;
-      /**
-       *
-       * @indexed: false
-       **/
-      performanceBp: number;
-      /**
-       *
-       * @indexed: false
-       **/
-      totalPortfolioValue: bigint;
-      /**
-       *
-       * @indexed: false
-       **/
-      timestamp: bigint;
-    },
-    Type
-  >;
-
-  /**
-   *
-   *
-   **/
-  BasePortfolioValueSet: GenericContractEvent<
-    "BasePortfolioValueSet",
-    {
-      /**
-       *
-       * @indexed: false
-       **/
-      baseValue: bigint;
-      /**
-       *
-       * @indexed: false
-       **/
-      basePortfolioValue: bigint;
-      /**
-       *
-       * @indexed: false
-       **/
-      deploymentTimestamp: bigint;
-      /**
-       *
-       * @indexed: false
-       **/
-      setBy: AccountId32;
-    },
-    Type
-  >;
-
-  /**
-   *
-   *
-   **/
-  FeeConfigurationUpdated: GenericContractEvent<
-    "FeeConfigurationUpdated",
-    {
-      /**
-       *
-       * @indexed: false
-       **/
-      oldConfig: PortfolioFeeConfiguration;
-      /**
-       *
-       * @indexed: false
-       **/
-      newConfig: PortfolioFeeConfiguration;
-      /**
-       *
-       * @indexed: false
-       **/
-      updatedBy: AccountId32;
-      /**
-       *
-       * @indexed: false
-       **/
-      timestamp: bigint;
-    },
-    Type
-  >;
-
-  /**
-   *
-   *
-   **/
-  ContractReferenceUpdated: GenericContractEvent<
-    "ContractReferenceUpdated",
-    {
-      /**
-       *
-       * @indexed: false
-       **/
-      contractType: string;
-      /**
-       *
-       * @indexed: false
-       **/
-      oldAddress: AccountId32 | undefined;
-      /**
-       *
-       * @indexed: false
-       **/
-      newAddress: AccountId32;
-      /**
-       *
-       * @indexed: false
-       **/
-      updatedBy: AccountId32;
-      /**
-       *
-       * @indexed: false
-       **/
-      timestamp: bigint;
-    },
-    Type
-  >;
-
-  /**
-   *
-   *
-   **/
-  EmergencyPause: GenericContractEvent<
-    "EmergencyPause",
-    {
-      /**
-       *
-       * @indexed: false
-       **/
-      paused: boolean;
-      /**
-       *
-       * @indexed: false
-       **/
-      pausedBy: AccountId32;
-      /**
-       *
-       * @indexed: false
-       **/
-      timestamp: bigint;
-      /**
-       *
-       * @indexed: false
-       **/
-      reason: string;
-    },
-    Type
-  >;
-
-  /**
-   *
-   *
-   **/
-  OperationFailed: GenericContractEvent<
-    "OperationFailed",
-    {
-      /**
-       *
-       * @indexed: false
-       **/
-      operation: string;
-      /**
-       *
-       * @indexed: false
-       **/
-      error: string;
-      /**
-       *
-       * @indexed: false
-       **/
-      caller: AccountId32;
+      weekIndex: number;
       /**
        *
        * @indexed: false

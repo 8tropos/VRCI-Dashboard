@@ -38,7 +38,48 @@ export interface ContractTx<
   >;
 
   /**
-   * Swap tokens from one to another
+   * Set default fee for new pools (owner only)
+   *
+   * @param {number} feeBp
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0xcb642a2e
+   **/
+  setDefaultFee: GenericContractTxCall<
+    ChainApi,
+    (
+      feeBp: number,
+      options?: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
+   * Swap tokens with slippage protection
+   * Returns error if output is less than min_amount_out
+   *
+   * @param {H160} from
+   * @param {H160} to
+   * @param {bigint} amountIn
+   * @param {bigint} minAmountOut
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0x36afaae2
+   **/
+  swapWithSlippage: GenericContractTxCall<
+    ChainApi,
+    (
+      from: H160,
+      to: H160,
+      amountIn: bigint,
+      minAmountOut: bigint,
+      options?: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
+   * Original swap function (backward compatible)
    *
    * @param {H160} from
    * @param {H160} to
@@ -55,6 +96,58 @@ export interface ContractTx<
       to: H160,
       amount: bigint,
       path: Array<H160>,
+      options?: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
+   * Add liquidity to a pool
+   * Returns LP tokens minted
+   *
+   * @param {H160} tokenA
+   * @param {H160} tokenB
+   * @param {bigint} amountA
+   * @param {bigint} amountB
+   * @param {bigint} minLpTokens
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0x264cd04b
+   **/
+  addLiquidity: GenericContractTxCall<
+    ChainApi,
+    (
+      tokenA: H160,
+      tokenB: H160,
+      amountA: bigint,
+      amountB: bigint,
+      minLpTokens: bigint,
+      options?: ContractTxOptions,
+    ) => ContractSubmittableExtrinsic<ChainApi>,
+    Type
+  >;
+
+  /**
+   * Remove liquidity from a pool
+   * Returns (amount_a, amount_b) withdrawn
+   *
+   * @param {H160} tokenA
+   * @param {H160} tokenB
+   * @param {bigint} lpTokens
+   * @param {bigint} minAmountA
+   * @param {bigint} minAmountB
+   * @param {ContractTxOptions} options
+   *
+   * @selector 0xbdd16bfa
+   **/
+  removeLiquidity: GenericContractTxCall<
+    ChainApi,
+    (
+      tokenA: H160,
+      tokenB: H160,
+      lpTokens: bigint,
+      minAmountA: bigint,
+      minAmountB: bigint,
       options?: ContractTxOptions,
     ) => ContractSubmittableExtrinsic<ChainApi>,
     Type

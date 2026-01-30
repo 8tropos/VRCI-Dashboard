@@ -52,24 +52,77 @@ export interface ContractEvents<
    *
    *
    **/
-  MarketDataUpdated: GenericContractEvent<
-    "MarketDataUpdated",
+  UpdaterAdded: GenericContractEvent<
+    "UpdaterAdded",
     {
       /**
        *
        * @indexed: true
        **/
-      token: AccountId32;
+      updater: AccountId32;
+    },
+    Type
+  >;
+
+  /**
+   *
+   *
+   **/
+  ConfigUpdated: GenericContractEvent<
+    "ConfigUpdated",
+    {
       /**
        *
        * @indexed: false
        **/
-      marketCap: bigint;
+      maxDeviationBp: number;
       /**
        *
        * @indexed: false
        **/
-      volume: bigint;
+      stalenessThreshold: bigint;
+      /**
+       *
+       * @indexed: false
+       **/
+      minUpdateInterval: bigint;
+    },
+    Type
+  >;
+
+  /**
+   *
+   *
+   **/
+  EmergencyPause: GenericContractEvent<
+    "EmergencyPause",
+    {
+      /**
+       *
+       * @indexed: false
+       **/
+      paused: boolean;
+      /**
+       *
+       * @indexed: false
+       **/
+      timestamp: bigint;
+    },
+    Type
+  >;
+
+  /**
+   *
+   *
+   **/
+  UpdaterRemoved: GenericContractEvent<
+    "UpdaterRemoved",
+    {
+      /**
+       *
+       * @indexed: true
+       **/
+      updater: AccountId32;
     },
     Type
   >;
@@ -109,77 +162,24 @@ export interface ContractEvents<
    *
    *
    **/
-  UpdaterAdded: GenericContractEvent<
-    "UpdaterAdded",
+  MarketDataUpdated: GenericContractEvent<
+    "MarketDataUpdated",
     {
       /**
        *
        * @indexed: true
        **/
-      updater: AccountId32;
-    },
-    Type
-  >;
-
-  /**
-   *
-   *
-   **/
-  UpdaterRemoved: GenericContractEvent<
-    "UpdaterRemoved",
-    {
-      /**
-       *
-       * @indexed: true
-       **/
-      updater: AccountId32;
-    },
-    Type
-  >;
-
-  /**
-   *
-   *
-   **/
-  EmergencyPause: GenericContractEvent<
-    "EmergencyPause",
-    {
+      token: AccountId32;
       /**
        *
        * @indexed: false
        **/
-      paused: boolean;
+      marketCap: bigint;
       /**
        *
        * @indexed: false
        **/
-      timestamp: bigint;
-    },
-    Type
-  >;
-
-  /**
-   *
-   *
-   **/
-  ConfigUpdated: GenericContractEvent<
-    "ConfigUpdated",
-    {
-      /**
-       *
-       * @indexed: false
-       **/
-      maxDeviationBp: number;
-      /**
-       *
-       * @indexed: false
-       **/
-      stalenessThreshold: bigint;
-      /**
-       *
-       * @indexed: false
-       **/
-      minUpdateInterval: bigint;
+      volume: bigint;
     },
     Type
   >;

@@ -39,6 +39,10 @@ export type Registry = {
   lastTierChange?: bigint | undefined;
   dotUsdOracle?: H160 | undefined;
   gracePeriodMs: bigint;
+  portfolioContract?: H160 | undefined;
+  stakingContract?: H160 | undefined;
+  lastRebalancingTrigger?: bigint | undefined;
+  rebalancingIntervalMs: bigint;
 };
 
 export type RegistryTierThresholds = {
