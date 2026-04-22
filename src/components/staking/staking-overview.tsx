@@ -1,177 +1,225 @@
 'use client';
 
-import { useState } from 'react';
 import { useContract, useContractQuery } from 'typink';
+import { useTypink } from 'typink';
 import type { StakingContractApi } from '@/lib/contracts/staking';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { CheckCircle, XCircle, Info, TrendingUp, Wallet, Clock, DollarSign } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { CheckCircle, XCircle, TrendingUp, Wallet, Clock, DollarSign, RefreshCw, Activity } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export default function StakingOverview() {
   const { contract: stakingContract } = useContract<StakingContractApi>('staking');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { connectedAccount } = useTypink();
 
-  // State for staking overview
-  // Note: These methods don't exist in Staking contract API
-  const [totalStaked, setTotalStaked] = useState<any>(null);
-  const [totalRewards, setTotalRewards] = useState<any>(null);
-  const [stakingPeriod, setStakingPeriod] = useState<any>(null);
-  const [isLoadingData, setIsLoadingData] = useState(false);
+  const totalStakedQuery = useContractQuery({
+    contract: stakingContract,
+    fn: 'getTotalStaked',
+  });
 
-  // Note: getUnstakingPeriod method doesn't exist in Staking contract API
-  // const [unstakingPeriod, setUnstakingPeriod] = useState<any>(null);
+  const rewardsPoolQuery = useContractQuery({
+    contract: stakingContract,
+    fn: 'getRewardsPoolBalance',
+  });
 
-  // Note: getRewardRate method doesn't exist in Staking contract API
-  // const [rewardRate, setRewardRate] = useState<any>(null);
+  const totalRewardsQuery = useContractQuery({
+    contract: stakingContract,
+    fn: 'getTotalRewardsDistributed',
+  });
 
-  // Note: isPaused method doesn't exist in Staking contract API
-  // const [isPaused, setIsPaused] = useState<any>(null);
+  // getUnstakingRateInfo returns [period, rate, totalUnstaking, isActive]: [bigint, bigint, bigint, boolean]
+  const unstakingRateQuery = useContractQuery({
+    contract: stakingContract,
+    fn: 'getUnstakingRateInfo',
+  });
 
-  const formatAmount = (amount: bigint) => {
-    return `${(Number(amount) / 1e18).toFixed(4)} W3PI`;
-  };
+  // User-specific stake info (requires connected account address)
+  const stakeInfoQuery = useContractQuery(
+    connectedAccount?.address
+      ? {
+          contract: stakingContract,
+          fn: 'getStakeInfo',
+          args: [connectedAccount.address as `0x${string}`],
+        }
+      : undefined
+  );
 
-  const formatPeriod = (period: bigint) => {
-    const days = Number(period) / (24 * 60 * 60);
+  const claimableRewardsQuery = useContractQuery(
+    connectedAccount?.address
+      ? {
+          contract: stakingContract,
+          fn: 'getClaimableRewards',
+          args: [connectedAccount.address as `0x${string}`],
+        }
+      : undefined
+  );
+
+  const formatW3PI = (amount: bigint): string =>
+    `${(Number(amount) / 1e18).toFixed(4)} W3PI`;
+
+  const formatDays = (ms: bigint): string => {
+    const days = Number(ms) / (24 * 60 * 60 * 1000);
+    if (days < 1) return `${Math.round(Number(ms) / (60 * 1000))} min`;
     return `${days.toFixed(1)} days`;
   };
 
-  const formatRate = (rate: bigint) => {
-    const percentage = (Number(rate) / 1e18) * 100;
-    return `${percentage.toFixed(2)}%`;
-  };
+  const isLoading = totalStakedQuery.isLoading || rewardsPoolQuery.isLoading;
 
-  const isLoadingAny = isLoadingData;
+  const unstakingInfo = unstakingRateQuery.data;
+  const unstakingPeriod = unstakingInfo?.[0];
+  const totalUnstaking = unstakingInfo?.[2];
+
+  const stakeInfo = stakeInfoQuery.data;
+  const userStaked = stakeInfo?.amount ?? 0n;
+  const tierAtStake = stakeInfo?.tierAtStake ?? 'None';
+  const claimable = claimableRewardsQuery.data ?? 0n;
+
+  const refresh = () => {
+    totalStakedQuery.refresh();
+    rewardsPoolQuery.refresh();
+    totalRewardsQuery.refresh();
+    unstakingRateQuery.refresh();
+    stakeInfoQuery?.refresh?.();
+    claimableRewardsQuery?.refresh?.();
+  };
 
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5" />
-            Staking Overview
-          </CardTitle>
-          <CardDescription>
-            Current staking status and key metrics
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5" />
+                Staking Overview
+              </CardTitle>
+              <CardDescription>Current staking status and key metrics</CardDescription>
+            </div>
+            <Button variant="outline" size="sm" onClick={refresh} className="flex items-center gap-2">
+              <RefreshCw className="h-4 w-4" />
+              Refresh
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          {isLoadingAny ? (
+          {isLoading ? (
             <div className="flex items-center justify-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* Total Staked */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Wallet className="h-4 w-4 text-blue-600" />
-                  <span className="font-medium">Total Staked</span>
+            <>
+              {/* Global Staking Stats */}
+              <div>
+                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Protocol Stats</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="space-y-1 p-4 bg-blue-50 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Wallet className="h-4 w-4 text-blue-600" />
+                      <span className="text-sm font-medium text-blue-700">Total Staked</span>
+                    </div>
+                    <div className="text-2xl font-bold text-blue-600">
+                      {totalStakedQuery.data !== undefined ? formatW3PI(totalStakedQuery.data) : 'N/A'}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1 p-4 bg-green-50 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <DollarSign className="h-4 w-4 text-green-600" />
+                      <span className="text-sm font-medium text-green-700">Rewards Pool</span>
+                    </div>
+                    <div className="text-2xl font-bold text-green-600">
+                      {rewardsPoolQuery.data !== undefined ? formatW3PI(rewardsPoolQuery.data) : 'N/A'}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1 p-4 bg-purple-50 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <TrendingUp className="h-4 w-4 text-purple-600" />
+                      <span className="text-sm font-medium text-purple-700">Total Distributed</span>
+                    </div>
+                    <div className="text-2xl font-bold text-purple-600">
+                      {totalRewardsQuery.data !== undefined ? formatW3PI(totalRewardsQuery.data) : 'N/A'}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1 p-4 bg-orange-50 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-orange-600" />
+                      <span className="text-sm font-medium text-orange-700">Unstaking Period</span>
+                    </div>
+                    <div className="text-xl font-bold text-orange-600">
+                      {unstakingPeriod !== undefined ? formatDays(unstakingPeriod) : 'N/A'}
+                    </div>
+                  </div>
                 </div>
-                <div className="text-2xl font-bold text-blue-600">
-                  {totalStaked ? formatAmount(totalStaked) : 'N/A'}
-                </div>
-                <p className="text-sm text-gray-600">
-                  Total tokens staked in the system
-                </p>
               </div>
 
-              {/* Total Rewards */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <DollarSign className="h-4 w-4 text-green-600" />
-                  <span className="font-medium">Total Rewards</span>
-                </div>
-                <div className="text-2xl font-bold text-green-600">
-                  {totalRewards ? formatAmount(totalRewards) : 'N/A'}
-                </div>
-                <p className="text-sm text-gray-600">
-                  Total rewards distributed
-                </p>
-              </div>
+              {/* User Stake Info */}
+              {connectedAccount ? (
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Your Stake</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-1 p-4 border rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <Wallet className="h-4 w-4 text-indigo-600" />
+                        <span className="text-sm font-medium">My Staked</span>
+                      </div>
+                      <div className="text-xl font-bold text-indigo-600">
+                        {stakeInfoQuery.isLoading ? (
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-indigo-600" />
+                        ) : (
+                          formatW3PI(userStaked)
+                        )}
+                      </div>
+                      {tierAtStake !== 'None' && (
+                        <Badge variant="outline" className="text-xs">{tierAtStake}</Badge>
+                      )}
+                    </div>
 
-              {/* Reward Rate */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4 text-purple-600" />
-                  <span className="font-medium">Reward Rate</span>
-                </div>
-                <div className="text-2xl font-bold text-purple-600">
-                  {/* {rewardRate ? formatRate(rewardRate) : 'N/A'} */}
-                  N/A
-                </div>
-                <p className="text-sm text-gray-600">
-                  Annual percentage rate
-                </p>
-              </div>
+                    <div className="space-y-1 p-4 border rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <DollarSign className="h-4 w-4 text-green-600" />
+                        <span className="text-sm font-medium">Claimable Rewards</span>
+                      </div>
+                      <div className="text-xl font-bold text-green-600">
+                        {claimableRewardsQuery.isLoading ? (
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-600" />
+                        ) : (
+                          formatW3PI(claimable)
+                        )}
+                      </div>
+                    </div>
 
-              {/* Staking Period */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-orange-600" />
-                  <span className="font-medium">Staking Period</span>
+                    <div className="space-y-1 p-4 border rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <Activity className="h-4 w-4 text-teal-600" />
+                        <span className="text-sm font-medium">Pending Unstake</span>
+                      </div>
+                      <div className="text-xl font-bold text-teal-600">
+                        {totalUnstaking !== undefined ? formatW3PI(totalUnstaking) : 'N/A'}
+                      </div>
+                      <p className="text-xs text-gray-500">Protocol-wide unstaking</p>
+                    </div>
+                  </div>
                 </div>
-                <div className="text-lg font-bold text-orange-600">
-                  {stakingPeriod ? formatPeriod(stakingPeriod) : 'N/A'}
-                </div>
-                <p className="text-sm text-gray-600">
-                  Minimum staking duration
-                </p>
-              </div>
-
-              {/* Unstaking Period */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-red-600" />
-                  <span className="font-medium">Unstaking Period</span>
-                </div>
-                <div className="text-lg font-bold text-red-600">
-                  {/* {unstakingPeriod ? formatPeriod(unstakingPeriod) : 'N/A'} */}
-                  N/A
-                </div>
-                <p className="text-sm text-gray-600">
-                  Time to wait before claiming
-                </p>
-              </div>
-
-              {/* Status */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  {/* {isPaused ? (
-                    <XCircle className="h-4 w-4 text-red-600" />
-                  ) : (
-                    <CheckCircle className="h-4 w-4 text-green-600" />
-                  )} */}
-                  <CheckCircle className="h-4 w-4 text-green-600" />
-                  <span className="font-medium">Status</span>
-                </div>
-                <div className="text-lg font-bold text-green-600">
-                  {/* {isPaused ? 'Paused' : 'Active'} */}
-                  Active
-                </div>
-                <p className="text-sm text-gray-600">
-                  Staking system status
-                </p>
-              </div>
-            </div>
+              ) : (
+                <Alert>
+                  <AlertDescription>
+                    Connect your wallet to view your personal staking info.
+                  </AlertDescription>
+                </Alert>
+              )}
+            </>
           )}
 
-          {error && (
-            <Alert variant="destructive">
-              <XCircle className="h-4 w-4" />
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-
-          {/* Information */}
-          <div className="text-sm text-gray-600 space-y-2">
+          <div className="text-sm text-gray-600 space-y-2 border-t pt-4">
             <p><strong>Staking Features:</strong></p>
             <ul className="list-disc list-inside space-y-1 ml-4">
-              <li>Stake W3PI tokens to earn rewards</li>
-              <li>Flexible unstaking with waiting periods</li>
-              <li>Automatic reward distribution</li>
-              <li>Emergency pause functionality</li>
+              <li>Stake W3PI tokens to earn rewards from the protocol fee pool</li>
+              <li>Flexible unstaking with configurable waiting periods</li>
+              <li>Rewards distributed proportionally to stake amount</li>
+              <li>Zombie stake detection and cleanup for inactive stakes</li>
             </ul>
           </div>
         </CardContent>

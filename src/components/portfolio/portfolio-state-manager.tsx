@@ -7,7 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { CheckCircle, XCircle, Settings, Play, Pause } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { CheckCircle, XCircle, Settings, AlertTriangle, Activity, Clock, Info, RefreshCw } from 'lucide-react';
 
 export default function PortfolioStateManager() {
   const { contract: portfolioContract } = useContract<PortfolioContractApi>('portfolio');
@@ -15,73 +16,75 @@ export default function PortfolioStateManager() {
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Transaction hooks
-  // Note: pause and resume methods don't exist in Portfolio contract API
-  // const pauseTx = useContractTx(portfolioContract, 'pause');
-  // const resumeTx = useContractTx(portfolioContract, 'resume');
   const emergencyPauseTx = useContractTx(portfolioContract, 'emergencyPause');
+  const emergencyResumeTx = useContractTx(portfolioContract, 'emergencyResume');
 
-  // State for portfolio state
-  // Note: getState method doesn't exist in Portfolio contract API
-  const [state, setState] = useState<any>(null);
-  const [isLoadingData, setIsLoadingData] = useState(false);
+  const stateQuery = useContractQuery({ contract: portfolioContract, fn: 'getState' });
+  const emergencyPausedQuery = useContractQuery({ contract: portfolioContract, fn: 'isEmergencyPaused' });
 
-  // Note: isPaused method doesn't exist in Portfolio contract API
-  // const [isPaused, setIsPaused] = useState<any>(null);
+  const state = stateQuery.data ?? 'Unknown';
+  const isEmergencyPaused = emergencyPausedQuery.data ?? false;
 
-  // Note: pause and resume methods don't exist in Portfolio contract API
-  // const handlePause = async () => {
-  //   setIsLoading(true);
-  //   setError(null);
-  //   setResult(null);
+  const getStateStyle = (s: string) => {
+    switch (s) {
+      case 'Active': return { color: 'text-green-600', bg: 'bg-green-50', icon: Activity, badge: 'bg-green-500' };
+      case 'Paused': return { color: 'text-yellow-600', bg: 'bg-yellow-50', icon: Clock, badge: 'bg-yellow-500' };
+      case 'Maintenance': return { color: 'text-blue-600', bg: 'bg-blue-50', icon: Info, badge: 'bg-blue-500' };
+      case 'Emergency': return { color: 'text-red-600', bg: 'bg-red-50', icon: AlertTriangle, badge: 'bg-red-500' };
+      default: return { color: 'text-gray-600', bg: 'bg-gray-50', icon: Info, badge: 'bg-gray-500' };
+    }
+  };
 
-  //   try {
-  //     const tx = pauseTx.tx();
-  //     const hash = await tx.signAndSend(selectedAccount?.address);
-  //     setResult({ type: 'pause', hash });
-  //   } catch (err: any) {
-  //     setError(`Error pausing portfolio: ${err.message}`);
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
-
-  // const handleResume = async () => {
-  //   setIsLoading(true);
-  //   setError(null);
-  //   setResult(null);
-
-  //   try {
-  //     const tx = resumeTx.tx();
-  //     const hash = await tx.signAndSend(selectedAccount?.address);
-  //     setResult({ type: 'resume', hash });
-  //   } catch (err: any) {
-  //     setError(`Error resuming portfolio: ${err.message}`);
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
+  const stateStyle = getStateStyle(state);
+  const StateIcon = stateStyle.icon;
 
   const handleEmergencyPause = async () => {
     setIsLoading(true);
     setError(null);
     setResult(null);
-
     try {
       await emergencyPauseTx.signAndSend({
-        args: ['Emergency pause'],
+        args: ['Emergency pause triggered from dashboard'],
         callback: (progress) => {
           if (progress.status.type === 'BestChainBlockIncluded') {
             if (progress.dispatchError) {
               setError('Transaction failed');
             } else {
               setResult({ type: 'emergencyPause', hash: 'success' });
+              stateQuery.refresh();
+              emergencyPausedQuery.refresh();
             }
           }
-        }
+        },
       });
     } catch (err: any) {
-      setError(`Error emergency pausing portfolio: ${err.message}`);
+      setError(`Error emergency pausing: ${err.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleEmergencyResume = async () => {
+    setIsLoading(true);
+    setError(null);
+    setResult(null);
+    try {
+      await emergencyResumeTx.signAndSend({
+        args: ['Emergency resume triggered from dashboard'],
+        callback: (progress) => {
+          if (progress.status.type === 'BestChainBlockIncluded') {
+            if (progress.dispatchError) {
+              setError('Transaction failed');
+            } else {
+              setResult({ type: 'emergencyResume', hash: 'success' });
+              stateQuery.refresh();
+              emergencyPausedQuery.refresh();
+            }
+          }
+        },
+      });
+    } catch (err: any) {
+      setError(`Error resuming: ${err.message}`);
     } finally {
       setIsLoading(false);
     }
@@ -91,78 +94,82 @@ export default function PortfolioStateManager() {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Settings className="h-5 w-5" />
-            State Management
-          </CardTitle>
-          <CardDescription>
-            Manage portfolio state and operations
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="h-5 w-5" />
+                State Management
+              </CardTitle>
+              <CardDescription>Manage portfolio state and operations</CardDescription>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => { stateQuery.refresh(); emergencyPausedQuery.refresh(); }}
+              className="flex items-center gap-2"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Refresh
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Current State */}
           <div className="space-y-2">
             <Label>Current State</Label>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              {isLoadingData ? (
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  {/* {isPaused ? (
-                    <XCircle className="h-4 w-4 text-red-600" />
-                  ) : (
-                    <CheckCircle className="h-4 w-4 text-green-600" />
-                  )} */}
-                  <CheckCircle className="h-4 w-4 text-green-600" />
-                  <span className="font-medium">
-                    {/* {isPaused ? 'Paused' : 'Active'} */}
-                    Active
-                  </span>
+            {stateQuery.isLoading ? (
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600" />
+            ) : (
+              <div className={`p-4 rounded-lg ${stateStyle.bg} flex items-center gap-3`}>
+                <StateIcon className={`h-5 w-5 ${stateStyle.color}`} />
+                <div>
+                  <div className={`font-semibold text-lg ${stateStyle.color}`}>
+                    {isEmergencyPaused ? 'Emergency Pause' : state}
+                  </div>
+                  {isEmergencyPaused && (
+                    <p className="text-sm text-red-500">Portfolio operations are halted</p>
+                  )}
                 </div>
-              )}
-            </div>
+                {isEmergencyPaused && (
+                  <Badge variant="destructive" className="ml-auto">Emergency</Badge>
+                )}
+              </div>
+            )}
           </div>
 
           {/* State Controls */}
           <div className="space-y-4">
-            <h3 className="font-medium">State Controls</h3>
+            <h3 className="font-medium">Emergency Controls</h3>
+            <p className="text-sm text-gray-600">
+              Emergency pause halts all portfolio operations. Use only in critical situations.
+              Requires owner permissions.
+            </p>
             <div className="flex gap-2">
-              {/* Note: pause and resume methods don't exist in Portfolio contract API */}
-              {/* <Button
-                onClick={handlePause}
-                disabled={isLoading || isPaused}
+              <Button
+                onClick={handleEmergencyPause}
+                disabled={isLoading || isEmergencyPaused}
                 variant="destructive"
                 className="flex items-center gap-2"
               >
-                <Pause className="h-4 w-4" />
-                Pause
+                <AlertTriangle className="h-4 w-4" />
+                Emergency Pause
               </Button>
               <Button
-                onClick={handleResume}
-                disabled={isLoading || !isPaused}
+                onClick={handleEmergencyResume}
+                disabled={isLoading || !isEmergencyPaused}
                 className="flex items-center gap-2"
               >
-                <Play className="h-4 w-4" />
-                Resume
-              </Button> */}
-              <Button
-                onClick={handleEmergencyPause}
-                disabled={isLoading}
-                variant="outline"
-                className="flex items-center gap-2"
-              >
-                <XCircle className="h-4 w-4" />
-                Emergency Pause
+                <CheckCircle className="h-4 w-4" />
+                Resume Operations
               </Button>
             </div>
           </div>
 
-          {/* Results */}
           {result && (
             <Alert className="border-green-200 bg-green-50">
               <CheckCircle className="h-4 w-4 text-green-600" />
               <AlertDescription>
-                {result.type} transaction submitted: {result.hash}
+                {result.type === 'emergencyPause' ? 'Portfolio emergency paused successfully.' : 'Portfolio resumed successfully.'}
               </AlertDescription>
             </Alert>
           )}
@@ -174,14 +181,13 @@ export default function PortfolioStateManager() {
             </Alert>
           )}
 
-          {/* Information */}
-          <div className="text-sm text-gray-600 space-y-2">
+          <div className="text-sm text-gray-600 space-y-2 border-t pt-4">
             <p><strong>State Management:</strong></p>
             <ul className="list-disc list-inside space-y-1 ml-4">
-              <li>Pause portfolio operations for maintenance</li>
-              <li>Resume normal operations when ready</li>
-              <li>Emergency pause for critical situations</li>
-              <li>State changes require owner permissions</li>
+              <li>Active: Normal operations running</li>
+              <li>Paused: Operations temporarily halted</li>
+              <li>Maintenance: System under maintenance</li>
+              <li>Emergency: Critical halt, requires resume</li>
             </ul>
           </div>
         </CardContent>
