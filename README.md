@@ -52,6 +52,30 @@ The platform consists of three core smart contracts:
 - **Polkadot wallet extension** (Polkadot.js, Talisman, or SubWallet)
 - **PAS tokens** from [Pop Testnet faucet](https://onboard.popnetwork.xyz)
 
+### Devcontainer
+
+For a containerized local setup, this repo now includes a VS Code Devcontainer with:
+
+- Node.js 20
+- Bun
+- PostgreSQL 16
+- Prisma-ready `DATABASE_URL` wired to the local `db` service
+
+Quick start:
+
+1. Open the repository in VS Code.
+2. Run `Dev Containers: Reopen in Container`.
+3. Wait for the post-create setup to finish.
+4. Run the bootstrap commands in the container terminal:
+
+   ```bash
+   npx prisma migrate deploy
+   bunx prisma db seed    # optional
+   npm run dev
+   ```
+
+Then open `http://localhost:3000` in your host browser. Use your normal host-installed wallet extension for Polkadot.js, Talisman, or SubWallet.
+
 ### Quick Start
 
 1. **Clone the repository**
@@ -221,6 +245,13 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 3. Commit your changes (`git commit -m 'Add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
+
+### Devcontainer Notes
+
+- The app container injects `DATABASE_URL=postgresql://postgres:postgres@db:5432/w3pi?schema=public`.
+- `.env.local` is created from `env.example` on first container build if it does not already exist.
+- The Next.js dev server binds to `0.0.0.0`, so VS Code port forwarding exposes it on your host machine.
+- Prisma migrations and seed commands should be run from the container terminal.
 
 ### Code Style
 

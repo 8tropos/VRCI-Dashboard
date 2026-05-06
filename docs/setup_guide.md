@@ -8,6 +8,41 @@
 - **npm/yarn**: Latest version
 - **Git**: For cloning repositories
 
+## Devcontainer Setup
+
+Use this path if you want the project running with Docker/VS Code instead of installing Node and PostgreSQL directly on your host.
+
+### Requirements
+
+- Docker Desktop or Docker Engine
+- VS Code
+- Dev Containers extension for VS Code
+
+### Start The Workspace
+
+1. Open the repository in VS Code.
+2. Run `Dev Containers: Reopen in Container`.
+3. Wait for the post-create script to install dependencies and generate Prisma client.
+
+The Devcontainer provides:
+
+- Node.js 20
+- Bun
+- PostgreSQL 16
+- `DATABASE_URL=postgresql://postgres:postgres@db:5432/w3pi?schema=public`
+
+### Initialize The Database
+
+Run these commands inside the Devcontainer terminal:
+
+```bash
+npx prisma migrate deploy
+bunx prisma db seed   # optional
+npm run dev
+```
+
+Open `http://localhost:3000` in your host browser. Keep wallet extensions installed on the host browser, not inside the container.
+
 ### Required Browser Extensions
 
 - **Polkadot.js Extension** OR

@@ -1,4 +1,5 @@
 import { ApiPromise, WsProvider } from '@polkadot/api';
+import { getRpcProviderUrls } from '@/lib/rpc';
 
 let api: ApiPromise | null = null;
 
@@ -16,12 +17,15 @@ export const getPolkadotClient = async (config?: PolkadotClientConfig): Promise<
     return api;
   }
 
-  // Use Passet Hub Testnet RPC URL (same as TypinkProvider)
-  const rpcUrl = config?.rpcUrl || 
-    process.env.NEXT_PUBLIC_RPC_URL || 
-    'wss://passet-hub-paseo.ibp.network';
+  const rpcUrls = getRpcProviderUrls(
+    config?.rpcUrl,
+    process.env.POLKADOT_RPC_URL_DEV,
+    process.env.POLKADOT_RPC_URL,
+    process.env.NEXT_PUBLIC_RPC_URL,
+    process.env.NEXT_PUBLIC_RPC_URL_DEV
+  );
   
-  const provider = new WsProvider(rpcUrl);
+  const provider = new WsProvider(rpcUrls);
   api = await ApiPromise.create({ provider });
   
   // Wait for API to be ready
@@ -39,4 +43,3 @@ export const disconnectPolkadotClient = async (): Promise<void> => {
     api = null;
   }
 };
-

@@ -4,14 +4,19 @@
 
 import { ReactNode } from 'react';
 import { TypinkProvider as BaseTypinkProvider } from 'typink';
+import { getRpcProviderUrls, getRpcUrl } from '@/lib/rpc';
 
 // Determine environment
 const isDevelopment = process.env.NODE_ENV === 'development';
 
 // RPC URL based on environment (static keys for Next.js build-time replacement)
 const RPC_URL = isDevelopment
-  ? (process.env.NEXT_PUBLIC_RPC_URL_DEV || process.env.NEXT_PUBLIC_RPC_URL || '')
-  : (process.env.NEXT_PUBLIC_RPC_URL || '');
+  ? getRpcUrl(process.env.NEXT_PUBLIC_RPC_URL_DEV, process.env.NEXT_PUBLIC_RPC_URL)
+  : getRpcUrl(process.env.NEXT_PUBLIC_RPC_URL);
+
+const RPC_PROVIDERS = isDevelopment
+  ? getRpcProviderUrls(process.env.NEXT_PUBLIC_RPC_URL_DEV, process.env.NEXT_PUBLIC_RPC_URL)
+  : getRpcProviderUrls(process.env.NEXT_PUBLIC_RPC_URL);
 
 // Passet Hub Testnet Configuration (supports ink! v6 contracts)
 const PASSET_HUB_NETWORK = {
@@ -24,7 +29,7 @@ const PASSET_HUB_NETWORK = {
   logo: "https://parachains.info/images/parachains/1688559044_assethub.svg",
   pjsUrl: "https://blockscout-passet-hub.parity-testnet.parity.io",
   faucetUrl: "https://faucet.passet-hub.parity-testnet.parity.io",
-  providers: [RPC_URL]
+  providers: RPC_PROVIDERS
 };
 
 // Contract addresses on Passet Hub Testnet (actual deployed addresses)

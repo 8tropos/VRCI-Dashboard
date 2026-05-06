@@ -1,0 +1,41 @@
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    command: sleep infinity
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/w3pi?schema=public
+      NEXT_TELEMETRY_DISABLED: "1"
+      WATCHPACK_POLLING: "true"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ..:/workspaces/VRCI-Dashboard:cached
+      - vrci-dashboard-node-modules:/workspaces/VRCI-Dashboard/node_modules
+      - vrci-dashboard-next-cache:/workspaces/VRCI-Dashboard/.next
+
+  db:
+    image: postgres:16-bookworm
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: w3pi
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d w3pi"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    volumes:
+      - vrci-dashboard-postgres-data:/var/lib/postgresql/data
+
+volumes:
+  vrci-dashboard-next-cache:
+  vrci-dashboard-node-modules:
+  vrci-dashboard-postgres-data:
