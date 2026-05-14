@@ -12,6 +12,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, XCircle, Settings, Clock, RefreshCw, Copy, Wallet } from 'lucide-react';
 import { decodeAddress } from '@polkadot/keyring';
+import { convertSS58ToH160 } from '@/lib/address';
 import { LabelWithHelp } from '@/components/ui/field-help';
 
 export default function StakingConfiguration() {
@@ -176,21 +177,6 @@ export default function StakingConfiguration() {
       return true;
     } catch {
       return false;
-    }
-  };
-
-  // Helper function to convert SS58 to H160
-  const convertSS58ToH160 = (ss58Address: string): string => {
-    try {
-      const decoded = decodeAddress(ss58Address);
-      // Take first 20 bytes (H160 format)
-      const h160Bytes = decoded.slice(0, 20);
-      // Convert to hex string with 0x prefix
-      return '0x' + Array.from(h160Bytes)
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join('');
-    } catch (error) {
-      throw new Error('Invalid SS58 address');
     }
   };
 

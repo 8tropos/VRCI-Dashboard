@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DollarSign, Wallet, Loader2, RefreshCw, AlertCircle, Copy, CheckCircle } from 'lucide-react';
 import tokenMetadata from '@/contracts/metadata/token.json';
-import { decodeAddress } from '@polkadot/util-crypto';
+import { convertSS58ToH160 } from '@/lib/address';
 
 interface TokenBalance {
   symbol: string;
@@ -45,28 +45,6 @@ export default function BalancePage() {
 
   // Get user address and convert to H160 if needed
   const rawUserAddress = connectedAccount?.address;
-  
-  // Helper function to convert SS58 to H160
-  const convertSS58ToH160 = (ss58Address: string): string => {
-    try {
-      // Check if already H160 format (0x...)
-      if (ss58Address.startsWith('0x') && ss58Address.length === 42) {
-        return ss58Address.toLowerCase();
-      }
-      // Convert SS58 to H160
-      const decoded = decodeAddress(ss58Address);
-      // Take first 20 bytes (H160 format)
-      const h160Bytes = decoded.slice(0, 20);
-      // Convert to hex string with 0x prefix
-      return '0x' + Array.from(h160Bytes)
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join('');
-    } catch (error) {
-      // If conversion fails, return as-is (might already be H160)
-      return ss58Address;
-    }
-  };
-  
   const userAddress = rawUserAddress ? convertSS58ToH160(rawUserAddress) : undefined;
 
   // Add a token to the balances list progressively

@@ -6,6 +6,7 @@ import { useTypink, usePolkadotClient } from 'typink';
 import { toEvmAddress } from 'dedot/contracts';
 import { Contract } from 'dedot/contracts';
 import { decodeAddress } from '@polkadot/util-crypto';
+import { convertSS58ToH160 } from '@/lib/address';
 import tokenMetadata from '@/contracts/metadata/token.json';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -145,30 +146,6 @@ export default function TokenDetailPage() {
     }
   }, [address, loadTokenData]);
 
-  // Helper function to convert SS58 to H160
-  const convertSS58ToH160 = (address: string): string => {
-    try {
-      // Check if already H160 format (0x... with 42 chars)
-      if (address.startsWith('0x') && address.length === 42) {
-        return address.toLowerCase();
-      }
-      // Convert SS58 to H160
-      const decoded = decodeAddress(address);
-      // Take first 20 bytes (H160 format)
-      const h160Bytes = decoded.slice(0, 20);
-      // Convert to hex string with 0x prefix
-      return '0x' + Array.from(h160Bytes)
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join('');
-    } catch (error) {
-      // If conversion fails, assume it's already H160 or return as-is
-      if (address.startsWith('0x') && address.length === 42) {
-        return address.toLowerCase();
-      }
-      throw new Error(`Invalid address format: ${address}. Please use SS58 or H160 (0x...) format.`);
-    }
-  };
-
   const handleMint = async () => {
     if (!mintAmount || !mintRecipient || !connectedAccount || !signer || !api) {
       alert('Please fill in mint amount, recipient address, and connect your wallet');
@@ -180,12 +157,16 @@ export default function TokenDetailPage() {
       : `0x${address.toLowerCase()}`;
 
     // Convert recipient address from SS58 to H160 if needed
+    const trimmedRecipient = mintRecipient.trim();
     let recipientH160: string;
     try {
-      recipientH160 = convertSS58ToH160(mintRecipient.trim());
+      if (!(trimmedRecipient.startsWith('0x') && trimmedRecipient.length === 42)) {
+        decodeAddress(trimmedRecipient);
+      }
+      recipientH160 = convertSS58ToH160(trimmedRecipient);
       console.log('Converted recipient address:', { original: mintRecipient, converted: recipientH160 });
     } catch (error: any) {
-      alert(`Invalid recipient address: ${error.message}`);
+      alert(`Invalid recipient address: ${trimmedRecipient}. Please use SS58 or H160 (0x...) format.`);
       return;
     }
 

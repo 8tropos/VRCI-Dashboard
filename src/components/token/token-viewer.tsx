@@ -3,10 +3,10 @@
 'use client';
 
 import { useState } from 'react';
-import { useContract, useContractQuery } from 'typink';
+import { useContract } from 'typink';
 import type { TokenContractApi } from '@/lib/contracts/token';
+import { convertSS58ToH160 } from '@/lib/address';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { AddressInput } from '@/components/address-input.dedot';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Search, Coins, Users, TrendingUp, CheckCircle, XCircle, Loader2, AlertCircle } from 'lucide-react';
@@ -25,106 +25,93 @@ export function TokenViewer() {
     const [queryType, setQueryType] = useState<'supply' | 'balance' | 'allowance' | 'metadata'>('supply');
     const [queryState, setQueryState] = useState<QueryState>({ type: 'idle' });
 
-    // Use Typink hooks for contract queries
-    const totalSupplyQuery = useContractQuery({
-        contract: tokenContract,
-        fn: 'psp22TotalSupply'
-    });
-
-    const balanceQuery = useContractQuery({
-        contract: tokenContract,
-        fn: 'psp22BalanceOf',
-        args: accountAddress ? [accountAddress as `0x${string}`] : ['0x0000000000000000000000000000000000000000000000000000000000000000']
-    });
-
-    const allowanceQuery = useContractQuery({
-        contract: tokenContract,
-        fn: 'psp22Allowance',
-        args: (accountAddress && spenderAddress) ? [accountAddress as `0x${string}`, spenderAddress as `0x${string}`] : ['0x0000000000000000000000000000000000000000000000000000000000000000', '0x0000000000000000000000000000000000000000000000000000000000000000']
-    });
-
-    const nameQuery = useContractQuery({
-        contract: tokenContract,
-        fn: 'psp22MetadataTokenName'
-    });
-
-    const symbolQuery = useContractQuery({
-        contract: tokenContract,
-        fn: 'psp22MetadataTokenSymbol'
-    });
-
-    const decimalsQuery = useContractQuery({
-        contract: tokenContract,
-        fn: 'psp22MetadataTokenDecimals'
-    });
-
     const resetQuery = () => {
         setQueryState({ type: 'idle' });
     };
 
     const handleGetTotalSupply = async () => {
-        await totalSupplyQuery.refresh();
-        if (totalSupplyQuery.data) {
-            const supply = Number(totalSupplyQuery.data);
+        if (!tokenContract) return;
+        setQueryState({ type: 'pending' });
+        try {
+            const result = await tokenContract.query.psp22TotalSupply();
+            const supply = result.data ?? 0n;
             setQueryState({
                 type: 'success',
-                message: `Total supply: ${(supply / 10 ** 12).toFixed(4)} tokens`,
-                data: { type: 'supply', supply }
+                message: `Total supply: ${(Number(supply) / 10 ** 12).toFixed(4)} tokens`,
+                data: { type: 'supply', supply: Number(supply) }
             });
+        } catch (err: any) {
+            setQueryState({ type: 'error', message: err?.message ?? 'Query failed' });
         }
     };
 
     const handleGetBalance = async () => {
-        if (!accountAddress.trim()) {
+        if (!tokenContract) return;
+        const trimmed = accountAddress.trim();
+        if (!trimmed) {
             setQueryState({ type: 'error', message: 'Please enter a valid account address' });
             return;
         }
 
-        await balanceQuery.refresh();
-        if (balanceQuery.data) {
-            const balance = Number(balanceQuery.data);
+        setQueryState({ type: 'pending' });
+        try {
+            const h160 = convertSS58ToH160(trimmed) as `0x${string}`;
+            const result = await tokenContract.query.psp22BalanceOf(h160);
+            const balance = result.data ?? 0n;
             setQueryState({
                 type: 'success',
-                message: `Balance: ${(balance / 10 ** 12).toFixed(4)} tokens`,
-                data: { type: 'balance', balance, account: accountAddress.trim() }
+                message: `Balance: ${(Number(balance) / 10 ** 12).toFixed(4)} tokens`,
+                data: { type: 'balance', balance: Number(balance), account: trimmed }
             });
+        } catch (err: any) {
+            setQueryState({ type: 'error', message: err?.message ?? 'Query failed' });
         }
     };
 
     const handleGetAllowance = async () => {
-        if (!accountAddress.trim() || !spenderAddress.trim()) {
+        if (!tokenContract) return;
+        const owner = accountAddress.trim();
+        const spender = spenderAddress.trim();
+        if (!owner || !spender) {
             setQueryState({ type: 'error', message: 'Please enter valid owner and spender addresses' });
             return;
         }
 
-        await allowanceQuery.refresh();
-        if (allowanceQuery.data) {
-            const allowance = Number(allowanceQuery.data);
+        setQueryState({ type: 'pending' });
+        try {
+            const ownerH160 = convertSS58ToH160(owner) as `0x${string}`;
+            const spenderH160 = convertSS58ToH160(spender) as `0x${string}`;
+            const result = await tokenContract.query.psp22Allowance(ownerH160, spenderH160);
+            const allowance = result.data ?? 0n;
             setQueryState({
                 type: 'success',
-                message: `Allowance: ${(allowance / 10 ** 12).toFixed(4)} tokens`,
+                message: `Allowance: ${(Number(allowance) / 10 ** 12).toFixed(4)} tokens`,
                 data: {
                     type: 'allowance',
-                    allowance,
-                    owner: accountAddress.trim(),
-                    spender: spenderAddress.trim()
+                    allowance: Number(allowance),
+                    owner,
+                    spender
                 }
             });
+        } catch (err: any) {
+            setQueryState({ type: 'error', message: err?.message ?? 'Query failed' });
         }
     };
 
     const handleGetMetadata = async () => {
-        await Promise.all([
-            nameQuery.refresh(),
-            symbolQuery.refresh(),
-            decimalsQuery.refresh()
-        ]);
+        if (!tokenContract) return;
+        setQueryState({ type: 'pending' });
+        try {
+            const [nameResult, symbolResult, decimalsResult] = await Promise.all([
+                tokenContract.query.psp22MetadataTokenName(),
+                tokenContract.query.psp22MetadataTokenSymbol(),
+                tokenContract.query.psp22MetadataTokenDecimals()
+            ]);
 
-        if (nameQuery.data && symbolQuery.data && decimalsQuery.data) {
             const metadata = {
-                name: nameQuery.data,
-                symbol: symbolQuery.data,
-                decimals: Number(decimalsQuery.data)
+                name: nameResult.data ?? '',
+                symbol: symbolResult.data ?? '',
+                decimals: Number(decimalsResult.data ?? 0)
             };
 
             setQueryState({
@@ -132,6 +119,8 @@ export function TokenViewer() {
                 message: `Token metadata retrieved`,
                 data: { type: 'metadata', metadata }
             });
+        } catch (err: any) {
+            setQueryState({ type: 'error', message: err?.message ?? 'Query failed' });
         }
     };
 
@@ -232,12 +221,11 @@ export function TokenViewer() {
                                 <label htmlFor="ownerAddress" className="text-sm font-medium">
                                     Owner Address
                                 </label>
-                                <Input
-                                    id="ownerAddress"
+                                <AddressInput
                                     placeholder="Enter owner address"
                                     value={accountAddress}
-                                    onChange={(e) => {
-                                        setAccountAddress(e.target.value);
+                                    onChange={(value) => {
+                                        setAccountAddress(value);
                                         resetQuery();
                                     }}
                                     className="font-mono text-sm"
@@ -248,12 +236,11 @@ export function TokenViewer() {
                                 <label htmlFor="spenderAddress" className="text-sm font-medium">
                                     Spender Address
                                 </label>
-                                <Input
-                                    id="spenderAddress"
+                                <AddressInput
                                     placeholder="Enter spender address"
                                     value={spenderAddress}
-                                    onChange={(e) => {
-                                        setSpenderAddress(e.target.value);
+                                    onChange={(value) => {
+                                        setSpenderAddress(value);
                                         resetQuery();
                                     }}
                                     className="font-mono text-sm"
