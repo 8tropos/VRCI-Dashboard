@@ -1,11 +1,8 @@
-const DEFAULT_RPC_URL = 'wss://testnet-passet-hub.polkadot.io';
-const ARCHIVE_RPC_URL = 'wss://passet-hub-paseo.ibp.network';
+const DEFAULT_RPC_URL = 'wss://asset-hub-paseo-rpc.n.dwellir.com';
+const ARCHIVE_RPC_URL = 'wss://asset-hub-paseo-rpc.n.dwellir.com';
 
 const DEPRECATED_POP_RPC_URLS = new Set([
-  'wss://rpc1.paseo.popnetwork.xyz',
-  'wss://rpc1.paseo.popnetwork.xyz/',
-  'wss://rpc2.paseo.popnetwork.xyz',
-  'wss://rpc2.paseo.popnetwork.xyz/',
+  'wss://asset-hub-paseo-rpc.n.dwellir.com'
 ]);
 
 function normalizeRpcUrl(candidate: string): string {

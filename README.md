@@ -276,20 +276,39 @@ npm run test:coverage
 
 ## 📦 Deployment
 
-### Vercel (Recommended)
+### Vercel (CLI-driven)
 
-1. Connect your GitHub repository to Vercel
-2. Set environment variables in Vercel dashboard
-3. Deploy automatically on push to main branch
+1. One-time setup:
+   ```bash
+   bun install
+   bunx vercel login
+   bunx vercel link
+   ```
+2. Provision **Vercel Postgres (Neon)** from the Vercel dashboard (Storage → Create Database) and attach it to the project. This auto-injects `DATABASE_URL` (pooled) and `DATABASE_URL_UNPOOLED` (direct) into all environments. For local development without pooling, `DATABASE_URL_UNPOOLED` can use the same value as `DATABASE_URL`.
+3. Add the remaining env vars (see `env.example`) — at minimum `CMC_API_KEY`, `POLKADOT_RPC_URL`, and the `NEXT_PUBLIC_*` contract addresses + RPC URL:
+   ```bash
+   bunx vercel env add CMC_API_KEY production
+   # ...repeat for each variable, or paste via the dashboard
+   bun run vercel:env   # pulls them into .env.local for parity
+   ```
+4. Deploy:
+   - Preview: `bun run deploy:preview`
+   - Production: `bun run deploy`
+
+Vercel runs `bun run vercel-build`, which executes `prisma generate && prisma migrate deploy && next build`, so pending migrations are applied automatically before the new code goes live. Local `bun run build` only generates Prisma and builds Next.js. Build/install commands and the deployment region are pinned in `vercel.json`.
 
 ### Manual Deployment
 
 ```bash
 # Build the application
+bun run build
+# or, if Bun is not installed locally
 npm run build
 
 # Start production server
-npm start
+bun run start
+# or
+npm run start
 ```
 
 ## 🔒 Security

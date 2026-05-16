@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "next dev --hostname 0.0.0.0 --turbopack",
     "build": "prisma generate && next build",
+    "vercel-build": "prisma generate && prisma migrate deploy && next build",
     "start": "next start",
     "lint": "next lint",
     "test": "vitest run",
@@ -16,7 +17,10 @@
     "test:coverage": "vitest run --coverage",
     "postinstall": "prisma generate",
     "contracts:gen": "for f in ./src/contracts/metadata/*.json; do bunx dedot typink -m $f -o ./src/lib/contracts; done",
-    "db:seed": "bunx prisma db seed"
+    "db:seed": "bunx prisma db seed",
+    "deploy": "vercel --prod",
+    "deploy:preview": "vercel",
+    "vercel:env": "vercel env pull .env.local"
   },
   "dependencies": {
     "@bprogress/core": "^1.3.4",
@@ -45,7 +49,7 @@
     "dedot": "^0.18.3",
     "ethers": "^6.15.0",
     "lucide-react": "^0.553.0",
-    "next": "^15.5.5",
+    "next": "^15.5.18",
     "next-themes": "^0.4.6",
     "polkadot-ui": "latest",
     "prisma": "^6.19.0",
@@ -73,6 +77,7 @@
     "ts-jest": "^29.4.5",
     "tw-animate-css": "^1.3.4",
     "typescript": "^5",
+    "vercel": "^54.1.0",
     "vitest": "^4.0.8"
   }
 }
