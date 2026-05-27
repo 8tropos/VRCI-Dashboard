@@ -6,6 +6,15 @@ import { ReactNode } from 'react';
 import { TypinkProvider as BaseTypinkProvider } from 'typink';
 import { getRpcProviderUrls, getRpcUrl } from '@/lib/rpc';
 
+// Import contract metadata for TypinkProvider
+import tokenMetadata from '@/contracts/metadata/token.json';
+import oracleMetadata from '@/contracts/metadata/oracle.json';
+import registryMetadata from '@/contracts/metadata/registry.json';
+import portfolioMetadata from '@/contracts/metadata/portfolio.json';
+import stakingMetadata from '@/contracts/metadata/staking.json';
+import dexMetadata from '@/contracts/metadata/dex.json';
+
+
 // Determine environment
 const isDevelopment = process.env.NODE_ENV === 'development';
 
@@ -54,13 +63,6 @@ const CONTRACT_ADDRESSES = {
     : (process.env.NEXT_PUBLIC_DEX_ADDRESS || '')
 };
 
-// Import contract metadata for TypinkProvider
-import tokenMetadata from '@/contracts/metadata/token.json';
-import oracleMetadata from '@/contracts/metadata/oracle.json';
-import registryMetadata from '@/contracts/metadata/registry.json';
-import portfolioMetadata from '@/contracts/metadata/portfolio.json';
-import stakingMetadata from '@/contracts/metadata/staking.json';
-import dexMetadata from '@/contracts/metadata/dex.json';
 
 // Contract deployments configuration using new Typink system
 const deployments = [
