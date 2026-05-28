@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { useContract, useContractQuery } from 'typink';
+import type { AccountId32Like } from 'dedot/codecs';
+import { decodeAddress, encodeAddress } from 'dedot/utils';
 import type { OracleContractApi } from '@/lib/contracts/oracle';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,11 +13,125 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CheckCircle, XCircle, Info, Copy } from 'lucide-react';
 import { LabelWithHelp } from '../ui/field-help';
 
+const H160_HEX_PATTERN = /^0x[0-9a-fA-F]{40}$/;
+const ACCOUNT_ID32_HEX_PATTERN = /^0x[0-9a-fA-F]{64}$/;
+const ZERO_PADDED_H160_PATTERN = /^0x0{24}[0-9a-fA-F]{40}$/;
+const ACCOUNT_ID32_H160_PREFIX = '0x000000000000000000000000';
+
+type DotTokenCheckResult = {
+  isDotToken: boolean;
+  tokenAddress: string;
+};
+
+const isUint8Array = (value: unknown): value is Uint8Array => value instanceof Uint8Array;
+
+const bytesToHex = (bytes: Uint8Array): `0x${string}` => {
+  return `0x${Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('')}`;
+};
+
+const getErrorMessage = (error: unknown): string => {
+  return error instanceof Error ? error.message : 'Unknown error occurred';
+};
+
+const formatAddressString = (value: string): string => {
+  const address = value.trim();
+
+  if (H160_HEX_PATTERN.test(address)) {
+    return address;
+  }
+
+  if (ZERO_PADDED_H160_PATTERN.test(address)) {
+    return `0x${address.slice(-40)}`;
+  }
+
+  if (ACCOUNT_ID32_HEX_PATTERN.test(address)) {
+    try {
+      return encodeAddress(address);
+    } catch {
+      return address;
+    }
+  }
+
+  return address;
+};
+
+const getRawAddress = (address: unknown): string | null => {
+  if (!address || typeof address !== 'object' || !('raw' in address)) {
+    return null;
+  }
+
+  const raw = (address as { raw?: unknown }).raw;
+
+  if (typeof raw === 'string') {
+    return raw;
+  }
+
+  if (isUint8Array(raw)) {
+    return bytesToHex(raw);
+  }
+
+  return null;
+};
+
+const formatOracleTokenAddress = (address: unknown): string => {
+  if (!address) return '';
+
+  if (typeof address === 'string') {
+    return formatAddressString(address);
+  }
+
+  const rawAddress = getRawAddress(address);
+  if (rawAddress) {
+    return formatAddressString(rawAddress);
+  }
+
+  if (typeof (address as { address?: unknown }).address === 'function') {
+    try {
+      return (address as { address: () => string }).address();
+    } catch {
+      return '';
+    }
+  }
+
+  if (typeof (address as { toString?: unknown }).toString === 'function') {
+    const value = (address as { toString: () => string }).toString();
+    return value === '[object Object]' ? '' : value;
+  }
+
+  return '';
+};
+
+const toOracleTokenArg = (value: string): AccountId32Like | null => {
+  const address = value.trim();
+
+  if (!address) {
+    return null;
+  }
+
+  if (H160_HEX_PATTERN.test(address)) {
+    return `${ACCOUNT_ID32_H160_PREFIX}${address.slice(2)}` as AccountId32Like;
+  }
+
+  if (ACCOUNT_ID32_HEX_PATTERN.test(address)) {
+    return address as AccountId32Like;
+  }
+
+  if (address.startsWith('0x')) {
+    return null;
+  }
+
+  try {
+    return decodeAddress(address).length === 32 ? address : null;
+  } catch {
+    return null;
+  }
+};
+
 export default function OracleDotTokenManager() {
   const { contract: oracleContract } = useContract<OracleContractApi>('oracle');
   const [tokenAddress, setTokenAddress] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<DotTokenCheckResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // Query hooks
@@ -24,15 +140,12 @@ export default function OracleDotTokenManager() {
     fn: 'getDotTokenAddress',
   });
 
-  const { data: isDotToken, isLoading: isLoadingCheck } = useContractQuery({
-    contract: oracleContract,
-    fn: 'isDotToken',
-    args: tokenAddress ? [tokenAddress as `0x${string}`] : ['0x0000000000000000000000000000000000000000' as `0x${string}`],
-  });
-
   const handleCheckDotToken = async () => {
-    if (!tokenAddress) {
-      setError('Please enter a token address');
+    const tokenArg = toOracleTokenArg(tokenAddress);
+
+    if (!tokenArg) {
+      setError('Please enter a valid H160, 32-byte raw hex, or SS58 token address');
+      setResult(null);
       return;
     }
 
@@ -45,31 +158,19 @@ export default function OracleDotTokenManager() {
         setError('Contract not available');
         return;
       }
-      const result = await oracleContract.query.isDotToken(tokenAddress as `0x${string}`);
+      const response = await oracleContract.query.isDotToken(tokenArg);
       setResult({
-        isDotToken: result,
-        tokenAddress: tokenAddress
+        isDotToken: response.data === true,
+        tokenAddress: formatOracleTokenAddress(tokenArg),
       });
-    } catch (err: any) {
-      setError(`Error checking DOT token: ${err.message}`);
+    } catch (err) {
+      setError(`Error checking DOT token: ${getErrorMessage(err)}`);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const formatAddress = (address: unknown): string => {
-    if (!address) return '';
-    if (typeof address === 'string') return address;
-    if (typeof (address as any)?.address === 'function') {
-      return (address as any).address();
-    }
-    if (typeof (address as any)?.toString === 'function') {
-      return (address as any).toString();
-    }
-    return '';
-  };
-
-  const formattedDotTokenAddress = formatAddress(dotTokenAddress);
+  const formattedDotTokenAddress = formatOracleTokenAddress(dotTokenAddress);
 
   return (
     <div className="space-y-6">
@@ -120,7 +221,7 @@ export default function OracleDotTokenManager() {
           <div className="space-y-2">
             <LabelWithHelp
               htmlFor="dot-token-check"
-              helpText="Enter a token contract address (H160 format, 0x...) to check if it is the DOT token configured in the oracle. The DOT token is used for USD price feeds in registry tier calculations. This is a read-only query that doesn't require a transaction."
+              helpText="Enter a token contract address as H160 (0x...), 32-byte raw hex, or SS58 to check if it is the DOT token configured in the oracle. H160 inputs are converted to the AccountId-compatible format expected by the contract query. This is a read-only query that doesn't require a transaction."
             >
               Check if Token is DOT Token
             </LabelWithHelp>
@@ -129,7 +230,7 @@ export default function OracleDotTokenManager() {
                 id="dot-token-check"
                 value={tokenAddress}
                 onChange={(e) => setTokenAddress(e.target.value)}
-                placeholder="Enter token address (0x...)"
+                placeholder="Enter H160, 32-byte hex, or SS58 address"
                 className="font-mono text-sm"
               />
               <Button
