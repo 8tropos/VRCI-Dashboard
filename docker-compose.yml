@@ -1,0 +1,22 @@
+services:
+  db:
+    image: postgres:16-bookworm
+    container_name: vrci-dashboard-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: w3pi
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d w3pi"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    volumes:
+      - vrci-dashboard-postgres-data:/var/lib/postgresql/data
+
+volumes:
+  vrci-dashboard-postgres-data:
