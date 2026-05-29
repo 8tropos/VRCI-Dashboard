@@ -73,7 +73,7 @@ export function txToaster(
         }
 
         toast.update(toastId, {
-            render: <TxProgress message={toastMessage} status={status} />,
+            render: <TxProgress message={toastMessage} status={status} dispatchError={dispatchError} />,
             type: toastType,
             isLoading: !autoClose,
             autoClose,
@@ -123,13 +123,45 @@ const getBlockInfo = (status: TxStatus) => {
     return '';
 };
 
+const stringifyTxError = (value: unknown): string => {
+    try {
+        return JSON.stringify(
+            value,
+            (_key, nestedValue) => typeof nestedValue === 'bigint' ? nestedValue.toString() : nestedValue,
+            2
+        ) ?? String(value);
+    } catch {
+        return String(value);
+    }
+};
+
+const getDispatchErrorDetails = (dispatchError: unknown): string | null => {
+    if (!dispatchError) {
+        return null;
+    }
+
+    if (typeof dispatchError === 'object' && dispatchError !== null && 'type' in dispatchError) {
+        const error = dispatchError as { type?: string; value?: unknown };
+
+        if (error.type === 'Module') {
+            return `Runtime module error: ${stringifyTxError(error.value)}`;
+        }
+
+        return `${error.type ?? 'DispatchError'}: ${stringifyTxError(error.value ?? dispatchError)}`;
+    }
+
+    return stringifyTxError(dispatchError);
+};
+
 interface TxProgressProps {
     message: string;
     status: TxStatus;
+    dispatchError?: unknown;
 }
 
-function TxProgress({ message, status }: TxProgressProps) {
+function TxProgress({ message, status, dispatchError }: TxProgressProps) {
     const { network } = useTypink();
+    const dispatchErrorDetails = getDispatchErrorDetails(dispatchError);
 
     const { label: viewOnExplorer, url: explorerUrl } = useMemo(() => {
         if (status.type === 'BestChainBlockIncluded' || status.type === 'Finalized') {
@@ -159,6 +191,11 @@ function TxProgress({ message, status }: TxProgressProps) {
             <p style={{ fontSize: 12 }}>
                 {status.type} {getBlockInfo(status)}
             </p>
+            {dispatchErrorDetails ? (
+                <pre style={{ fontSize: 11, marginTop: '0.5rem', whiteSpace: 'pre-wrap' }}>
+                    {dispatchErrorDetails}
+                </pre>
+            ) : null}
 
             {viewOnExplorer && (
                 <p style={{ fontSize: 12, marginTop: '0.5rem' }}>

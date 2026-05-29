@@ -3,7 +3,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useContract, useContractTx } from 'typink';
+import { useContract, useContractTx, useTypink } from 'typink';
 import type { OracleContractApi } from '@/lib/contracts/oracle';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,14 +14,105 @@ import { Badge } from '@/components/ui/badge';
 import { useContractQuery } from 'typink';
 import { LabelWithHelp } from '@/components/ui/field-help';
 
+const SCALE_DECIMALS = 9;
+
+const stringifyDebugValue = (value: unknown): string => {
+    const seen = new WeakSet<object>();
+
+    try {
+        return JSON.stringify(
+            value,
+            (_key, nestedValue) => {
+                if (typeof nestedValue === 'bigint') {
+                    return nestedValue.toString();
+                }
+
+                if (nestedValue instanceof Error) {
+                    return {
+                        name: nestedValue.name,
+                        message: nestedValue.message,
+                        stack: nestedValue.stack,
+                        ...Object.fromEntries(Object.entries(nestedValue)),
+                    };
+                }
+
+                if (typeof nestedValue === 'object' && nestedValue !== null) {
+                    if (seen.has(nestedValue)) {
+                        return '[Circular]';
+                    }
+
+                    seen.add(nestedValue);
+                }
+
+                return nestedValue;
+            },
+            2
+        ) ?? String(value);
+    } catch {
+        return String(value);
+    }
+};
+
+const formatErrorDetails = (err: unknown): string => {
+    if (err instanceof Error) {
+        return [
+            `name: ${err.name}`,
+            `message: ${err.message}`,
+            err.stack ? `stack:\n${err.stack}` : null,
+            `raw:\n${stringifyDebugValue(err)}`,
+        ].filter(Boolean).join('\n\n');
+    }
+
+    return stringifyDebugValue(err);
+};
+
+const formatOracleTimestamp = (timestamp: number | bigint): string => {
+    const timestampNumber = Number(timestamp);
+    const timestampMs = timestampNumber < 10_000_000_000 ? timestampNumber * 1000 : timestampNumber;
+
+    return new Date(timestampMs).toLocaleString();
+};
+
+const formatScaledUsd = (value: bigint): string => {
+    return `$${(Number(value) / 10 ** SCALE_DECIMALS).toFixed(2)}`;
+};
+
+const getContractResultError = (data: unknown): string | null => {
+    if (!data || typeof data !== 'object') {
+        return null;
+    }
+
+    const result = data as { isErr?: boolean; err?: unknown };
+    if (!result.isErr) {
+        return null;
+    }
+
+    if (typeof result.err === 'string') {
+        return result.err;
+    }
+
+    if (result.err) {
+        return stringifyDebugValue(result.err);
+    }
+
+    return 'Contract returned Err, but the error variant was not decoded by the client. See raw dry-run output below.';
+};
+
+const getUnixSeconds = (timestamp: bigint | number): number => {
+    const value = Number(timestamp);
+    return value < 10_000_000_000 ? value : Math.floor(value / 1000);
+};
+
 export function OracleDotUsdManager() {
     const { contract: oracleContract } = useContract<OracleContractApi>('oracle');
+    const { connectedAccount } = useTypink();
     const [dotPrice, setDotPrice] = useState<string>('');
     const [emergencyPrice, setEmergencyPrice] = useState<string>('');
     const [currentPrice, setCurrentPrice] = useState<string | null>(null);
     const [lastUpdate, setLastUpdate] = useState<number | null>(null);
     const [isStale, setIsStale] = useState<boolean | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [txDebug, setTxDebug] = useState<string | null>(null);
 
     const updateDotUsdPriceTx = useContractTx(oracleContract, 'updateDotUsdPrice');
     const emergencyDotPriceOverrideTx = useContractTx(oracleContract, 'emergencyDotPriceOverride');
@@ -60,7 +151,12 @@ export function OracleDotUsdManager() {
         }
     };
 
-    const SCALE_DECIMALS = 18;
+    const refreshDotPriceQueries = () => {
+        dotPriceQuery.refresh().catch(console.error);
+        dotPriceStaleQuery.refresh().catch(console.error);
+        dotPriceLastUpdateQuery.refresh().catch(console.error);
+        loadDotPriceData();
+    };
 
     const convertToScaledBigInt = (value: string): bigint => {
         const sanitized = value.trim();
@@ -77,9 +173,101 @@ export function OracleDotUsdManager() {
         return whole + decimals;
     };
 
+    const buildUpdatePreflightDetails = async (scaledPrice: bigint): Promise<string> => {
+        if (!oracleContract) {
+            return 'Oracle contract is not available.';
+        }
+
+        const [
+            currentPriceResult,
+            lastUpdateResult,
+            validationConfigResult,
+            pausedResult,
+            authorizedResult,
+        ] = await Promise.allSettled([
+            oracleContract.query.getDotUsdPrice(),
+            oracleContract.query.getDotPriceLastUpdate(),
+            oracleContract.query.getValidationConfig(),
+            oracleContract.query.isPaused(),
+            connectedAccount
+                ? oracleContract.query.isAuthorizedUpdater(connectedAccount.address)
+                : Promise.resolve(null),
+        ]);
+
+        const lines = [
+            `caller: ${connectedAccount?.address ?? 'not connected'}`,
+            `requestedPrice: ${formatScaledUsd(scaledPrice)}`,
+            `requestedScaledPrice: ${scaledPrice.toString()}`,
+        ];
+
+        if (currentPriceResult.status === 'fulfilled' && currentPriceResult.value.data) {
+            const currentScaledPrice = BigInt(currentPriceResult.value.data);
+            lines.push(`currentPrice: ${formatScaledUsd(currentScaledPrice)}`);
+
+            if (validationConfigResult.status === 'fulfilled' && validationConfigResult.value.data && currentScaledPrice > 0n) {
+                const config = validationConfigResult.value.data;
+                const diff = scaledPrice > currentScaledPrice
+                    ? scaledPrice - currentScaledPrice
+                    : currentScaledPrice - scaledPrice;
+                const deviationBp = Number((diff * 10_000n) / currentScaledPrice);
+                const maxDeviationBp = config.maxDeviationBp;
+                const minAllowed = (currentScaledPrice * BigInt(10_000 - maxDeviationBp)) / 10_000n;
+                const maxAllowed = (currentScaledPrice * BigInt(10_000 + maxDeviationBp)) / 10_000n;
+
+                lines.push(`maxDeviation: ${maxDeviationBp} bp (${(maxDeviationBp / 100).toFixed(2)}%)`);
+                lines.push(`requestedDeviation: ${deviationBp} bp (${(deviationBp / 100).toFixed(2)}%)`);
+                lines.push(`allowedNormalUpdateRange: ${formatScaledUsd(minAllowed)} - ${formatScaledUsd(maxAllowed)}`);
+
+                if (deviationBp > maxDeviationBp) {
+                    lines.push(`likelyFailure: requested price is outside the allowed ${maxDeviationBp} bp deviation window`);
+                }
+            }
+        } else if (currentPriceResult.status === 'rejected') {
+            lines.push(`currentPriceCheckFailed: ${formatErrorDetails(currentPriceResult.reason)}`);
+        }
+
+        if (lastUpdateResult.status === 'fulfilled' && lastUpdateResult.value.data && validationConfigResult.status === 'fulfilled' && validationConfigResult.value.data) {
+            const lastUpdateSeconds = getUnixSeconds(lastUpdateResult.value.data);
+            const minUpdateInterval = Number(validationConfigResult.value.data.minUpdateInterval);
+            const elapsedSeconds = Math.floor(Date.now() / 1000) - lastUpdateSeconds;
+            const waitSeconds = Math.max(0, minUpdateInterval - elapsedSeconds);
+
+            lines.push(`lastUpdate: ${formatOracleTimestamp(lastUpdateResult.value.data)}`);
+            lines.push(`minUpdateInterval: ${minUpdateInterval}s`);
+            lines.push(`elapsedSinceLastUpdate: ${elapsedSeconds}s`);
+
+            if (waitSeconds > 0) {
+                lines.push(`likelyFailure: update is too soon; wait about ${waitSeconds}s`);
+            }
+        }
+
+        if (pausedResult.status === 'fulfilled') {
+            lines.push(`oraclePaused: ${String(pausedResult.value.data)}`);
+            if (pausedResult.value.data) {
+                lines.push('likelyFailure: oracle updates are paused');
+            }
+        }
+
+        if (authorizedResult.status === 'fulfilled' && authorizedResult.value) {
+            lines.push(`connectedAccountAuthorized: ${String(authorizedResult.value.data)}`);
+            if (authorizedResult.value.data === false) {
+                lines.push('possibleFailure: connected account is not listed as an authorized updater');
+            }
+        } else if (authorizedResult.status === 'rejected') {
+            lines.push(`authorizationCheckFailed: ${formatErrorDetails(authorizedResult.reason)}`);
+        }
+
+        return lines.join('\n');
+    };
+
     const handleUpdateDotPrice = async () => {
         if (!oracleContract || !dotPrice) {
             setError('Please enter a valid DOT price');
+            return;
+        }
+
+        if (!connectedAccount?.address) {
+            setError('Please connect a wallet account before submitting the transaction');
             return;
         }
 
@@ -90,27 +278,69 @@ export function OracleDotUsdManager() {
         }
 
         setError(null);
-        
-        // Create toaster only when transaction starts
-        const toaster = txToaster('Signing transaction to update DOT/USD price...');
-        
+        setTxDebug(null);
+
+        let toaster: ReturnType<typeof txToaster> | null = null;
+
         try {
             const scaledPrice = convertToScaledBigInt(dotPrice);
+            const preflightDetails = await buildUpdatePreflightDetails(scaledPrice);
+            const dryRun = await oracleContract.query.updateDotUsdPrice(scaledPrice, {
+                caller: connectedAccount.address,
+            });
+            const dryRunError = getContractResultError(dryRun.data);
+
+            const dryRunDebug = [
+                `inputPrice: ${dotPrice}`,
+                `scaleDecimals: ${SCALE_DECIMALS}`,
+                `scaledPrice: ${scaledPrice.toString()}`,
+                `preflight:\n${preflightDetails}`,
+                `dryRun:\n${stringifyDebugValue(dryRun)}`,
+            ].join('\n\n');
+
+            setTxDebug(dryRunDebug);
+            console.info('DOT/USD update dry-run:', dryRun);
+
+            if (dryRunError) {
+                setError(`Contract dry-run failed: ${dryRunError}`);
+                return;
+            }
+
+            toaster = txToaster('Signing transaction to update DOT/USD price...');
+            const activeToaster = toaster;
 
             await updateDotUsdPriceTx.signAndSend({
                 args: [scaledPrice],
                 callback: (progress) => {
-                    toaster.onTxProgress(progress);
+                    const progressDebug = [
+                        dryRunDebug,
+                        `progressStatus:\n${stringifyDebugValue(progress.status)}`,
+                        `dispatchError:\n${stringifyDebugValue(progress.dispatchError ?? null)}`,
+                        `events:\n${stringifyDebugValue(progress.events ?? [])}`,
+                    ].join('\n\n');
+
+                    setTxDebug(progressDebug);
+                    console.info('DOT/USD update progress:', progress);
+                    activeToaster.onTxProgress(progress);
+
+                    if (progress.dispatchError) {
+                        setError(`Transaction failed after submission: ${stringifyDebugValue(progress.dispatchError)}`);
+                        return;
+                    }
+
                     if (progress.status.type === 'BestChainBlockIncluded') {
                         setDotPrice('');
-                        loadDotPriceData();
+                        refreshDotPriceQueries();
                     }
                 }
             });
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+            const errorDetails = formatErrorDetails(err);
+            console.error('DOT/USD update failed:', err);
+            setTxDebug(errorDetails);
             setError(`Error: ${errorMessage}`);
-            toaster.onTxError(err instanceof Error ? err : new Error(errorMessage));
+            toaster?.onTxError(err instanceof Error ? err : new Error(errorMessage));
         }
     };
 
@@ -127,10 +357,10 @@ export function OracleDotUsdManager() {
         }
 
         setError(null);
-        
+
         // Create toaster only when transaction starts
         const toaster = txToaster('Signing emergency DOT price override transaction...');
-        
+
         try {
             const scaledPrice = convertToScaledBigInt(emergencyPrice);
 
@@ -140,7 +370,7 @@ export function OracleDotUsdManager() {
                     toaster.onTxProgress(progress);
                     if (progress.status.type === 'BestChainBlockIncluded') {
                         setEmergencyPrice('');
-                        loadDotPriceData();
+                        refreshDotPriceQueries();
                     }
                 }
             });
@@ -173,7 +403,7 @@ export function OracleDotUsdManager() {
                 <CardContent className="space-y-6">
                     <div className="flex justify-between items-center">
                         <Button
-                            onClick={loadDotPriceData}
+                            onClick={refreshDotPriceQueries}
                             disabled={!oracleContract}
                             variant="outline"
                             size="sm"
@@ -201,7 +431,7 @@ export function OracleDotUsdManager() {
                                 <Clock className="h-4 w-4 text-green-500" />
                             </div>
                             <div className="text-lg font-bold text-green-900 dark:text-green-100">
-                                {lastUpdate ? new Date(lastUpdate).toLocaleString() : 'Never'}
+                                {lastUpdate ? formatOracleTimestamp(lastUpdate) : 'Never'}
                             </div>
                         </div>
 
@@ -380,12 +610,7 @@ export function OracleDotUsdManager() {
                 <CardContent className="space-y-6">
                     <div className="flex justify-between items-center">
                         <Button
-                            onClick={() => {
-                                dotPriceQuery.refresh();
-                                dotPriceStaleQuery.refresh();
-                                dotPriceLastUpdateQuery.refresh();
-                                loadDotPriceData();
-                            }}
+                            onClick={refreshDotPriceQueries}
                             disabled={!oracleContract}
                             variant="outline"
                             size="sm"
@@ -415,14 +640,14 @@ export function OracleDotUsdManager() {
                                 )}
                             </div>
                             <div className="text-xs font-mono text-gray-600 dark:text-gray-400">
-                                {dotPriceQuery.isLoading ? 'Loading...' : 
-                                 dotPriceQuery.data ? 
-                                    `$${(Number(dotPriceQuery.data) / 1_000_000_000).toFixed(2)}` : 
+                                {dotPriceQuery.isLoading ? 'Loading...' :
+                                 dotPriceQuery.data ?
+                                    `$${(Number(dotPriceQuery.data) / 1_000_000_000).toFixed(2)}` :
                                     'No price data'}
                             </div>
                             <div className="text-xs text-gray-500 dark:text-gray-500">
-                                Status: {dotPriceQuery.isLoading ? 'Querying...' : 
-                                        dotPriceQuery.error ? 'Error' : 
+                                Status: {dotPriceQuery.isLoading ? 'Querying...' :
+                                        dotPriceQuery.error ? 'Error' :
                                         dotPriceQuery.data ? 'Success' : 'No data'}
                             </div>
                         </div>
@@ -446,9 +671,9 @@ export function OracleDotUsdManager() {
                                 )}
                             </div>
                             <div className="text-xs text-gray-600 dark:text-gray-400">
-                                {dotPriceStaleQuery.isLoading ? 'Loading...' : 
-                                 dotPriceStaleQuery.data === false ? 
-                                    'Price data is fresh and up-to-date' : 
+                                {dotPriceStaleQuery.isLoading ? 'Loading...' :
+                                 dotPriceStaleQuery.data === false ?
+                                    'Price data is fresh and up-to-date' :
                                     'Price data may be outdated'}
                             </div>
                         </div>
@@ -472,9 +697,9 @@ export function OracleDotUsdManager() {
                                 )}
                             </div>
                             <div className="text-xs text-gray-600 dark:text-gray-400">
-                                {dotPriceLastUpdateQuery.isLoading ? 'Loading...' : 
-                                 dotPriceLastUpdateQuery.data ? 
-                                    new Date(Number(dotPriceLastUpdateQuery.data)).toLocaleString() : 
+                                {dotPriceLastUpdateQuery.isLoading ? 'Loading...' :
+                                 dotPriceLastUpdateQuery.data ?
+                                    formatOracleTimestamp(dotPriceLastUpdateQuery.data) :
                                     'No update timestamp'}
                             </div>
                         </div>
@@ -498,9 +723,9 @@ export function OracleDotUsdManager() {
                                 )}
                             </div>
                             <div className="text-xs text-gray-600 dark:text-gray-400">
-                                {dotPriceQuery.isLoading || dotPriceStaleQuery.isLoading ? 'Checking...' : 
-                                 dotPriceQuery.data && dotPriceStaleQuery.data === false ? 
-                                    'Oracle is functioning correctly' : 
+                                {dotPriceQuery.isLoading || dotPriceStaleQuery.isLoading ? 'Checking...' :
+                                 dotPriceQuery.data && dotPriceStaleQuery.data === false ?
+                                    'Oracle is functioning correctly' :
                                     'Oracle may need price update or configuration'}
                             </div>
                         </div>
@@ -521,9 +746,16 @@ export function OracleDotUsdManager() {
             </Card>
 
             {/* Error Display */}
-            {error && (
-                <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-                    <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
+            {(error || txDebug) && (
+                <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg space-y-3">
+                    {error && (
+                        <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
+                    )}
+                    {txDebug && (
+                        <pre className="max-h-72 overflow-auto whitespace-pre-wrap break-words rounded bg-white/80 p-3 text-xs text-red-950 dark:bg-black/30 dark:text-red-100">
+                            {txDebug}
+                        </pre>
+                    )}
                 </div>
             )}
         </div>
