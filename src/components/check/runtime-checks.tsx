@@ -199,13 +199,13 @@ export function RuntimeChecks({ enableSubscanLinks = true }: { enableSubscanLink
   });
 
   return (
-    <Table>
+    <Table className="table-fixed">
       <TableHeader>
         <TableRow>
-          <TableHead className="w-[150px]">Status</TableHead>
-          <TableHead>Check</TableHead>
-          <TableHead>Value</TableHead>
-          <TableHead>Detail</TableHead>
+          <TableHead className="w-[140px]">Status</TableHead>
+          <TableHead className="w-[260px]">Check</TableHead>
+          <TableHead className="w-[220px]">Value</TableHead>
+          <TableHead className="w-[280px]">Detail</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -218,7 +218,7 @@ export function RuntimeChecks({ enableSubscanLinks = true }: { enableSubscanLink
             <TableCell className="font-mono text-xs whitespace-normal break-all">
               <SubscanAccountLink href={row.href}>{row.value}</SubscanAccountLink>
             </TableCell>
-            <TableCell className="text-muted-foreground whitespace-normal">
+            <TableCell className="text-muted-foreground whitespace-normal leading-relaxed">
               {row.detail}
             </TableCell>
           </TableRow>
