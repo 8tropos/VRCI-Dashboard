@@ -14,6 +14,9 @@ import {
   Settings,
   FileCode,
   DollarSign,
+  ShieldCheck,
+  Code2,
+  Rocket,
 } from "lucide-react"
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
@@ -81,6 +84,22 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       icon: BarChart3,
     },
     {
+      title: "System Checks",
+      icon: ShieldCheck,
+      items: [
+        {
+          title: "Development",
+          url: "/check/development",
+          icon: Code2,
+        },
+        {
+          title: "Production",
+          url: "/check/production",
+          icon: Rocket,
+        },
+      ],
+    },
+    {
       title: "Admin",
       url: "/admin",
       icon: Settings,
@@ -110,4 +129,3 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     </Sidebar>
   )
 }
-

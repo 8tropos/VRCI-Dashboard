@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { useTypink } from 'typink';
 import { useWhitelistCheck } from '@/hooks/api/useWhitelist';
 import { ConnectWallet } from '@/components/connect-wallet.dedot';
@@ -13,6 +14,7 @@ interface WalletAuthGuardProps {
 }
 
 export function WalletAuthGuard({ children }: WalletAuthGuardProps) {
+  const pathname = usePathname();
   const { signer, connectedAccount } = useTypink();
   const [isChecking, setIsChecking] = useState(false);
   const address = connectedAccount?.address;
@@ -25,6 +27,10 @@ export function WalletAuthGuard({ children }: WalletAuthGuardProps) {
       refetch().finally(() => setIsChecking(false));
     }
   }, [address, refetch]);
+
+  if (pathname === '/check' || pathname.startsWith('/check/')) {
+    return <>{children}</>;
+  }
 
   // Not connected - show connect wallet UI
   if (!signer || !connectedAccount) {
@@ -106,4 +112,3 @@ export function WalletAuthGuard({ children }: WalletAuthGuardProps) {
   // Whitelisted - show children
   return <>{children}</>;
 }
-

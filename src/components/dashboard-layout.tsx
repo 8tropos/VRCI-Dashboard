@@ -40,6 +40,9 @@ function getBreadcrumbFromPath(pathname: string): BreadcrumbItem[] {
     portfolio: 'Portfolio',
     staking: 'Staking',
     dex: 'DEX',
+    check: 'System Checks',
+    development: 'Development',
+    production: 'Production',
     analytics: 'Analytics',
     admin: 'Admin',
   }
