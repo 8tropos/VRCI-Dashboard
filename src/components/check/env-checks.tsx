@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { AlertTriangle, CheckCircle2, CircleHelp, Network, ShieldCheck, XCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -110,8 +109,6 @@ function StatusBadge({ status }: { status: CheckStatus }) {
 }
 
 function getContractEnvRows(mode: CheckMode): CheckRow[] {
-  const shouldLinkAddresses = mode === 'development';
-
   return CONTRACT_ENV_KEYS.flatMap((contractName) => {
     const baseKey = `NEXT_PUBLIC_${contractName}_ADDRESS`;
     const devKey = `${baseKey}_DEV`;
@@ -129,7 +126,7 @@ function getContractEnvRows(mode: CheckMode): CheckRow[] {
               : 'fail'
             : 'fail',
           value: baseValue ? maskValue(baseValue, 8) : 'Missing',
-          href: shouldLinkAddresses && H160_ADDRESS_PATTERN.test(baseValue) ? getAssetHubPaseoAccountUrl(baseValue) : undefined,
+          href: H160_ADDRESS_PATTERN.test(baseValue) ? getAssetHubPaseoAccountUrl(baseValue) : undefined,
           detail: `Production reads ${baseKey}. ${devKey} is ignored.`,
         },
         {
@@ -137,7 +134,6 @@ function getContractEnvRows(mode: CheckMode): CheckRow[] {
           label: `${devKey}`,
           status: devValue ? 'info' : 'info',
           value: devValue ? maskValue(devValue, 8) : 'Missing',
-          href: shouldLinkAddresses && H160_ADDRESS_PATTERN.test(devValue) ? getAssetHubPaseoAccountUrl(devValue) : undefined,
           detail: 'Shown for visibility only. Production does not use this value.',
         },
       ];
@@ -156,7 +152,6 @@ function getContractEnvRows(mode: CheckMode): CheckRow[] {
             : 'fail'
           : 'fail',
         value: activeValue ? maskValue(activeValue, 8) : 'Missing',
-        href: shouldLinkAddresses && H160_ADDRESS_PATTERN.test(activeValue) ? getAssetHubPaseoAccountUrl(activeValue) : undefined,
         detail: `Development reads ${devKey} first, then falls back to ${baseKey}. Active source: ${activeSource}.`,
       },
       {
@@ -168,7 +163,6 @@ function getContractEnvRows(mode: CheckMode): CheckRow[] {
             : 'fail'
           : 'warn',
         value: devValue ? maskValue(devValue, 8) : 'Missing',
-        href: shouldLinkAddresses && H160_ADDRESS_PATTERN.test(devValue) ? getAssetHubPaseoAccountUrl(devValue) : undefined,
         detail: 'Preferred development value.',
       },
       {
@@ -182,7 +176,6 @@ function getContractEnvRows(mode: CheckMode): CheckRow[] {
             ? 'info'
             : 'warn',
         value: baseValue ? maskValue(baseValue, 8) : 'Missing',
-        href: shouldLinkAddresses && H160_ADDRESS_PATTERN.test(baseValue) ? getAssetHubPaseoAccountUrl(baseValue) : undefined,
         detail: 'Fallback for development and required value for production.',
       },
     ];
@@ -263,8 +256,6 @@ function getServerRows(): CheckRow[] {
 }
 
 function getOptionalPublicRows(mode: CheckMode): CheckRow[] {
-  const shouldLinkAddresses = mode === 'development';
-
   return PUBLIC_OPTIONAL_ENV_KEYS.flatMap((baseKey) => {
     const devKey = `${baseKey}_DEV`;
     const baseValue = getEnv(baseKey);
@@ -275,11 +266,13 @@ function getOptionalPublicRows(mode: CheckMode): CheckRow[] {
             {
               key: devKey,
               value: devValue,
+              linkAddress: false,
               detail: 'Preferred development value for optional public token utilities.',
             },
             {
               key: baseKey,
               value: baseValue,
+              linkAddress: false,
               detail: 'Fallback for development and production value for optional public token utilities.',
             },
           ]
@@ -287,21 +280,23 @@ function getOptionalPublicRows(mode: CheckMode): CheckRow[] {
             {
               key: baseKey,
               value: baseValue,
+              linkAddress: true,
               detail: 'Production value for optional public token utilities.',
             },
             {
               key: devKey,
               value: devValue,
+              linkAddress: false,
               detail: 'Shown for visibility only. Production ignores this value.',
             },
           ];
 
-    return keys.map(({ key, value, detail }) => ({
+    return keys.map(({ key, value, linkAddress, detail }) => ({
       id: key,
       label: key,
       status: value ? (H160_ADDRESS_PATTERN.test(value) ? 'pass' : 'fail') : 'info' as CheckStatus,
       value: value ? maskValue(value, 8) : 'Missing',
-      href: shouldLinkAddresses && H160_ADDRESS_PATTERN.test(value) ? getAssetHubPaseoAccountUrl(value) : undefined,
+      href: linkAddress && H160_ADDRESS_PATTERN.test(value) ? getAssetHubPaseoAccountUrl(value) : undefined,
       detail,
     }));
   });
@@ -391,7 +386,6 @@ export function EnvChecksPage({ mode }: { mode: CheckMode }) {
   const counts = statusCounts(processEnvRows);
   const currentMode = getCurrentMode();
   const title = mode === 'development' ? 'Development Checks' : 'Production Checks';
-  const otherMode = mode === 'development' ? 'production' : 'development';
 
   return (
     <div className="container mx-auto max-w-7xl space-y-6 p-6">
@@ -408,12 +402,6 @@ export function EnvChecksPage({ mode }: { mode: CheckMode }) {
           <Badge variant="outline" className="px-3 py-1 text-sm">
             NODE_ENV: {process.env.NODE_ENV || 'unset'}
           </Badge>
-          <Link
-            href={`/check/${otherMode}`}
-            className="inline-flex h-8 items-center rounded-md border px-3 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
-          >
-            {otherMode === 'development' ? 'Development' : 'Production'}
-          </Link>
         </div>
       </div>
 
@@ -451,7 +439,7 @@ export function EnvChecksPage({ mode }: { mode: CheckMode }) {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <RuntimeChecks enableSubscanLinks={mode === 'development'} />
+            <RuntimeChecks enableSubscanLinks={mode === 'production'} />
           </CardContent>
         </Card>
       ) : (
