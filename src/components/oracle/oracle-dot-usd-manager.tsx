@@ -4,6 +4,7 @@
 
 import { useState, useEffect } from 'react';
 import { useContract, useContractTx, useTypink } from 'typink';
+import type { ContractTxOptions } from 'dedot/contracts';
 import type { OracleContractApi } from '@/lib/contracts/oracle';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,6 +16,13 @@ import { useContractQuery } from 'typink';
 import { LabelWithHelp } from '@/components/ui/field-help';
 
 const SCALE_DECIMALS = 9;
+
+const ORACLE_DOT_USD_TX_OPTIONS: Partial<ContractTxOptions> = {
+    gasLimit: {
+        refTime: 100_000_000_000n,
+        proofSize: 1_000_000n,
+    },
+};
 
 const stringifyDebugValue = (value: unknown): string => {
     const seen = new WeakSet<object>();
@@ -281,6 +289,7 @@ export function OracleDotUsdManager() {
         setTxDebug(null);
 
         let toaster: ReturnType<typeof txToaster> | null = null;
+        let attemptDebug: string | null = null;
 
         try {
             const scaledPrice = convertToScaledBigInt(dotPrice);
@@ -294,10 +303,12 @@ export function OracleDotUsdManager() {
                 `inputPrice: ${dotPrice}`,
                 `scaleDecimals: ${SCALE_DECIMALS}`,
                 `scaledPrice: ${scaledPrice.toString()}`,
+                `txOptions:\n${stringifyDebugValue(ORACLE_DOT_USD_TX_OPTIONS)}`,
                 `preflight:\n${preflightDetails}`,
                 `dryRun:\n${stringifyDebugValue(dryRun)}`,
             ].join('\n\n');
 
+            attemptDebug = dryRunDebug;
             setTxDebug(dryRunDebug);
             console.info('DOT/USD update dry-run:', dryRun);
 
@@ -311,6 +322,7 @@ export function OracleDotUsdManager() {
 
             await updateDotUsdPriceTx.signAndSend({
                 args: [scaledPrice],
+                txOptions: ORACLE_DOT_USD_TX_OPTIONS,
                 callback: (progress) => {
                     const progressDebug = [
                         dryRunDebug,
@@ -319,6 +331,7 @@ export function OracleDotUsdManager() {
                         `events:\n${stringifyDebugValue(progress.events ?? [])}`,
                     ].join('\n\n');
 
+                    attemptDebug = progressDebug;
                     setTxDebug(progressDebug);
                     console.info('DOT/USD update progress:', progress);
                     activeToaster.onTxProgress(progress);
@@ -338,7 +351,10 @@ export function OracleDotUsdManager() {
             const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
             const errorDetails = formatErrorDetails(err);
             console.error('DOT/USD update failed:', err);
-            setTxDebug(errorDetails);
+            setTxDebug([
+                attemptDebug,
+                `submitError:\n${errorDetails}`,
+            ].filter(Boolean).join('\n\n'));
             setError(`Error: ${errorMessage}`);
             toaster?.onTxError(err instanceof Error ? err : new Error(errorMessage));
         }
@@ -366,6 +382,7 @@ export function OracleDotUsdManager() {
 
             await emergencyDotPriceOverrideTx.signAndSend({
                 args: [scaledPrice],
+                txOptions: ORACLE_DOT_USD_TX_OPTIONS,
                 callback: (progress) => {
                     toaster.onTxProgress(progress);
                     if (progress.status.type === 'BestChainBlockIncluded') {
