@@ -2,28 +2,71 @@
 
 'use client';
 
-import { useState } from 'react';
-import { useContract, useContractTx } from 'typink';
+import { useCallback, useEffect, useState } from 'react';
+import { useContract, useContractTx, useTypink } from 'typink';
+import type { ContractTxOptions } from 'dedot/contracts';
 import type { OracleContractApi } from '@/lib/contracts/oracle';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { UserPlus, UserMinus, Users, Shield, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
+import { UserPlus, UserMinus, Users, Shield, CheckCircle, XCircle, RefreshCw, AlertCircle } from 'lucide-react';
 import { txToaster } from '@/utils/txToaster';
 import { LabelWithHelp } from '@/components/ui/field-help';
 import { Badge } from '@/components/ui/badge';
-import { useContractQuery } from 'typink';
+
+type ConnectedAuthorizationStatus = 'idle' | 'loading' | 'allowed' | 'denied' | 'error';
+
+const ORACLE_AUTH_TX_OPTIONS: Partial<ContractTxOptions> = {
+    gasLimit: {
+        refTime: 100_000_000_000n,
+        proofSize: 1_000_000n,
+    },
+};
 
 export function OracleAuthorizationManager() {
     const { contract: oracleContract } = useContract<OracleContractApi>('oracle');
+    const { connectedAccount } = useTypink();
     const [updaterAddress, setUpdaterAddress] = useState<string>('');
     const [removeAddress, setRemoveAddress] = useState<string>('');
     const [checkAddress, setCheckAddress] = useState<string>('');
     const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+    const [connectedAuthorizationStatus, setConnectedAuthorizationStatus] = useState<ConnectedAuthorizationStatus>('idle');
+    const [connectedAuthorizationError, setConnectedAuthorizationError] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
 
     const addUpdaterTx = useContractTx(oracleContract, 'addUpdater');
     const removeUpdaterTx = useContractTx(oracleContract, 'removeUpdater');
+    const connectedAddress = connectedAccount?.address ?? '';
+
+    const refreshConnectedAuthorization = useCallback(async () => {
+        if (!connectedAddress) {
+            setConnectedAuthorizationStatus('idle');
+            setConnectedAuthorizationError(null);
+            return;
+        }
+
+        if (!oracleContract) {
+            setConnectedAuthorizationStatus('idle');
+            setConnectedAuthorizationError('Oracle contract is not available');
+            return;
+        }
+
+        setConnectedAuthorizationStatus('loading');
+        setConnectedAuthorizationError(null);
+
+        try {
+            const result = await oracleContract.query.isAuthorizedUpdater(connectedAddress);
+            setConnectedAuthorizationStatus(result.data === true ? 'allowed' : 'denied');
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+            setConnectedAuthorizationStatus('error');
+            setConnectedAuthorizationError(errorMessage);
+        }
+    }, [connectedAddress, oracleContract]);
+
+    useEffect(() => {
+        void refreshConnectedAuthorization();
+    }, [refreshConnectedAuthorization]);
 
     const handleAddUpdater = async () => {
         if (!oracleContract || !updaterAddress.trim()) {
@@ -39,10 +82,12 @@ export function OracleAuthorizationManager() {
         try {
             await addUpdaterTx.signAndSend({
                 args: [updaterAddress.trim()],
+                txOptions: ORACLE_AUTH_TX_OPTIONS,
                 callback: (progress) => {
                     toaster.onTxProgress(progress);
                     if (progress.status.type === 'BestChainBlockIncluded') {
                         setUpdaterAddress('');
+                        void refreshConnectedAuthorization();
                     }
                 }
             });
@@ -67,10 +112,12 @@ export function OracleAuthorizationManager() {
         try {
             await removeUpdaterTx.signAndSend({
                 args: [removeAddress.trim()],
+                txOptions: ORACLE_AUTH_TX_OPTIONS,
                 callback: (progress) => {
                     toaster.onTxProgress(progress);
                     if (progress.status.type === 'BestChainBlockIncluded') {
                         setRemoveAddress('');
+                        void refreshConnectedAuthorization();
                     }
                 }
             });
@@ -99,6 +146,8 @@ export function OracleAuthorizationManager() {
     };
 
     const isLoading = addUpdaterTx.inBestBlockProgress || removeUpdaterTx.inBestBlockProgress;
+    const connectedAuthorizationIsLoading = connectedAuthorizationStatus === 'loading';
+    const connectedAuthorizationCanUpdate = connectedAuthorizationStatus === 'allowed';
 
     return (
         <div className="space-y-6">
@@ -113,6 +162,78 @@ export function OracleAuthorizationManager() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
+                    {/* Connected Wallet Status */}
+                    <div className={`p-4 rounded-lg border ${connectedAuthorizationCanUpdate
+                        ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800'
+                        : 'bg-slate-50 border-slate-200 dark:bg-slate-900/40 dark:border-slate-700'
+                        }`}>
+                        <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                            <div className="space-y-1">
+                                <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100 flex items-center space-x-2">
+                                    <Shield className="h-4 w-4" />
+                                    <span>Connected Wallet Update Permission</span>
+                                </h3>
+                                <p className="text-xs text-slate-600 dark:text-slate-400">
+                                    Owner accounts are also allowed by the contract.
+                                </p>
+                            </div>
+                            <Button
+                                type="button"
+                                onClick={refreshConnectedAuthorization}
+                                disabled={!connectedAddress || !oracleContract || connectedAuthorizationIsLoading}
+                                variant="outline"
+                                size="sm"
+                                className="shrink-0"
+                            >
+                                <RefreshCw className={`h-4 w-4 mr-2 ${connectedAuthorizationIsLoading ? 'animate-spin' : ''}`} />
+                                Refresh
+                            </Button>
+                        </div>
+
+                        {connectedAddress ? (
+                            <div className="space-y-3">
+                                <div className="break-all rounded bg-white/70 p-2 font-mono text-xs text-slate-800 dark:bg-slate-950/40 dark:text-slate-200">
+                                    {connectedAddress}
+                                </div>
+                                <div className="flex flex-wrap items-center gap-2">
+                                    {connectedAuthorizationStatus === 'loading' && (
+                                        <Badge variant="secondary" className="gap-1">
+                                            <RefreshCw className="h-3 w-3 animate-spin" />
+                                            Checking permission
+                                        </Badge>
+                                    )}
+                                    {connectedAuthorizationStatus === 'allowed' && (
+                                        <Badge className="gap-1 bg-green-100 text-green-800 hover:bg-green-100 dark:bg-green-900/40 dark:text-green-200">
+                                            <CheckCircle className="h-3 w-3" />
+                                            Can update prices
+                                        </Badge>
+                                    )}
+                                    {connectedAuthorizationStatus === 'denied' && (
+                                        <Badge variant="secondary" className="gap-1">
+                                            <XCircle className="h-3 w-3" />
+                                            Cannot update prices
+                                        </Badge>
+                                    )}
+                                    {connectedAuthorizationStatus === 'error' && (
+                                        <Badge variant="destructive" className="gap-1">
+                                            <AlertCircle className="h-3 w-3" />
+                                            Permission check failed
+                                        </Badge>
+                                    )}
+                                </div>
+                                {connectedAuthorizationError && (
+                                    <p className="text-sm text-red-700 dark:text-red-300">
+                                        {connectedAuthorizationError}
+                                    </p>
+                                )}
+                            </div>
+                        ) : (
+                            <p className="text-sm text-slate-600 dark:text-slate-400">
+                                Connect a wallet to check update permission.
+                            </p>
+                        )}
+                    </div>
+
                     {/* Add Updater */}
                     <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
                         <h3 className="text-sm font-semibold text-green-800 dark:text-green-200 flex items-center space-x-2 mb-3">
