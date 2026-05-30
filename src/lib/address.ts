@@ -1,5 +1,11 @@
-import { decodeAddress, encodeAddress } from '@polkadot/util-crypto';
+import { decodeAddress, encodeAddress, keccakAsU8a } from '@polkadot/util-crypto';
 import type { H160 } from 'dedot/codecs';
+
+const H160_HEX_PATTERN = /^0x[0-9a-fA-F]{40}$/;
+
+function bytesToHex(bytes: Uint8Array): H160 {
+  return `0x${Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('')}` as H160;
+}
 
 export function convertSS58ToH160(address: string): string {
   try {
@@ -19,20 +25,29 @@ export function convertSS58ToH160(address: string): string {
   }
 }
 
-export function h160ToFallbackSs58(h160: H160 | string, ss58Format = 42): string {
-  const clean = h160.replace(/^0x/, '');
+export function ss58ToReviveH160(ss58: string): H160 {
+  const accountId = decodeAddress(ss58);
 
-  if (!/^[0-9a-fA-F]{40}$/.test(clean)) {
-    throw new Error('Expected 20-byte H160 hex address');
+  if (accountId.length !== 32) {
+    throw new Error(`Expected AccountId32, got ${accountId.length} bytes`);
   }
 
-  const accountId = new Uint8Array(32);
-
-  for (let index = 0; index < 20; index += 1) {
-    accountId[index] = Number.parseInt(clean.slice(index * 2, index * 2 + 2), 16);
+  const suffix = accountId.slice(20);
+  if (suffix.every((byte) => byte === 0xee)) {
+    return bytesToHex(accountId.slice(0, 20));
   }
 
-  accountId.fill(0xee, 20);
+  return bytesToHex(keccakAsU8a(accountId, 256).slice(12));
+}
 
-  return encodeAddress(accountId, ss58Format);
+export function encodeSs58AsFormat(ss58: string, ss58Format: number): string {
+  return encodeAddress(decodeAddress(ss58), ss58Format);
+}
+
+export function isSameH160(left: H160 | string, right: H160 | string): boolean {
+  if (!H160_HEX_PATTERN.test(left) || !H160_HEX_PATTERN.test(right)) {
+    return false;
+  }
+
+  return left.toLowerCase() === right.toLowerCase();
 }

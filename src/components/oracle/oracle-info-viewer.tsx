@@ -8,8 +8,57 @@ import type { OracleContractApi } from '@/lib/contracts/oracle';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { h160ToFallbackSs58 } from '@/lib/address';
+import { encodeSs58AsFormat, isSameH160, ss58ToReviveH160 } from '@/lib/address';
 import { Info, Clock, AlertCircle, RefreshCw, User } from 'lucide-react';
+
+const SUBSTRATE_DEV_SS58_FORMAT = 42;
+const POLKADOT_SS58_FORMAT = 0;
+const ORACLE_NATIVE_OWNER_SS58 = '5FAAUGRrj9AFCYKFKZjS3fUMh4ntZFVrRvDTX2NjcQRr15da';
+const ORACLE_NATIVE_OWNER_H160 = ss58ToReviveH160(ORACLE_NATIVE_OWNER_SS58);
+const ORACLE_NATIVE_OWNER_SS58_VARIANTS = [
+    {
+        label: `Substrate dev SS58 (${SUBSTRATE_DEV_SS58_FORMAT})`,
+        value: encodeSs58AsFormat(ORACLE_NATIVE_OWNER_SS58, SUBSTRATE_DEV_SS58_FORMAT),
+        tone: 'slate' as const,
+    },
+    {
+        label: `Polkadot SS58 (${POLKADOT_SS58_FORMAT})`,
+        value: encodeSs58AsFormat(ORACLE_NATIVE_OWNER_SS58, POLKADOT_SS58_FORMAT),
+        tone: 'slate' as const,
+    },
+];
+
+type AddressDisplayRowProps = {
+    label: string;
+    value: string;
+    tone: 'purple' | 'slate';
+};
+
+function AddressDisplayRow({ label, value, tone }: AddressDisplayRowProps) {
+    const toneClassName = tone === 'purple'
+        ? 'border-purple-200 bg-white/70 dark:border-purple-800 dark:bg-purple-950/30'
+        : 'border-slate-200 bg-white/70 dark:border-slate-700 dark:bg-slate-900/40';
+
+    const badgeClassName = tone === 'purple'
+        ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-200'
+        : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200';
+
+    return (
+        <div className={`rounded-md border p-3 ${toneClassName}`}>
+            <div className="mb-2 flex items-center justify-between gap-3">
+                <span className={`rounded px-2 py-1 text-xs font-semibold ${badgeClassName}`}>
+                    {label}
+                </span>
+                <span className="text-xs font-mono text-gray-500 dark:text-gray-400">
+                    {value.slice(0, 8)}...{value.slice(-8)}
+                </span>
+            </div>
+            <div className="break-all rounded bg-gray-50 p-2 font-mono text-xs text-gray-800 dark:bg-gray-950/50 dark:text-gray-200">
+                {value}
+            </div>
+        </div>
+    );
+}
 
 export function OracleInfoViewer() {
     const [tokenAddress, setTokenAddress] = useState<string>('');
@@ -86,7 +135,9 @@ export function OracleInfoViewer() {
     // Extract data from Typink query results
     const configData = validationConfigQuery.data;
     const ownerData = ownerQuery.data;
-    const ownerSs58 = ownerData ? h160ToFallbackSs58(ownerData) : null;
+    const ownerNativeSs58Variants = ownerData && isSameH160(ownerData, ORACLE_NATIVE_OWNER_H160)
+        ? ORACLE_NATIVE_OWNER_SS58_VARIANTS
+        : [];
     const lastUpdateData = lastUpdateQuery.data;
     const staleData = staleQuery.data;
 
@@ -117,32 +168,38 @@ export function OracleInfoViewer() {
 
                     {/* Contract Owner */}
                     <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
-                        <h3 className="text-sm font-semibold text-purple-800 dark:text-purple-200 flex items-center space-x-2 mb-3">
-                            <User className="h-4 w-4" />
-                            <span>Contract Owner</span>
-                        </h3>
-                        <div className="space-y-2">
-                            <div className="flex justify-between items-center">
-                                <span className="text-sm text-gray-600 dark:text-gray-400">Owner H160:</span>
-                                <span className="text-sm font-mono text-gray-900 dark:text-gray-100">
-                                    {ownerData ? formatAddress(ownerData) : 'Loading...'}
-                                </span>
-                            </div>
-                            {ownerSs58 && (
-                                <div className="flex justify-between items-center gap-4">
-                                    <span className="text-sm text-gray-600 dark:text-gray-400">Owner SS58:</span>
-                                    <span className="text-sm font-mono text-gray-900 dark:text-gray-100 break-all text-right">
-                                        {ownerSs58}
-                                    </span>
-                                </div>
-                            )}
+                        <div className="mb-4 flex items-center justify-between gap-3">
+                            <h3 className="text-sm font-semibold text-purple-800 dark:text-purple-200 flex items-center space-x-2">
+                                <User className="h-4 w-4" />
+                                <span>Contract Owner</span>
+                            </h3>
                             {ownerData && (
-                                <div className="space-y-2 text-xs text-gray-500 font-mono bg-gray-100 dark:bg-gray-800 p-2 rounded">
-                                    <div>Full H160: {ownerData}</div>
-                                    {ownerSs58 && <div className="break-all">Full SS58: {ownerSs58}</div>}
-                                </div>
+                                <span className="rounded bg-purple-100 px-2 py-1 font-mono text-xs text-purple-700 dark:bg-purple-900/40 dark:text-purple-200">
+                                    {formatAddress(ownerData)}
+                                </span>
                             )}
                         </div>
+                        {ownerData ? (
+                            <div className="grid grid-cols-1 gap-3 xl:grid-cols-3">
+                                <AddressDisplayRow
+                                    label="H160"
+                                    value={ownerData}
+                                    tone="purple"
+                                />
+                                {ownerNativeSs58Variants.map((address) => (
+                                    <AddressDisplayRow
+                                        key={address.label}
+                                        label={address.label}
+                                        value={address.value}
+                                        tone={address.tone}
+                                    />
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="rounded-md border border-purple-200 bg-white/70 p-3 text-sm text-gray-600 dark:border-purple-800 dark:bg-purple-950/30 dark:text-gray-300">
+                                Loading owner address...
+                            </div>
+                        )}
                     </div>
 
                     {/* Validation Configuration */}
