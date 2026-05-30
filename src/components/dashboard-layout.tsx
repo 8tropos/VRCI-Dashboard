@@ -1,8 +1,10 @@
 "use client"
 
 import { usePathname } from "next/navigation"
+import { PanelRightOpen } from "lucide-react"
 import { AppSidebar } from "@/components/app-sidebar"
 import { AccountMappingAlert } from "@/components/account-mapping-alert"
+import { RightDrawerProvider, useRightDrawer } from "@/components/right-drawer"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -17,6 +19,12 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
+import { Button } from "@/components/ui/button"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 type BreadcrumbItem = {
   label: string
@@ -62,8 +70,17 @@ function getBreadcrumbFromPath(pathname: string): BreadcrumbItem[] {
 }
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <RightDrawerProvider>
+      <DashboardLayoutContent>{children}</DashboardLayoutContent>
+    </RightDrawerProvider>
+  )
+}
+
+function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const breadcrumbs = getBreadcrumbFromPath(pathname)
+  const { openDrawer } = useRightDrawer()
 
   return (
     <SidebarProvider>
@@ -94,6 +111,24 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 ))}
               </BreadcrumbList>
             </Breadcrumb>
+          </div>
+          <div className="ml-auto flex items-center gap-2 px-4">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Open drawer"
+                    onClick={openDrawer}
+                  >
+                    <PanelRightOpen className="size-4" />
+                  </Button>
+                </span>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">Open drawer</TooltipContent>
+            </Tooltip>
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">

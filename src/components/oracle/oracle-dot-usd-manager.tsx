@@ -14,8 +14,10 @@ import { txToaster } from '@/utils/txToaster';
 import { Badge } from '@/components/ui/badge';
 import { useContractQuery } from 'typink';
 import { LabelWithHelp } from '@/components/ui/field-help';
+import { useRightDrawer } from '@/components/right-drawer';
 
 const SCALE_DECIMALS = 9;
+const DOT_USD_DRAWER_PANEL_ID = 'oracle-dot-usd-diagnostics';
 
 const ORACLE_DOT_USD_TX_OPTIONS: Partial<ContractTxOptions> = {
     gasLimit: {
@@ -114,6 +116,7 @@ const getUnixSeconds = (timestamp: bigint | number): number => {
 export function OracleDotUsdManager() {
     const { contract: oracleContract } = useContract<OracleContractApi>('oracle');
     const { connectedAccount } = useTypink();
+    const { clearDrawerPanel, setDrawerPanel } = useRightDrawer();
     const [dotPrice, setDotPrice] = useState<string>('');
     const [emergencyPrice, setEmergencyPrice] = useState<string>('');
     const [currentPrice, setCurrentPrice] = useState<string | null>(null);
@@ -403,6 +406,33 @@ export function OracleDotUsdManager() {
     useEffect(() => {
         loadDotPriceData();
     }, [oracleContract]);
+
+    useEffect(() => {
+        if (!error && !txDebug) {
+            clearDrawerPanel(DOT_USD_DRAWER_PANEL_ID);
+            return;
+        }
+
+        setDrawerPanel({
+            id: DOT_USD_DRAWER_PANEL_ID,
+            title: 'Contract dry-run error',
+            description: 'Latest DOT/USD transaction diagnostics',
+            content: (
+                <div className="space-y-4">
+                    {error && (
+                        <div className="rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-800 dark:bg-red-900/20">
+                            <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
+                        </div>
+                    )}
+                    {txDebug && (
+                        <pre className="max-h-[calc(100vh-14rem)] overflow-auto whitespace-pre-wrap break-words rounded-lg border bg-muted/50 p-3 text-xs text-foreground">
+                            {txDebug}
+                        </pre>
+                    )}
+                </div>
+            ),
+        });
+    }, [clearDrawerPanel, error, setDrawerPanel, txDebug]);
 
     return (
         <div className="space-y-6">
@@ -762,19 +792,6 @@ export function OracleDotUsdManager() {
                 </CardContent>
             </Card>
 
-            {/* Error Display */}
-            {(error || txDebug) && (
-                <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg space-y-3">
-                    {error && (
-                        <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
-                    )}
-                    {txDebug && (
-                        <pre className="max-h-72 overflow-auto whitespace-pre-wrap break-words rounded bg-white/80 p-3 text-xs text-red-950 dark:bg-black/30 dark:text-red-100">
-                            {txDebug}
-                        </pre>
-                    )}
-                </div>
-            )}
         </div>
     );
 }
