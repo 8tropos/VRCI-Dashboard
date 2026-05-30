@@ -8,6 +8,7 @@ import type { OracleContractApi } from '@/lib/contracts/oracle';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { h160ToFallbackSs58 } from '@/lib/address';
 import { Info, Clock, AlertCircle, RefreshCw, User } from 'lucide-react';
 
 export function OracleInfoViewer() {
@@ -85,6 +86,7 @@ export function OracleInfoViewer() {
     // Extract data from Typink query results
     const configData = validationConfigQuery.data;
     const ownerData = ownerQuery.data;
+    const ownerSs58 = ownerData ? h160ToFallbackSs58(ownerData) : null;
     const lastUpdateData = lastUpdateQuery.data;
     const staleData = staleQuery.data;
 
@@ -121,14 +123,23 @@ export function OracleInfoViewer() {
                         </h3>
                         <div className="space-y-2">
                             <div className="flex justify-between items-center">
-                                <span className="text-sm text-gray-600 dark:text-gray-400">Owner Address:</span>
+                                <span className="text-sm text-gray-600 dark:text-gray-400">Owner H160:</span>
                                 <span className="text-sm font-mono text-gray-900 dark:text-gray-100">
                                     {ownerData ? formatAddress(ownerData) : 'Loading...'}
                                 </span>
                             </div>
+                            {ownerSs58 && (
+                                <div className="flex justify-between items-center gap-4">
+                                    <span className="text-sm text-gray-600 dark:text-gray-400">Owner SS58:</span>
+                                    <span className="text-sm font-mono text-gray-900 dark:text-gray-100 break-all text-right">
+                                        {ownerSs58}
+                                    </span>
+                                </div>
+                            )}
                             {ownerData && (
-                                <div className="text-xs text-gray-500 font-mono bg-gray-100 dark:bg-gray-800 p-2 rounded">
-                                    Full: {ownerData}
+                                <div className="space-y-2 text-xs text-gray-500 font-mono bg-gray-100 dark:bg-gray-800 p-2 rounded">
+                                    <div>Full H160: {ownerData}</div>
+                                    {ownerSs58 && <div className="break-all">Full SS58: {ownerSs58}</div>}
                                 </div>
                             )}
                         </div>
