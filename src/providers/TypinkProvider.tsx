@@ -28,6 +28,7 @@ const RPC_PROVIDERS = isDevelopment
   : getRpcProviderUrls(process.env.NEXT_PUBLIC_RPC_URL);
 
 // Passet Hub Testnet Configuration (supports ink! v6 contracts)
+// TODO: rename PASSET_HUB_NETWORK to PASSEO ! (find correct name)
 const PASSET_HUB_NETWORK = {
   id: "passet_hub_testnet",
   name: "Passet Hub Testnet",
@@ -117,6 +118,7 @@ export function TypinkProvider({ children }: TypinkProviderProps) {
       deployments={deployments}
       defaultNetworkId="passet_hub_testnet"
       supportedNetworks={supportedNetworks}
+      // TODO: Fix this part, whey we need default caller ?
       defaultCaller="5FAAUGRrj9AFCYKFKZjS3fUMh4ntZFVrRvDTX2NjcQRr15da" // My account for testing
     >
       {children}
