@@ -310,12 +310,14 @@ next dev --hostname 0.0.0.0 --turbopack
 - If contract queries fail unexpectedly, verify caller mapping and address type before rewriting contract code.
 - `Revive::AccountUnmapped` means the signer/caller is not mapped in pallet-revive. The practical fix is usually mapping the actual account with `revive.mapAccount()` from that account, for example through Polkadot.js Apps Developer -> Extrinsics.
 - Generic tx route prepares an unsigned extrinsic; browser/client wallet signing is still required.
+- For the browser-side Typink/Dedot transaction signing and gas/fee estimation flow, including `useContractTx`, dry-run checks, wallet signing, broadcasting, progress callbacks, `gasRequired`, `storageDeposit`, and `paymentInfo`, see `docs/contract-transaction-signing-and-gas.md`.
 
 ## Documentation Guide
 
 Use docs as orientation, not final truth:
 
 - `README.md`: broad setup and feature overview.
+- `docs/contract-transaction-signing-and-gas.md`: browser-side Typink/Dedot contract transaction flow and gas/fee estimation notes using the Oracle `addUpdater` action as the worked example.
 - `docs/setup_guide.md`: useful devcontainer and setup notes, but parts still show old scaffold examples.
 - `docs/project_overview.md`, `docs/architecture_decisions.md`, `docs/challenges_solutions.md`: historical architecture context.
 - `API_LAYER_SUMMARY.md`: API layer overview and endpoint list.
